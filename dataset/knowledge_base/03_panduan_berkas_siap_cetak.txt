@@ -1,0 +1,149 @@
+# PANDUAN TEKNIS BERKAS SIAP CETAK (PREPRESS GUIDELINES)
+# CV. ASIA VISUAL GRAFIKA
+
+## 1. PENGERTIAN BERKAS SIAP CETAK (PRINT-READY FILE)
+Berkas siap cetak adalah berkas desain digital yang telah memenuhi seluruh parameter teknis percetakan, sehingga dapat langsung dialirkan ke mesin cetak tanpa memerlukan proses penyuntingan (editing) ulang, perbaikan resolusi, atau penyesuaian tata letak oleh tim percetakan.
+
+Pengiriman berkas yang belum siap cetak berisiko memicu keterlambatan antrean produksi, kesalahan posisi teks yang terpotong mesin, atau hasil cetak yang buram/pecah.
+
+---
+
+## 2. STANDAR RESOLUSI GAMBAR (DPI / PPI)
+Resolusi menentukan kerapatan titik tinta per inci. Berkas yang terlihat jernih di layar ponsel atau laptop belum tentu tajam saat dicetak dalam dimensi fisik nyata.
+
+Standar Resolusi Minimal CV. Asia Visual Grafika:
+1. Spanduk / Banner Outdoor Ukuran Besar (> 2 meter):
+   - Resolusi minimal: 100 s.d. 150 DPI (Dots Per Inch) pada skala ukuran asli (1:1).
+   - Mengapa 100–150 DPI cukup? Karena spanduk outdoor dipandang dari jarak jauh (lebih dari 2–3 meter), sehingga kerapatan titik tersebut sudah terlihat tajam dan tidak membuat ukuran berkas terlalu berat.
+2. Cetak Dalam Ruangan (Indoor Albatros / Poster Dinding):
+   - Resolusi minimal: 200 s.d. 300 DPI pada skala ukuran asli (1:1).
+3. Cetak Digital Laser A3+ (Brosur, Kartu Nama, Sertifikat, Buku):
+   - Resolusi mutlak: 300 DPI pada skala ukuran asli (1:1).
+4. Stiker Label Kemasan Kecil:
+   - Resolusi mutlak: 300 s.d. 600 DPI agar teks berukuran kecil (seperti komposisi produk atau label barcode) terbaca dengan sangat tajam dan tidak bergerigi.
+
+---
+
+## 3. SISTEM RUANG WARNA: WAJIB MENGGUNAKAN CMYK
+1. Perbedaan Mendasar RGB vs CMYK:
+   - RGB (Red, Green, Blue): Merupakan sistem warna cahaya berbasis layar digital (monitor komputer, layar ponsel, televisi). Warna RGB memiliki spektrum warna yang sangat terang dan berpendar.
+   - CMYK (Cyan, Magenta, Yellow, Key/Black): Merupakan sistem warna pigmen tinta fisik pada mesin percetakan.
+2. Konsekuensi Mengirim Berkas dalam Mode RGB:
+   - Mesin cetak industri tidak mengenal tinta warna RGB dan secara otomatis akan mengonversi warna berkas menjadi CMYK pada saat proses ripping cetak.
+   - Akibatnya, warna-warna cerah neon atau warna pendar pada layar monitor akan mengalami penurunan saturasi (*color shift*), tampak lebih kusam, gelap, atau berubah nuansa (misalnya: warna hijau stabilo berubah menjadi hijau daun gelap, biru elektrik berubah menjadi ungu kusam).
+3. Aturan Toko:
+   - Pelanggan wajib mengatur profil warna dokumen sejak awal ke mode CMYK (Color Mode: CMYK 8-bit).
+   - Toko tidak melayani komplain perbedaan warna cetak apabila berkas asli yang dikirimkan oleh pelanggan masih berformat RGB.
+
+---
+
+## 4. BATAS AMAN TEKS (SAFETY MARGIN) DAN LEBIHAN POTONG (BLEED)
+A. Safety Margin (Jarak Aman Elemen Penting):
+- Seluruh elemen krusial seperti logo instansi, teks tulisan, nomor telepon, dan wajah orang wajib diletakkan di dalam batas area aman, tidak terlalu menempel ke tepi kanvas desain.
+- Untuk Cetak Spanduk Banner: Sisakan jarak aman minimal 4 hingga 5 cm dari tepi luar desain. Hal ini untuk mencegah tulisan tertusuk atau tertutup oleh ring besi lubang mata ayam saat finishing.
+- Untuk Cetak Lembaran A3+ dan Kartu Nama: Sisakan jarak aman minimal 3 hingga 5 mm dari garis potong agar tidak terpotong oleh pisau pemotong kertas otomatis.
+
+B. Bleed (Lebihan Bidang Gambar Luar):
+- Untuk produk lembaran kertas dan stiker potong (DocuPrint A3+, kartu nama, pamflet), tambahkan bidang lebihan gambar (bleed) minimal 2 s.d. 3 mm di sekeliling desain luar.
+- Manfaat Bleed: Menghindari munculnya garis putih kertas yang tidak diinginkan di tepi produk apabila terjadi sedikit pergeseran toleransi mekanis pada mesin pemotong kertas.
+
+---
+
+## 5. FORMAT BERKAS YANG DITERIMA
+Format berkas yang disarankan untuk menjaga keutuhan elemen desain:
+
+1. PDF (Portable Document Format) - SANGAT DIREKOMENDASIKAN:
+   - Standar emas percetakan modern (PDF/X-1a atau PDF High Quality Print).
+   - Format PDF secara sempurna mengunci jenis huruf (font), penempatan gambar, dan tata letak agar tidak berubah saat dibuka di berbagai perangkat komputer mesin.
+2. TIFF (Tagged Image File Format):
+   - Format bitmap uncompressed kualitas tinggi yang tidak mengalami degradasi kualitas gambar (lossless).
+3. CDR (CorelDRAW) dan AI (Adobe Illustrator):
+   - Berkas vektor mentah diterima, dengan syarat mutlak seluruh teks harus sudah diubah menjadi kurva (*convert to curves / outlines*).
+4. PSD (Adobe Photoshop):
+   - Pastikan teks sudah di-*rasterize* atau diekspor menjadi format TIFF/PDF.
+5. JPG / JPEG Kualitas Maksimal:
+   - Diterima jika disimpan dengan kualitas kompresi tertinggi (Quality: 10–12 / Maximum), resolusi minimal 300 DPI, dan mode CMYK.
+
+Format yang TIDAK Disarankan:
+- Tangkapan layar (*screenshot* layar ponsel), berkas Microsoft Word (.docx), atau PowerPoint (.pptx) untuk cetak spanduk karena resolusinya rendah dan tata letaknya sering bergeser saat dibuka.
+
+---
+
+## 6. PENCEGAHAN MASALAH HURUF HILANG (CONVERT TO CURVES / OUTLINES)
+Permasalahan umum yang sering terjadi adalah *Missing Font*, yaitu komputer toko tidak memiliki koleksi jenis font unik yang digunakan pemesan, sehingga sistem komputer otomatis mengganti font tersebut dengan font standar (Arial/Times New Roman) dan merusak tata letak desain.
+
+Cara Mencegah Missing Font:
+1. Pengguna CorelDRAW:
+   - Pilih semua objek teks (Ctrl+A), klik menu Edit/Object, lalu pilih "Convert to Curves" (Pintasan: Ctrl+Q). Teks akan berubah menjadi objek vektor garis dan tidak akan pernah berubah jenis hurufnya.
+2. Pengguna Adobe Illustrator:
+   - Pilih seluruh teks, klik kanan, lalu pilih "Create Outlines" (Pintasan: Shift+Ctrl+O).
+3. Menyimpan ke Format PDF Print:
+   - Ekspor desain ke format PDF dengan opsi "Embed All Fonts" tercentang.
+
+---
+
+## 7. PANDUAN EKSPOR BERKAS DARI APLIKASI CANVA AGAR TIDAK PECAH
+Bagi pelanggan yang mendesain menggunakan aplikasi Canva, ikuti langkah berikut agar hasil cetak tajam:
+1. Saat mengunduh berkas di Canva, klik tombol "Bagikan / Share", lalu pilih "Unduh / Download".
+2. Pada menu Jenis File (File Type), JANGAN memilih PNG atau JPG. Pilihlah opsi **"Cetak PDF (PDF Print)"**.
+3. Centang opsi **"Ratakan PDF (Flatten PDF)"** untuk menyatukan seluruh lapisan elemen dan stiker agar tidak terpotong.
+4. Pada pilihan Profil Warna (Color Profile), pilih **CMYK** (tersedia pada Canva Pro). Jika menggunakan Canva gratis yang hanya mendukung RGB, perhatikan bahwa warna hasil cetakan fisik akan sedikit lebih gelap dari layar ponsel.
+5. Menentukan Dimensi Pixel untuk Spanduk di Canva:
+   - Jika membuat kanvas custom ukuran meteran, gunakan perbandingan pixel yang memadai.
+   - Contoh rumus spanduk ukuran 3 x 1 meter (300 x 100 cm): Buat ukuran kanvas minimal 3543 x 1181 pixel, atau idealnya 7087 x 2362 pixel agar ketajaman gambar tetap terjaga saat ditarik ke ukuran nyata.
+
+---
+
+## 8. KETENTUAN PENGIRIMAN BERKAS KE TOKO
+1. Pengiriman Berkas Melalui Email:
+   - Kirim ke alamat email cabang:
+     * Cabang Ciputat: asiavisualgrafika@gmail.com
+     * Cabang Pamulang: asiavisualgrafika2@gmail.com
+   - Batas lampiran email langsung adalah 25 MB.
+   - Jika berkas berukuran di atas 25 MB, unggah berkas ke Google Drive, lalu lampirkan tautan (link) di badan email. Pastikan hak akses tautan Google Drive telah diatur ke **"Siapa saja yang memiliki tautan dapat melihat (Anyone with the link can view)"** agar admin dapat mengunduh berkas tanpa kendala perizinan.
+   - Sertakan subjek email yang jelas: [Nama Pemesan] - [Jenis Pesanan & Ukuran] - [Nomor WhatsApp].
+2. Pengiriman Berkas Melalui WhatsApp:
+   - JANGAN mengirimkan berkas desain menggunakan fitur "Kirim Galeri / Foto", karena server WhatsApp otomatis mengompresi dan menurunkan resolusi foto hingga 70% sehingga hasil cetak akan pecah.
+   - Gunakan fitur **"Kirim Dokumen (Send Document)"** pada menu lampiran WhatsApp agar file dikirim dalam ukuran berkas aslinya tanpa penurunan kualitas.
+
+---
+
+## 9. TABEL ACUAN RESMI JUMLAH STIKER DAPAT BERAPA PCS PER LEMBAR A3+ (KISS CUTTING)
+
+Apabila pemesan menanyakan estimasi jumlah stiker yang didapat dalam 1 lembar A3+, berikut adalah acuan resmi toko CV. Asia Visual Grafika:
+
+Ukuran Persegi / Sama Sisi:
+• 2 cm x 2 cm: 234 pcs per lembar A3+
+• 2,5 cm x 2,5 cm: 150 pcs per lembar A3+
+• 3 cm x 3 cm: 108 pcs per lembar A3+
+• 3,5 cm x 3,5 cm: 77 pcs per lembar A3+
+• 4 cm x 4 cm: 54 pcs per lembar A3+
+• 4,5 cm x 4,5 cm: 48 pcs per lembar A3+
+• 5 cm x 5 cm: 35 pcs per lembar A3+
+• 5,5 cm x 5,5 cm: 35 pcs per lembar A3+
+• 6 cm x 6 cm: 24 pcs per lembar A3+
+• 6,5 cm x 6,5 cm: 24 pcs per lembar A3+
+• 7 cm x 7 cm: 20 pcs per lembar A3+
+• 7,5 cm x 7,5 cm: 15 pcs per lembar A3+
+• 8 cm x 8 cm: 15 pcs per lembar A3+
+• 8,5 cm x 8,5 cm: 12 pcs per lembar A3+
+• 9 cm x 9 cm: 12 pcs per lembar A3+
+• 10 cm x 10 cm: 8 pcs per lembar A3+
+
+Ukuran Persegi Panjang / Kustom:
+• 2 cm x 3 cm: 162 pcs per lembar A3+
+• 2 cm x 4 cm: 117 pcs per lembar A3+
+• 2 cm x 5 cm: 101 pcs per lembar A3+
+• 3 cm x 4 cm: 71 pcs per lembar A3+
+• 3 cm x 5 cm: 60 pcs per lembar A3+
+• 3 cm x 6 cm: 58 pcs per lembar A3+
+• 4 cm x 5 cm: 45 pcs per lembar A3+
+• 4 cm x 6 cm: 36 pcs per lembar A3+
+• 4 cm x 7 cm: 36 pcs per lembar A3+
+• 5 cm x 6 cm: 30 pcs per lembar A3+
+• 5 cm x 7 cm: 28 pcs per lembar A3+
+• 5 cm x 8 cm: 25 pcs per lembar A3+
+• 5 cm x 9 cm: 20 pcs per lembar A3+
+• 5 cm x 10 cm: 20 pcs per lembar A3+
+• 6 cm x 7 cm: 20 pcs per lembar A3+
+• 6 cm x 8 cm: 20 pcs per lembar A3+

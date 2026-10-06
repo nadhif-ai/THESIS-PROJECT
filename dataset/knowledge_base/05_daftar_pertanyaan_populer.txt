@@ -1,0 +1,50 @@
+# DAFTAR CONTOH PERTANYAAN POPULER PELANGGAN — PER KATEGORI MENU
+# CV. ASIA VISUAL GRAFIKA
+#
+# Format file ini dibaca otomatis oleh bot saat pengguna mengetik angka menu (1-4).
+# Setiap baris di bawah [KATEGORI_X] dianggap sebagai satu contoh pertanyaan.
+# Baris diawali '#' diabaikan (komentar). Baris kosong diabaikan.
+# Ubah, tambah, atau hapus pertanyaan tanpa perlu menyentuh kode program.
+# -------------------------------------------------------------------------
+
+[KATEGORI_1]
+# Penjelasan Bahan Cetak
+Banner yang bagus pakai bahan apa ya kak?
+Apa perbedaan bahan Flexi 280 dan 340 GSM untuk spanduk outdoor?
+Bahan Korea 440 GSM tahan berapa lama di luar ruangan?
+Bahan Albatros cocok untuk cetak apa dan apakah perlu laminasi?
+Apa bedanya stiker Vinyl Ritrama dengan stiker Cromo?
+Paket Roll Up Banner ada ukuran berapa saja kak?
+Untuk backdrop wisuda enaknya pakai bahan apa?
+Stiker buat tempel di kaca mobil pakai bahan apa yang aman?
+
+[KATEGORI_2]
+# Panduan Pemrosesan File
+Kalau desain di Canva biar tidak pecah pilih format apa?
+Mengapa warna hasil cetak fisik lebih kusam dari layar HP?
+Berapa resolusi minimal DPI untuk cetak banner outdoor ukuran besar?
+Apakah file desain wajib diubah ke mode warna CMYK sebelum dikirim?
+Bagaimana cara mencegah font atau teks hilang saat file CDR dibuka di toko?
+Berapa jarak aman teks dari tepi desain agar tidak terpotong?
+Format file apa yang paling disarankan untuk dikirim ke percetakan?
+Apakah bisa kirim desain lewat WhatsApp atau harus pakai Google Drive?
+
+[KATEGORI_3]
+# Standar Operasional Toko
+Toko cabang Ciputat dan Pamulang buka sampai jam berapa?
+Apakah ada layanan cetak kilat yang bisa ditunggu (same-day service)?
+Berapa uang muka (DP) minimal yang harus dibayar saat memesan cetak?
+Apa syarat dan ketentuan garansi cetak ulang jika terjadi kesalahan?
+Apakah bisa revisi desain setelah file sudah dikirim ke toko?
+Berapa lama estimasi pengerjaan spanduk ukuran besar?
+Apakah ada layanan antar/pengiriman ke lokasi pelanggan?
+Bagaimana cara komplain jika hasil cetak tidak sesuai pesanan?
+
+[KATEGORI_4]
+# Informasi Harga Produk
+Berapa harga cetak spanduk Flexi 280 per meter persegi?
+Harga cetak stiker vinyl ritrama per meter berapa kak?
+Berapa harga paket Roll Up Banner ukuran 60x160 cm?
+Harga cetak kartu nama per 100 pcs berapa?
+Berapa harga laminasi doff dan glossy per lembar A3?
+Harga cetak brosur A5 bolak-balik 500 lembar berapa?

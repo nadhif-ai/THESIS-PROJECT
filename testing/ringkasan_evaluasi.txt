@@ -1,0 +1,15 @@
+======================================================================
+  LAPORAN HASIL EVALUASI RESMI SKRIPSI (BAB V) — CV. ASIA VISUAL GRAFIKA
+  Waktu Eksekusi : 29 September 2026, 15:38:32
+  Total Kueri    : 10 Pertanyaan Uji
+======================================================================
+
+TABEL HASIL PENGUJIAN AKURASI RETRIEVAL (TOP-3):
+----------------------------------------------------------------------
+  • Rata-rata Hit Rate@3    : 100.0%
+  • Rata-rata Precision@3   : 0.5667 (56.67%)
+----------------------------------------------------------------------
+
+File Output Terkait:
+  - Tabel Retrieval CSV : D:\Kumpulan Projek\printing-rag-advanced\Chatbot Asia\testing\tabel_akurasi_retrieval.csv
+======================================================================

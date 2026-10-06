@@ -1,0 +1,26 @@
+# Ignore Python virtual environment
+venv/
+venv/
+tools/venv_ragas/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+
+# Ignore data folder
+data/
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/

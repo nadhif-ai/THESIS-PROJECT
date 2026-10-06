@@ -1,0 +1,92 @@
+# ESTIMASI JUMLAH PCS STIKER PER LEMBAR A3+
+# CV. Asia Visual Grafika — Panduan Lengkap & Resmi Hasil Cetak Stiker A3+
+# -----------------------------------------------------------------------
+
+## PANDUAN ESTIMASI JUMLAH STIKER PER LEMBAR A3+
+
+PRODUK INI ADALAH: Panduan resmi menghitung estimasi jumlah pcs stiker yang dapat dicetak dalam 1 lembar A3+.
+Berlaku untuk semua jenis cetakan lembaran A3+: Stiker Cromo, Stiker Vinyl, Stiker Transparan.
+BUKAN untuk stiker meteran gulungan per m².
+
+Terdapat dua metode pemotongan stiker yang menentukan luas bidang cetak efektif:
+
+1. Metode Kiss Cut (Mesin Cutting Otomatis Plotter):
+   - Area Efektif: 29 cm × 42 cm (disisakan ruang 1–2 cm untuk tanda registrasi sensor mesin).
+   - Pemotongan setengah putus (kertas backing tetap utuh). Cocok untuk stiker bentuk bulat, oval, atau custom shape.
+
+2. Metode Potong Manual (Karter / Cutter):
+   - Area Efektif: 31 cm × 47 cm (area maksimal kertas A3+ fisik).
+   - Pemotongan lurus putus tembus. Cocok untuk stiker bentuk persegi atau persegi panjang.
+
+Rumus perhitungan jumlah pcs per lembar:
+• Jumlah Kolom = floor(Lebar Area ÷ Lebar Stiker)
+• Jumlah Baris = floor(Tinggi Area ÷ Tinggi Stiker)
+• Total Pcs per Lembar = Jumlah Kolom × Jumlah Baris
+
+Contoh pertanyaan kategori ini: "stiker 5x5 dapat berapa pcs", "1 lembar A3 muat berapa stiker 3x3", "estimasi stiker per lembar", "stiker 2.5x2.5 dapat berapa", "stiker 4x6 dapat berapa".
+
+---
+
+## TABEL COMPREHENSIVE STIKER PERSEGI (SAMA SISI)
+
+Perbandingan jumlah pcs yang didapat per 1 lembar A3+ antara Kiss Cut Mesin (29×42 cm) dan Potong Manual Karter (31×47 cm):
+
+• Ukuran 1 cm × 1 cm: Kiss Cut Mesin = 1.218 pcs | Potong Manual = 1.457 pcs.
+• Ukuran 1,5 cm × 1,5 cm: Kiss Cut Mesin = 532 pcs | Potong Manual = 620 pcs.
+• Ukuran 2 cm × 2 cm: Kiss Cut Mesin = 294 pcs | Potong Manual = 345 pcs.
+• Ukuran 2,5 cm × 2,5 cm: Kiss Cut Mesin = 176 pcs | Potong Manual = 216 pcs.
+• Ukuran 3 cm × 3 cm: Kiss Cut Mesin = 126 pcs | Potong Manual = 150 pcs.
+• Ukuran 3,5 cm × 3,5 cm: Kiss Cut Mesin = 96 pcs | Potong Manual = 104 pcs.
+• Ukuran 4 cm × 4 cm: Kiss Cut Mesin = 70 pcs | Potong Manual = 77 pcs.
+• Ukuran 4,5 cm × 4,5 cm: Kiss Cut Mesin = 54 pcs | Potong Manual = 60 pcs.
+• Ukuran 5 cm × 5 cm: Kiss Cut Mesin = 40 pcs | Potong Manual = 54 pcs.
+• Ukuran 5,5 cm × 5,5 cm: Kiss Cut Mesin = 35 pcs | Potong Manual = 40 pcs.
+• Ukuran 6 cm × 6 cm: Kiss Cut Mesin = 28 pcs | Potong Manual = 35 pcs.
+• Ukuran 6,5 cm × 6,5 cm: Kiss Cut Mesin = 24 pcs | Potong Manual = 28 pcs.
+• Ukuran 7 cm × 7 cm: Kiss Cut Mesin = 24 pcs | Potong Manual = 24 pcs.
+• Ukuran 7,5 cm × 7,5 cm: Kiss Cut Mesin = 15 pcs | Potong Manual = 24 pcs.
+• Ukuran 8 cm × 8 cm: Kiss Cut Mesin = 15 pcs | Potong Manual = 15 pcs.
+• Ukuran 8,5 cm × 8,5 cm: Kiss Cut Mesin = 12 pcs | Potong Manual = 15 pcs.
+• Ukuran 9 cm × 9 cm: Kiss Cut Mesin = 12 pcs | Potong Manual = 15 pcs.
+• Ukuran 9,5 cm × 9,5 cm: Kiss Cut Mesin = 12 pcs | Potong Manual = 12 pcs.
+• Ukuran 10 cm × 10 cm: Kiss Cut Mesin = 8 pcs | Potong Manual = 12 pcs.
+• Ukuran 11 cm × 11 cm: Kiss Cut Mesin = 6 pcs | Potong Manual = 8 pcs.
+• Ukuran 12 cm × 12 cm: Kiss Cut Mesin = 6 pcs | Potong Manual = 6 pcs.
+• Ukuran 13 cm × 13 cm: Kiss Cut Mesin = 6 pcs | Potong Manual = 6 pcs.
+• Ukuran 14 cm × 14 cm: Kiss Cut Mesin = 6 pcs | Potong Manual = 6 pcs.
+• Ukuran 15 cm × 15 cm: Kiss Cut Mesin = 2 pcs | Potong Manual = 6 pcs.
+
+---
+
+## TABEL COMPREHENSIVE STIKER PERSEGI PANJANG & KUSTOM
+
+Perbandingan jumlah pcs yang didapat per 1 lembar A3+ antara Kiss Cut Mesin (29×42 cm) dan Potong Manual Karter (31×47 cm):
+
+• Ukuran 2 cm × 3 cm: Kiss Cut Mesin = 196 pcs | Potong Manual = 230 pcs.
+• Ukuran 2 cm × 4 cm: Kiss Cut Mesin = 147 pcs | Potong Manual = 165 pcs.
+• Ukuran 2 cm × 5 cm: Kiss Cut Mesin = 112 pcs | Potong Manual = 138 pcs.
+• Ukuran 3 cm × 4 cm: Kiss Cut Mesin = 98 pcs | Potong Manual = 110 pcs.
+• Ukuran 3 cm × 5 cm: Kiss Cut Mesin = 72 pcs | Potong Manual = 90 pcs.
+• Ukuran 3 cm × 6 cm: Kiss Cut Mesin = 63 pcs | Potong Manual = 75 pcs.
+• Ukuran 4 cm × 5 cm: Kiss Cut Mesin = 56 pcs | Potong Manual = 66 pcs.
+• Ukuran 4 cm × 6 cm: Kiss Cut Mesin = 49 pcs | Potong Manual = 55 pcs.
+• Ukuran 4 cm × 7 cm: Kiss Cut Mesin = 42 pcs | Potong Manual = 44 pcs.
+• Ukuran 5 cm × 6 cm: Kiss Cut Mesin = 35 pcs | Potong Manual = 45 pcs.
+• Ukuran 5 cm × 7 cm: Kiss Cut Mesin = 32 pcs | Potong Manual = 36 pcs.
+• Ukuran 5 cm × 8 cm: Kiss Cut Mesin = 25 pcs | Potong Manual = 30 pcs.
+• Ukuran 5 cm × 9 cm: Kiss Cut Mesin = 24 pcs | Potong Manual = 30 pcs.
+• Ukuran 5 cm × 10 cm: Kiss Cut Mesin = 20 pcs | Potong Manual = 27 pcs.
+• Ukuran 6 cm × 7 cm: Kiss Cut Mesin = 28 pcs | Potong Manual = 30 pcs.
+• Ukuran 6 cm × 8 cm: Kiss Cut Mesin = 21 pcs | Potong Manual = 25 pcs.
+• Ukuran 7 cm × 10 cm: Kiss Cut Mesin = 16 pcs | Potong Manual = 18 pcs.
+• Ukuran 10 cm × 15 cm: Kiss Cut Mesin = 4 pcs | Potong Manual = 9 pcs.
+
+---
+
+## CATATAN PENTING ESTIMASI PCS STIKER & KETENTUAN CUTTING
+
+1. Estimasi jumlah pcs di atas merupakan perkiraan maksimum berdasarkan susunan grid lurus pada bidang cetak efektif.
+2. Pemotongan Potong Manual Karter: HANYA BISA untuk bentuk KOTAK / PERSEGI yang mengikuti garis potong (crop marks / kris) hasil dari layout cetak.
+3. Pemotongan Kiss Cut Mesin: HANYA menangani pola BULAT (circle) dan BENTUK SEDERHANA (simple shapes seperti oval / rounded box). TIDAK BISA untuk cutting bentuk huruf / tulisan (lettering cutting).
+4. Biaya Ongkos Potong Ukuran Selain Standar A3/A4/A5/A6 pada Kertas A3+: Dikenakan biaya Rp 25.000 ke atas (tergantung banyaknya jumlah lembaran).
+5. Untuk kepastian jumlah pcs dan biaya yang tepat sesuai file desain milik Kakak, silakan konsultasikan atau kirimkan file desain langsung ke admin toko.

@@ -1,0 +1,95 @@
+# PANDUAN STANDAR OPERASIONAL PROSEDUR (SOP) DAN KEBIJAKAN LAYANAN
+# CV. ASIA VISUAL GRAFIKA
+
+## 1. PROFIL DAN LOKASI CABANG TOKO
+CV. Asia Visual Grafika merupakan unit usaha percetakan digital (digital printing) yang beroperasi di wilayah Tangerang Selatan dan melayani kebutuhan cetak luar ruangan (outdoor), dalam ruangan (indoor), cetak lembaran digital A3+ (DocuPrint), dan merchandise promosi.
+
+Toko memiliki dua cabang layanan operasional:
+1. Cabang Utama (Ciputat Timur)
+   Alamat: Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.
+   Sharelock: https://maps.app.goo.gl/Z4MSgYVkeJ7MTHKdA
+   Patokan: Tepat di seberang SPBU (Pom Bensin) Ciputat.
+   Email Pengiriman Berkas: asiavisualgrafika@gmail.com
+2. Cabang Kedua (Pamulang):
+   Alamat: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417. 
+   Sharelock: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6
+   Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.
+   Email Pengiriman Berkas: asiavisualgrafika2@gmail.com
+
+Kontak Layanan Pelanggan:
+- WhatsApp Admin 1: 0896-3241-1115
+- WhatsApp Admin 2: 0897-3232-322
+- Telepon Kantor: (021) 741-4850
+- Akun Media Sosial & Marketplace:
+  - Instagram: @asiavisualgrafika
+  - Shopee: Asia Visual Grafika
+
+---
+
+## 2. JAM OPERASIONAL TOKO DAN SHIFT KERJA
+CV. Asia Visual Grafika menerapkan jam operasional yang panjang guna memenuhi kebutuhan cetak mendesak:
+
+A. Hari Kerja Biasa (Senin s.d. Sabtu / Weekdays):
+- Jam Operasional Toko: Pukul 08.30 WIB sampai dengan pukul 02.30 dini hari.
+- Batas Akhir Penerimaan Pesanan (Close Order): Pukul 01.30 dini hari.
+- Setelah pukul 01.30 dini hari, sistem tidak lagi menerima pesanan baru. Toko hanya melayani proses penyelesaian cetak dan pengambilan pesanan pelanggan hingga pukul 02.30 dini hari.
+- Pelayanan kasir dan staf depan menerapkan sistem 3 shift kerja (Shift 1: 08.30–17.30, Shift 2: 13.00–22.00, Shift 3: 17.30–02.30 WIB) sehingga pada jam istirahat tetap ada staf yang berjaga melayani pelanggan.
+
+B. Hari Minggu:
+- Jam Operasional: Pukul 09.00 WIB sampai dengan pukul 21.00 malam.
+- Batas Akhir Penerimaan Pesanan (Close Order): Pukul 20.30 malam.
+
+C. Hari Libur Nasional:
+- Hari Libur Nasional selain Jumat: Buka pukul 12.00 siang sampai dengan pukul 21.00 malam.
+- Hari Libur Nasional yang jatuh pada hari Jumat: Buka pukul 13.00 siang (setelah ibadah shalat Jumat) sampai dengan pukul 21.00 malam.
+
+---
+
+## 3. ALUR PEMESANAN DAN PENGAMBILAN PRODUK
+Alur pemesanan secara daring (online) dilakukan melalui tahapan:
+1. Pelanggan berkonsultasi mengenai spesifikasi produk cetak (melalui admin/chatbot).
+2. Pelanggan mengirimkan berkas desain siap cetak melalui WhatsApp (menggunakan opsi Kirim Dokumen) atau via email toko dengan melampirkan keterangan ukuran, jenis bahan, jumlah, dan pilihan finishing pada nomor whatsapp admin.
+3. Admin mengecek kelayakan berkas desain dan memberikan total rincian biaya kepada pelanggan.
+4. Pelanggan melakukan pembayaran awal (DP minimal 60% atau pembayaran lunas) dan mengirimkan bukti transfer ke admin.
+5. Admin menerbitkan Surat Perintah Kerja (SPK) serta nota kepada pelanggan.
+6. Setelah proses produksi dan finishing selesai, admin mengirimkan notifikasi konfirmasi bahwa pesanan siap diambil.
+7. Pelanggan dapat mengambil langsung di gerai ruko toko atau memesan penjemputan menggunakan jasa kurir ojek online (GoSend/GrabExpress) dengan syarat pesanan telah dilunasi 100%.
+8. Belum menyediakan jasa kirim seperti jne dan sejenisnya.
+
+---
+
+## 4. ESTIMASI WAKTU PENGERJAAN PRODUKSI
+Waktu pengerjaan bergantung pada jenis produk dan volume antrean mesin:
+1. Spanduk Outdoor Flexi & DocuPrint Lembaran A3+:
+   - Estimasi pengerjaan: 7 jam pada hari yang sama (pesan pagi diambil sore) apabila berkas desain outdoor flexy sudah siap cetak dan antrean normal.
+   - Estimasi pengerjaan: 2 jam pada hari yang sama apabila berkas desain ukuran A3+ sudah siap cetak dan antrean normal.
+   - Berkas yang masuk pada malam hari sebelum batas close order (01.30) tetap diproses pada malam tersebut dan dapat diambil pada pagi hari berikutnya.
+   - Tidak ada hari libur untuk produksi spanduk banner dan DocuPrint A3+.
+2. Stiker Meteran Potong (Kiss-Cut/Die-Cut) & Merchandise Promosi:
+   - Estimasi pengerjaan: 1 hingga 2 hari kerja karena memerlukan tahapan pasca-cetak (laminasi dingin/panas, penyesuaian sensor potong mesin cutting, atau pengeringan tinta UV Flatbed).
+3. Cetak Kustom & Brosur Jumlah Besar (Offset/Rim-riman):
+   - Estimasi pengerjaan: 3 hingga 5 hari kerja pada hari kerja reguler (tidak beroperasi di akhir pekan).
+
+---
+
+## 5. KETENTUAN PEMBAYARAN DAN UANG MUKA (DP)
+1. Metode Pembayaran yang Diterima:
+   - Tunai langsung di kasir gerai ruko.
+   - Transfer Bank ke rekening resmi toko: Bank BCA No. Rekening 06-700-53-113 atas nama Dien Soufiany.
+   - Pembayaran digital QRIS (meminta kode barcode resmi melalui admin).
+2. Kebijakan Uang Muka (Down Payment):
+   - Pesanan kustom wajib membayar uang muka minimal sebesar 60% dari total nilai transaksi sebelum berkas dinaikkan ke antrean cetak mesin.
+   - Toko tidak melayani sistem cetak bayar di belakang setelah pesanan selesai, demi menghindari pembatalan sepihak atas produk kustom.
+   - Pelunasan sisa tagihan wajib diselesaikan pada saat pengambilan barang fisik di gerai atau sebelum pesanan diserahkan kepada kurir pengiriman.
+
+---
+
+## 6. KEBIJAKAN PEMBATALAN, REFUND, DAN KLAIM SALAH CETAK
+1. Kebijakan Pembatalan Pesanan:
+   - Pembatalan pesanan hanya dapat dilakukan maksimal dalam kurun waktu kurang dari 2 jam setelah pembayaran disepakati dan sebelum berkas diproses oleh operator mesin cetak.
+   - Apabila berkas sudah diproses cetak oleh mesin, pesanan tidak dapat dibatalkan, diubah, maupun ditarik kembali.
+2. Kebijakan Pengembalian Dana (Refund):
+   - Refund dana akibat kelebihan transfer atau pembatalan sah diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja (tidak diperkenankan refund tunai).
+3. Kebijakan Garansi dan Cetak Ulang (Re-Print):
+   - Kesalahan dari Pihak Toko/Produksi: Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko.
+   - Kesalahan dari Pihak Pelanggan: Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan, salah pemilihan ukuran berkas dari pelanggan, atau resolusi gambar pecah akibat berkas asli yang dikirimkan buram.

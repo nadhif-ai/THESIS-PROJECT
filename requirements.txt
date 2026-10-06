@@ -1,0 +1,37 @@
+# ============================================================
+# REQUIREMENTS - Digital Printing RAG Chatbot CV. Asia Visual
+# ============================================================
+
+# ────────────────────────────────────────────────────────────
+# EXTERNAL SYSTEM COMPONENTS (Non-Python Tools)
+# ────────────────────────────────────────────────────────────
+# - Operating System: Windows OS (64-bit)
+# - Python Interpreter: Version 3.10.0
+# - ngrok Tunneling Utility: Version 3.39.2 (executable: ngrok.exe)
+# - Telegram Web App SDK: Version 1.0+ (loaded via CDN inside HTML frontend)
+# ────────────────────────────────────────────────────────────
+
+# FastAPI & Server Engine
+fastapi==0.111.0
+uvicorn==0.30.1
+pydantic==2.13.4
+pydantic-settings==2.14.2
+python-multipart==0.0.9
+
+# RAG Engine & AI Libraries
+langchain==0.2.5
+langchain-core==0.2.43
+langchain-community==0.2.5
+langchain-openai==0.1.25
+langchain-huggingface==0.0.3
+langchain-chroma==0.1.2
+chromadb==0.5.3
+sentence-transformers==3.0.1
+torch==2.10.0
+
+# Telegram Bot Interface
+python-telegram-bot==21.3
+
+# Data Handling & System Utilities
+pandas==2.2.2
+python-dotenv==1.2.2
