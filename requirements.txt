@@ -1,37 +1,41 @@
 # ============================================================
-# REQUIREMENTS - Digital Printing RAG Chatbot CV. Asia Visual
+# requirements_usulan.txt
+# Chatbot RAG CV. Asia Visual Grafika
+#
+# Disusun dari: (1) import yang benar-benar ada di kode proyek,
+# (2) versi persis dari hasil pip freeze lingkungan yang menjalankan proyek.
+# Python 3.10, Windows 64-bit.
+#
+# STATUS: BELUM DIUJI pasang ulang. Uji dulu di venv baru sebelum dibagikan:
+#   py -3.10 -m venv venv_uji
+#   venv_uji\Scripts\activate
+#   pip install -r requirements_usulan.txt
+#   pip check
+#   python -c "import app.main"
 # ============================================================
 
-# ────────────────────────────────────────────────────────────
-# EXTERNAL SYSTEM COMPONENTS (Non-Python Tools)
-# ────────────────────────────────────────────────────────────
-# - Operating System: Windows OS (64-bit)
-# - Python Interpreter: Version 3.10.0
-# - ngrok Tunneling Utility: Version 3.39.2 (executable: ngrok.exe)
-# - Telegram Web App SDK: Version 1.0+ (loaded via CDN inside HTML frontend)
-# ────────────────────────────────────────────────────────────
+# --- Server ---
+fastapi==0.132.0
+uvicorn==0.41.0
+python-multipart==0.0.22        # dibutuhkan FastAPI untuk Form / UploadFile
+pydantic==2.12.5
+pydantic-settings==2.12.0
+python-dotenv==1.2.1            # membaca file .env
 
-# FastAPI & Server Engine
-fastapi==0.111.0
-uvicorn==0.30.1
-pydantic==2.13.4
-pydantic-settings==2.14.2
-python-multipart==0.0.9
-
-# RAG Engine & AI Libraries
-langchain==0.2.5
-langchain-core==0.2.43
-langchain-community==0.2.5
-langchain-openai==0.1.25
-langchain-huggingface==0.0.3
-langchain-chroma==0.1.2
-chromadb==0.5.3
-sentence-transformers==3.0.1
+# --- RAG ---
+langchain-core==1.5.3
+langchain-community==0.4.1
+langchain-openai==1.1.7
+langchain-huggingface==1.2.2
+langchain-text-splitters==1.1.0
+chromadb==1.5.1
+sentence-transformers==5.2.2
+transformers==5.0.0
+huggingface_hub==1.4.0
 torch==2.10.0
 
-# Telegram Bot Interface
-python-telegram-bot==21.3
-
-# Data Handling & System Utilities
-pandas==2.2.2
-python-dotenv==1.2.2
+# --- Pendukung ---
+pandas==2.3.3
+requests==2.32.5                # kirim balasan ke Fonnte
+watchdog==6.0.0                 # pembaruan indeks otomatis saat KB berubah
+pypdf==6.7.2                    # opsional: hanya jika mengunggah KB berformat PDF
