@@ -8,10 +8,8 @@ from pydantic import BaseModel
 
 logger       = logging.getLogger(__name__)
 chat_router   = APIRouter(prefix="/chat")
-webapp_router = APIRouter(include_in_schema=False)
 
 _ROOT      = Path(__file__).parent.parent
-_HTML_PATH = _ROOT / "app" / "frontend" / "price_calculator.html"
 _DATA_DIR  = _ROOT / "dataset"
 
 
@@ -221,67 +219,6 @@ def _read_csv(filename: str) -> list[dict]:
     with open(path, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
-
-@webapp_router.get("/price-calculator", response_class=HTMLResponse, summary="Halaman Web App Kalkulator Harga Cetak (HTML)")
-async def serve_price_calculator():
-    """
-    Menyajikan halaman HTML kalkulator harga cetak sebagai Telegram Web App.
-
-    Returns:
-        HTMLResponse berisi konten file price_calculator.html.
-    """
-    if not _HTML_PATH.exists():
-        return HTMLResponse("<h1>price_calculator.html not found</h1>", status_code=404)
-    return HTMLResponse(_HTML_PATH.read_text(encoding="utf-8"))
-
-
-@webapp_router.get("/api/calculator/data", summary="Master Data Produk, Tier Harga & Aturan Kalkulasi")
-async def calculator_data():
-    """
-    Menyediakan data produk, harga tier, dan aturan kalkulasi untuk frontend kalkulator.
-
-    Membaca tiga file CSV (product_master, pricing_table, calculation_rules) dan
-    menggabungkannya menjadi satu respons JSON yang digunakan oleh JavaScript
-    di halaman price_calculator.html untuk menghitung estimasi harga secara dinamis.
-
-    Returns:
-        JSONResponse berisi tiga kunci: 'products', 'pricing', dan 'rules'.
-    """
-    products: dict = {}
-    for row in _read_csv("product_master.csv"):
-        pid = row["product_id"].strip()
-        products[pid] = {
-            "name": row.get("canonical_name", pid).strip(),
-            "type": row.get("product_type", "").strip().upper(),
-            "unit": row.get("unit", "").strip(),
-        }
-
-    pricing: dict = {}
-    for row in _read_csv("pricing_table.csv"):
-        pid = row.get("product_id", "").strip()
-        if not pid:
-            continue
-        try:
-            tier = {
-                "min_qty":       float(row.get("min_qty", 0) or 0),
-                "max_qty":       float(row.get("max_qty", 999999) or 999999),
-                "price_per_unit": float(row.get("price_per_unit", 0) or 0),
-                "pricing_basis": row.get("pricing_basis", "").strip(),
-            }
-            pricing.setdefault(pid, []).append(tier)
-        except (ValueError, KeyError):
-            pass
-
-    for pid in pricing:
-        pricing[pid].sort(key=lambda t: t["min_qty"])
-
-    rules: dict = {}
-    for row in _read_csv("calculation_rules.csv"):
-        ptype = row.get("product_type", "").strip().upper()
-        if ptype:
-            rules[ptype] = {"formula_type": row.get("formula_type", "").strip()}
-
-    return JSONResponse({"products": products, "pricing": pricing, "rules": rules})
 
 # ===========================================================================
 # FONNTE WHATSAPP WEBHOOK — Terisolasi dari sistem Telegram Bot

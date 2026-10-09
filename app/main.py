@@ -3,7 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import chat_router, webapp_router, admin_router
+from app.routes import chat_router, admin_router
 from app.dependencies import initialize_rag_system, start_kb_watcher
 from app.config.settings import get_settings
 
@@ -65,7 +65,6 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
-app.include_router(webapp_router)
 app.include_router(admin_router)
 
 
