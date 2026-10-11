@@ -7,6 +7,10 @@ venv/
 __pycache__/
 *.pyc
 .env
+chroma_db/
+.agents
+.claude
+.graphify-out
 
 # Byte-compiled / cache files
 __pycache__/
