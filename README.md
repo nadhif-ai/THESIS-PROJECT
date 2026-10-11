@@ -147,20 +147,3 @@ Kirim pesan ke nomor WhatsApp toko untuk mencoba.
 | Ingin mengosongkan indeks | Hentikan aplikasi, hapus folder `chroma_db`, jalankan ulang |
 
 ---
-
-## 7. Catatan untuk penulis Bab IV
-
-**Urutan membaca kode** (dari alur paling dasar):
-`main.py` → `dependencies.py` → `loader.py` → `vectorstore.py` → `models.py` → `prompt_template.py` → `chain.py` → `routes.py` (bagian *webhook* dan `/admin`).
-
-**Pengujian *retrieval*** ada di `testing/run_evaluation.py` (Hit Rate@3 dan Precision@3 atas soal di `test_dataset.csv`). Jalankan setelah ChromaDB terisi: `python testing/run_evaluation.py`.
-
-**Bagian kode yang tidak dipakai** alur WhatsApp maupun portal admin. Tidak perlu didokumentasikan:
-
-- `routes.py`: *endpoint* `/chat/questions`, `/chat/question/{id}`, `/price-calculator`, `/api/calculator/data`, dan `/chat/media/gdrive/...` (berkas pendukungnya tidak ada di repositori).
-- `main.py`: rute `/` (berkas `index.html` tidak ada).
-- `chain.py`: parameter `intent_filter`, penanganan `media_url`, dan fungsi `clear_all_session_histories`.
-- `temp_script_0.js`: salinan lama skrip portal admin.
-- `python-telegram-bot`: sisa fase awal.
-
-Yang aktif: *webhook* `/chat/whatsapp`, delapan *endpoint* `/admin/api/*`, serta `/chat/faq` dan `/chat/reset` sebagai jalur uji lewat REST.
