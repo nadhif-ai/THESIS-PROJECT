@@ -1,4 +1,6 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+from typing import Literal
 from pydantic import Field
 from functools import lru_cache
 
@@ -24,29 +26,39 @@ class Settings(BaseSettings):
         log_level              : tingkat detail pencatatan log (INFO, DEBUG, WARNING).
     """
 
-    openrouter_api_key:     str = Field(..., env="OPENROUTER_API_KEY")
-    openrouter_model:       str = Field(default="google/gemini-2.5-flash", env="OPENROUTER_MODEL")
-    openrouter_base_url:    str = "https://openrouter.ai/api/v1"
+    openrouter_api_key: str = Field(...)
+    openrouter_model: str = Field(default="google/gemini-2.5-flash")
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
-    embedding_model:        str = Field(default="intfloat/multilingual-e5-small", env="EMBEDDING_MODEL")
+    embedding_model: str = Field(default="intfloat/multilingual-e5-small")
 
-    chroma_persist_dir:     str = Field(default="./chroma_db", env="CHROMA_PERSIST_DIR")
+    chroma_persist_dir: str = Field(default="./chroma_db")
     chroma_collection_name: str = "printing_knowledge_base"
 
-    api_host:               str = Field(default="0.0.0.0", env="API_HOST")
-    api_port:               int = Field(default=8000,       env="API_PORT")
+    api_host: str = Field(default="0.0.0.0")
+    api_port: int = Field(default=8000)
 
-    semantic_top_k:         int = Field(default=10,         env="SEMANTIC_TOP_K")
-    structured_kb_dir:      str = Field(default="./dataset", env="STRUCTURED_KB_DIR")
-    log_level:              str = Field(default="INFO",      env="LOG_LEVEL")
+    semantic_top_k: int = Field(default=10)
+    structured_kb_dir: str = Field(default="./dataset")
+    log_level: str = Field(default="INFO")
 
-    fonnte_token:           str = Field(default="",          env="FONNTE_TOKEN")
+    fonnte_token: str = Field(default="")
+    vector_store: Literal["pinecone", "chroma"] = "pinecone"
+    pinecone_api_key: str = ""
+    pinecone_index_name: str = "chatbot-avg"
+    data_dir: str = "./data"
+    eval_model: str = "google/gemini-2.5-flash"
+    admin_username: str = "admin"
+    admin_password: str = ""
+    cookie_secure: bool = False
+    allowed_origins: str = "http://127.0.0.1:8000,http://localhost:8000,http://127.0.0.1:5173,http://localhost:5173"
 
-    class Config:
-        env_file          = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive    = False
-        extra             = "ignore"
+    model_config = SettingsConfigDict(
+        env_file=str(Path(__file__).resolve().parents[2] / ".env"),
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
 
 @lru_cache()

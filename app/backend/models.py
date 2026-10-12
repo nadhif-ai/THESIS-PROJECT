@@ -18,7 +18,7 @@ def get_embedding_model():
     Returns:
         Instance model embedding, dibungkus E5EmbeddingsWrapper jika model E5.
     """
-    settings   = get_settings()
+    settings = get_settings()
     model_name = settings.embedding_model.strip()
 
     logger.info(f"[Embeddings] Provider: HuggingFace Lokal → model: {model_name}")
@@ -33,7 +33,9 @@ def get_embedding_model():
     )
 
     if "e5" in model_name.lower():
-        logger.info("[Embeddings] Model E5 terdeteksi. Menggunakan E5EmbeddingsWrapper.")
+        logger.info(
+            "[Embeddings] Model E5 terdeteksi. Menggunakan E5EmbeddingsWrapper."
+        )
 
         class E5EmbeddingsWrapper:
             """
@@ -46,7 +48,9 @@ def get_embedding_model():
 
             def embed_documents(self, texts: list[str]) -> list[list[float]]:
                 """Tambahkan prefix 'passage:' pada dokumen sebelum di-embed."""
-                prefixed = [t if t.startswith("passage: ") else f"passage: {t}" for t in texts]
+                prefixed = [
+                    t if t.startswith("passage: ") else f"passage: {t}" for t in texts
+                ]
                 return self.inner.embed_documents(prefixed)
 
             def embed_query(self, text: str) -> list[float]:
@@ -57,13 +61,13 @@ def get_embedding_model():
             def __getattr__(self, name):
                 return getattr(self.inner, name)
 
-
         return E5EmbeddingsWrapper(base_embeddings)
 
     return base_embeddings
 
 
-def get_llm() -> ChatOpenAI:
+@lru_cache(maxsize=8)
+def get_llm(model: str | None = None) -> ChatOpenAI:
     """
     Membuat klien LLM yang terhubung ke model Gemini melalui layanan OpenRouter.
 
@@ -75,7 +79,7 @@ def get_llm() -> ChatOpenAI:
     logger.info(f"Initializing LLM: {settings.openrouter_model} via OpenRouter")
 
     llm = ChatOpenAI(
-        model=settings.openrouter_model,
+        model=model or settings.openrouter_model,
         api_key=settings.openrouter_api_key,
         base_url=settings.openrouter_base_url,
         temperature=0.0,

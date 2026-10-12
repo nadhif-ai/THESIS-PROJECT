@@ -10,7 +10,8 @@ __pycache__/
 chroma_db/
 .agents
 .claude
-.graphify-out
+graphify-out/
+skills-lock.json
 
 # Byte-compiled / cache files
 __pycache__/
@@ -29,3 +30,7 @@ Thumbs.db
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 AGENTS.md
+.pytest_cache/
+.deepeval/
+node_modules/
+dist/
