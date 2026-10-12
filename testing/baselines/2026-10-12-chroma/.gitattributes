@@ -1,1 +1,1 @@
-retrieval.csv -text
+retrieval.csv -text whitespace=cr-at-eol
