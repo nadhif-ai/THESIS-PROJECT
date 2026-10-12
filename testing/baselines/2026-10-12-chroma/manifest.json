@@ -210,11 +210,19 @@
     "source_snapshot.tar.gz": "326c73b560720f9ff5230264b6419057c3863df9c3c9984db5b00cb588199ea2",
     "retrieval.csv": "f7aa3befd1a37768252ce1af9ba9104efbf9b28f0f2bec616d1a1c3cded1c386",
     "summary.txt": "224e7e1a537224e3d666d85386a0b30908bda4c1502766b032aeac48f181824e",
-    "index_snapshot.json": "17ef16b295e003ce9dd3dc69f994a4c9bc1846f0ed2294ff7608ee509e643c99"
+    "index_snapshot.json": "17ef16b295e003ce9dd3dc69f994a4c9bc1846f0ed2294ff7608ee509e643c99",
+    "answers.json": "a581c24f6398ca54662da97f90842eac90f9ac342030c68913e7840a339470dd"
   },
   "legacy_results": {
     "cases": 10,
     "hit_rate_at_3_percent": 90.0,
     "precision_at_3": 0.6
+  },
+  "answer_baseline": {
+    "cases": 10,
+    "model": "anthropic/claude-haiku-5.5",
+    "runtime_top_k": 5,
+    "generation_ok": true,
+    "customer_history_modified": false
   }
 }

@@ -1,0 +1,36 @@
+{
+  "version_id": "draft-ca03c96c8b14",
+  "namespace": "avg-draft-ca03c96c8b14-82e8fbcf",
+  "chunks": 139,
+  "confirmed_value": 35,
+  "canonical_source": "03_panduan_berkas_siap_cetak.txt",
+  "published_version": "draft-ffa4eb9c27fb",
+  "question": "1 lembar A3+ muat berapa pcs stiker ukuran 5x5 cm?",
+  "retrieved_passages": [
+    {
+      "source": "03_panduan_berkas_siap_cetak.txt",
+      "text": "CV. ASIA VISUAL GRAFIKA > 10. JUMLAH STIKER 5×5 CM KISS CUT PER LEMBAR A3+\n\nPertanyaan: 1 lembar A3+ muat berapa pcs stiker ukuran 5x5 cm?\nJawaban: Untuk stiker ukuran 5 cm × 5 cm dengan metode Kiss Cut, acuan resmi toko adalah 35 pcs per lembar A3+.\nAcuan ini telah dikonfirmasi oleh pihak bisnis. Gunakan angka acuan ini untuk Kiss Cut, bukan estimasi grid teoritis atau kapasitas potong manual.",
+      "similarity": 0.935767412
+    },
+    {
+      "source": "03_panduan_berkas_siap_cetak.txt",
+      "text": "CV. ASIA VISUAL GRAFIKA > 9. TABEL ACUAN RESMI JUMLAH STIKER DAPAT BERAPA PCS PER LEMBAR A3+ (KISS CUTTING)\n\nApabila pemesan menanyakan estimasi jumlah stiker yang didapat dalam 1 lembar A3+, berikut adalah acuan resmi toko CV. Asia Visual Grafika:  \nUkuran Persegi / Sama Sisi:\n• 2 cm x 2 cm: 234 pcs per lembar A3+\n• 2,5 cm x 2,5 cm: 150 pcs per lembar A3+\n• 3 cm x 3 cm: 108 pcs per lembar A3+\n• 3,5 cm x 3,5 cm: 77 pcs per lembar A3+\n• 4 cm x 4 cm: 54 pcs per lembar A3+\n• 4,5 cm x 4,5 cm: 48 pcs per lembar A3+\n• 5,5 cm x 5,5 cm: 35 pcs per lembar A3+\n• 6 cm x 6 cm: 24 pcs per lembar A3+\n• 6,5 cm x 6,5 cm: 24 pcs per lembar A3+\n• 7 cm x 7 cm: 20 pcs per lembar A3+\n• 7,5 cm x 7,5 cm: 15 pcs per lembar A3+\n• 8 cm x 8 cm: 15 pcs per lembar A3+\n• 8,5 cm x 8,5 cm: 12 pcs per lembar A3+\n• 9 cm x 9 cm: 12 pcs per lembar A3+\n• 10 cm x 10 cm: 8 pcs per lembar A3+  \nUkuran Persegi Panjang / Kustom:\n• 2 cm x 3 cm: 162 pcs per lembar A3+\n• 2 cm x 4 cm: 117 pcs per lembar A3+",
+      "similarity": 0.902579784
+    },
+    {
+      "source": "06_estimasi_pcs_per_lembar_a3.txt",
+      "text": "----------------------------------------------------------------------- > PANDUAN ESTIMASI POTONG MANUAL PER LEMBAR A3+\n\n• Total Pcs per Lembar = Jumlah Kolom × Jumlah Baris  \nContoh pertanyaan kategori ini: \"stiker 5x5 potong manual dapat berapa pcs\", \"estimasi stiker tanpa kiss cut per lembar\".",
+      "similarity": 0.899372935
+    },
+    {
+      "source": "04_daftar_estimasi_harga.txt",
+      "text": "----------------------------------------------------------------------- > STIKER CETAK A3+ SATUAN / KISS CUT (Harga per lembar A3+)\n\nPRODUK INI ADALAH: Stiker satuan cetak per lembar A3+, digunakan untuk label produk, stiker custom kecil-kecil dalam satu lembar besar.\nBUKAN stiker meteran gulungan, BUKAN cutting stiker vinyl dinding, BUKAN banner.\nArea cetak efektif per lembar A3+: 31 cm x 47 cm. Bisa dengan atau tanpa kiss cut (potong).\nContoh pertanyaan kategori ini: \"harga stiker per lembar\", \"stiker cromo A3\", \"stiker label 5x5 berapa lembar\", \"kiss cut stiker\".  \nStiker Cromo tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 7.000 per lembar.\nPesan lebih dari 10 lembar: Rp 5.500 per lembar.  \nStiker Vinyl tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.  \nStiker Transparan tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.",
+      "similarity": 0.89872551
+    },
+    {
+      "source": "06_estimasi_pcs_per_lembar_a3.txt",
+      "text": "----------------------------------------------------------------------- > PANDUAN ESTIMASI POTONG MANUAL PER LEMBAR A3+\n\nPRODUK INI ADALAH: Panduan estimasi jumlah pcs stiker untuk metode Potong Manual Karter pada 1 lembar A3+.\nUntuk Kiss Cut, gunakan tabel acuan resmi pada 03_panduan_berkas_siap_cetak.txt. Angka potong manual tidak berlaku untuk Kiss Cut.\nBerlaku untuk semua jenis cetakan lembaran A3+: Stiker Cromo, Stiker Vinyl, Stiker Transparan.\nBUKAN untuk stiker meteran gulungan per m².  \nMetode Potong Manual (Karter / Cutter):\n- Area Efektif: 31 cm × 47 cm (area maksimal kertas A3+ fisik).\n- Pemotongan lurus putus tembus. Cocok untuk stiker bentuk persegi atau persegi panjang.  \nRumus perhitungan jumlah pcs per lembar:\n• Jumlah Kolom = floor(Lebar Area ÷ Lebar Stiker)\n• Jumlah Baris = floor(Tinggi Area ÷ Tinggi Stiker)\n• Total Pcs per Lembar = Jumlah Kolom × Jumlah Baris",
+      "similarity": 0.895066857
+    }
+  ]
+}

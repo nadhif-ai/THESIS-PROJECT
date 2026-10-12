@@ -1,0 +1,109 @@
+{
+  "backend": "pinecone",
+  "namespace": "avg-baseline-bfa647800868",
+  "chunks": 95,
+  "cases": [
+    {
+      "id": "1",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "01_sop_dan_kebijakan_toko.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 0.3333
+    },
+    {
+      "id": "2",
+      "sources": [
+        "01_sop_dan_kebijakan_toko.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "03_panduan_berkas_siap_cetak.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 0.3333
+    },
+    {
+      "id": "3",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 0.6667
+    },
+    {
+      "id": "4",
+      "sources": [
+        "03_panduan_berkas_siap_cetak.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "03_panduan_berkas_siap_cetak.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 1.0
+    },
+    {
+      "id": "5",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "hit_at_3": 0,
+      "precision_at_3": 0.0
+    },
+    {
+      "id": "6",
+      "sources": [
+        "01_sop_dan_kebijakan_toko.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 0.3333
+    },
+    {
+      "id": "7",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 1.0
+    },
+    {
+      "id": "8",
+      "sources": [
+        "03_panduan_berkas_siap_cetak.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt",
+        "03_panduan_berkas_siap_cetak.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 0.3333
+    },
+    {
+      "id": "9",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 1.0
+    },
+    {
+      "id": "10",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "hit_at_3": 1,
+      "precision_at_3": 1.0
+    }
+  ],
+  "hit_rate_at_3": 0.9,
+  "precision_at_3": 0.59999
+}

@@ -1,0 +1,54 @@
+{
+  "base_version": "draft-ffa4eb9c27fb",
+  "corpus_sha256": "99558b9f495f3f534143a4cb2b97bd499d9dc908e8503f0435c2dbce2b87a22b",
+  "file_sha256": {
+    "05_daftar_pertanyaan_populer.txt": "e87bc03eed420c15b4e84303d2e5bb2cc821c23fd77d1dc26a6e4fab4f2fb8ca",
+    "02_spesifikasi_bahan_dan_finishing.txt": "448fc0a469256712acda22d22aea4a674210b828a3e0761260ed5ee38d4a7352",
+    "03_panduan_berkas_siap_cetak.txt": "10b06892b01ddbae064bef3c52d0127fe7fe797ccbd2c28c04c14c6dd81bb19d",
+    "06_estimasi_pcs_per_lembar_a3.txt": "d072075361d140e615738d90ac73640a9e2a767014f7edcffdf3998e5ddd2181",
+    "04_daftar_estimasi_harga.txt": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+    "01_sop_dan_kebijakan_toko.txt": "e049bed0d865225504e8bdef3ab491b98bc84436d48265666d2bededbcc5b8a3"
+  },
+  "preprocessing": "sections-v1",
+  "started_at": "2026-10-12T08:41:32.187682+00:00",
+  "mode": "local-size-audit",
+  "note": "All candidates use the same section preprocessing. Original frozen vectors remain a separate historical baseline. No answer-quality claims follow from this report.",
+  "candidates": [
+    {
+      "chunk_size": 1500,
+      "chunk_overlap": 200,
+      "chunks": 99,
+      "embedding_token_limit": 512,
+      "max_tokens": 595,
+      "over_limit": 2,
+      "status": "blocked-by-embedding-token-limit"
+    },
+    {
+      "chunk_size": 1000,
+      "chunk_overlap": 100,
+      "chunks": 139,
+      "embedding_token_limit": 512,
+      "max_tokens": 371,
+      "over_limit": 0,
+      "status": "size-audited-only"
+    },
+    {
+      "chunk_size": 800,
+      "chunk_overlap": 80,
+      "chunks": 173,
+      "embedding_token_limit": 512,
+      "max_tokens": 328,
+      "over_limit": 0,
+      "status": "size-audited-only"
+    },
+    {
+      "chunk_size": 1000,
+      "chunk_overlap": 0,
+      "chunks": 136,
+      "embedding_token_limit": 512,
+      "max_tokens": 371,
+      "over_limit": 0,
+      "status": "size-audited-only"
+    }
+  ]
+}

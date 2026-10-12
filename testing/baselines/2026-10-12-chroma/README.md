@@ -7,6 +7,7 @@ The original 10-case retrieval benchmark produced Hit Rate@3 **90%** and source-
 | `manifest.json` | Source and artifact checksums, sanitized settings, dependency versions, embedding cache revision, Git revision, and index configuration |
 | `index_snapshot.json` | Original chunk IDs, text, metadata, and 384-dimensional vectors |
 | `source_snapshot.tar.gz` | Original application, benchmark, dataset, and business knowledge files; excludes environment credentials and customer chat history |
+| `answers.json` | Original 10 generated answers, retrieval context, usage, and LangSmith trace IDs captured before migration |
 | `results.json` | Per-case retrieval results and aggregate scores |
 | `retrieval.csv` | Original benchmark CSV output |
 | `summary.txt` | Original benchmark summary |
