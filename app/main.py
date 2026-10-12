@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import chat_router, admin_router
-from app.dependencies import initialize_rag_system, start_kb_watcher
+from app.dependencies import initialize_rag_system
 from app.config.settings import get_settings
 
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
@@ -34,8 +34,7 @@ async def lifespan(app: FastAPI):
     """
     logger.info("FastAPI Application Lifespan: Starting up...")
     try:
-        initialize_rag_system()
-        start_kb_watcher()
+        initialize_rag_system(recover_jobs=True)
         logger.info("Lifespan Startup: RAG system initialized successfully.")
     except Exception as e:
         logger.critical(f"Startup FAILED: {e}", exc_info=True)
@@ -58,14 +57,32 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_origins.split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+
+assets = Path(__file__).resolve().parent.parent / "frontend/dist/assets"
+if assets.exists():
+    app.mount("/admin/assets", StaticFiles(directory=assets), name="admin-assets")
 app.include_router(chat_router)
 app.include_router(admin_router)
+
+
+@app.get("/health", tags=["Health"])
+def health():
+    from app.dependencies import get_rag_chain
+    from fastapi import HTTPException
+
+    try:
+        get_rag_chain()
+    except RuntimeError:
+        raise HTTPException(503, "RAG is not ready.")
+    return {"status": "ready", "backend": settings.vector_store}
 
 
 @app.get("/", response_class=HTMLResponse, tags=["Root"], include_in_schema=False)
@@ -76,7 +93,6 @@ async def root():
     Returns:
         HTMLResponse berisi konten dari file index.html.
     """
-    index_path = Path(__file__).parent / "frontend" / "index.html"
-    if not index_path.exists():
-        return HTMLResponse("<h1>index.html not found</h1>", status_code=404)
-    return HTMLResponse(index_path.read_text(encoding="utf-8"))
+    from fastapi.responses import RedirectResponse
+
+    return RedirectResponse("/admin/")
