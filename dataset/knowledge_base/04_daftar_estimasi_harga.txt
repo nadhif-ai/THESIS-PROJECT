@@ -964,9 +964,9 @@ Pada skenario ini, bot WAJIB menghitung berapa pcs desain yang muat dalam 1 lemb
 
 Konstanta Area Cetak Efektif per Lembar A3+:
 • Metode Potong Manual Karter (untuk stiker tanpa kiss cut dan cetak kertas A3+): Area Efektif = 31 cm × 47 cm.
-• Metode Kiss Cut Mesin Plotter (untuk stiker dengan kiss cut otomatis): Area Efektif = 29 cm × 42 cm.
+• Metode Kiss Cut Mesin Plotter: gunakan jumlah pcs pada tabel acuan resmi di 03_panduan_berkas_siap_cetak.txt. Jangan memakai hasil grid teoritis untuk menggantikan acuan Kiss Cut toko.
 
-Rumus Hitung Muat Desain per Lembar (Grid Layout Lurus):
+Rumus Hitung Muat Desain per Lembar (Grid Layout Lurus, hanya untuk Potong Manual Karter):
 1. Hitung jumlah kolom = floor(Lebar Area ÷ Lebar Desain).
 2. Hitung jumlah baris = floor(Tinggi Area ÷ Tinggi Desain).
 3. Hitung total muat orientasi 1 = Kolom × Baris.
@@ -976,8 +976,8 @@ Rumus Hitung Muat Desain per Lembar (Grid Layout Lurus):
 Catatan: floor() artinya dibulatkan ke bawah (tanpa desimal). Contoh: floor(31 ÷ 5) = 6 (bukan 6,2).
 
 Langkah Perhitungan Lengkap:
-1. Tentukan metode potong (Kiss Cut atau Potong Manual) dan gunakan area efektif yang sesuai.
-2. Hitung jumlah desain muat per lembar menggunakan rumus di atas.
+1. Tentukan metode potong (Kiss Cut atau Potong Manual).
+2. Untuk Kiss Cut, ambil jumlah pcs dari tabel acuan resmi toko di 03_panduan_berkas_siap_cetak.txt. Untuk Potong Manual, gunakan rumus grid di atas. Jangan menyamakan kapasitas kedua metode.
 3. Hitung jumlah lembar yang dibutuhkan: Jumlah Lembar = ceiling(Jumlah pcs yang dipesan ÷ Desain per Lembar). Ceiling artinya dibulatkan ke atas. Contoh: ceiling(100 ÷ 54) = 2 lembar.
 4. Tentukan harga per lembar sesuai bahan, jenis, dan tier kuantitas (berdasarkan jumlah lembar, BUKAN jumlah pcs).
 5. Hitung harga cetak: Harga Cetak = Jumlah Lembar × Harga per lembar.
@@ -991,14 +991,6 @@ Contoh CoT 1 — Stiker Vinyl Tanpa Kiss Cut: Pelanggan memesan stiker vinyl uku
 • Tier harga Stiker Vinyl tanpa Kiss Cut (1–10 lembar) = Rp 12.500 per lembar.
 • Harga cetak = 2 × Rp 12.500 = Rp 25.000.
 • Total estimasi = Rp 25.000.
-
-Contoh CoT 2 — Stiker Cromo Dengan Kiss Cut: Pelanggan memesan stiker cromo kiss cut ukuran 3 × 3 cm sebanyak 500 pcs.
-• Metode: Kiss Cut Mesin → area efektif 29 × 42 cm.
-• Kolom = floor(29 ÷ 3) = 9. Baris = floor(42 ÷ 3) = 14. Muat = 9 × 14 = 126 pcs/lembar.
-• Jumlah lembar = ceiling(500 ÷ 126) = 4 lembar.
-• Tier harga Stiker Cromo dengan Kiss Cut (1–10 lembar) = Rp 12.500 per lembar.
-• Harga cetak = 4 × Rp 12.500 = Rp 50.000.
-• Total estimasi = Rp 50.000.
 
 Contoh CoT 3 — Cetak Kertas A3+ dengan Potong Kustom: Pelanggan memesan cetak Art Paper 150 GSM 1 sisi ukuran A5 (15 × 21 cm) sebanyak 200 pcs.
 • Metode: Potong Manual Karter → area efektif 31 × 47 cm.

@@ -1,6 +1,6 @@
 # Chatbot RAG refactor design
 
-Status: proposed for written review. The user approved the interview recommendations and selected LangSmith for tracing and evaluation results. The design below makes those choices concrete; product implementation starts after this document is reviewed.
+Status: implemented locally. The user approved the interview recommendations, selected LangSmith, and explicitly instructed continuing with grill-with-docs without the brainstorming workflow. The implementation and validation details below record that scope.
 
 ## Purpose and agreed scope
 
@@ -103,3 +103,11 @@ Use meaningful automated checks for namespace selection, draft/publication trans
 - [LangSmith custom evaluation metrics](https://docs.langchain.com/langsmith/metric-type)
 - [LangSmith experiment metadata](https://docs.langchain.com/langsmith/filter-experiments-ui)
 - [DeepEval OpenRouter integration](https://github.com/confident-ai/deepeval/blob/main/docs/content/integrations/models/openrouter.mdx)
+
+## Implementation evidence — 12 October 2026
+
+The 95 baseline vectors were migrated without re-embedding. Pinecone retained the legacy headline retrieval results (90% Hit Rate@3 and 60% source-file Precision@3). Ten original answers and contexts were captured before switching retrievers. The live Pinecone 10-case DeepEval experiment produced average Faithfulness 0.975, Answer Relevancy approximately 0.907, and Business Correctness 0.57, with feedback uploaded to LangSmith. These are judge scores; the pricing/specification failures remain visible for review.
+
+The shadcn dashboard builds and runs under /admin. A ready draft was indexed and queried in the playground while the published knowledge pointer stayed unchanged. Thirteen offline boundary tests passed; a one-case DeepEval CLI smoke test passed and attached feedback to LangSmith. Forty candidate conversation scenarios were generated using deepeval generate from indexed knowledge contexts and remain awaiting human review. Thirty-two are development scenarios and eight are reserved for final evaluation.
+
+DeepEval 4.2.8 and Chroma 1.5.1 require incompatible PostHog versions, so Chroma was moved to the isolated historical-baseline environment. A small synchronous OpenRouter judge adapter closes its HTTP client explicitly to avoid the SDK's closed-event-loop cleanup warnings. Deployment and live customer WhatsApp delivery are not validated in this local refactor.

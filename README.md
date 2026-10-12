@@ -1,166 +1,157 @@
-# Chatbot Informasi CV. Asia Visual Grafika (RAG + WhatsApp)
+# Chatbot Asia Visual Grafika — RAG + WhatsApp
 
-Chatbot WhatsApp untuk usaha percetakan digital **CV. Asia Visual Grafika**. Chatbot menjawab pertanyaan pelanggan tentang **bahan, harga, ketentuan berkas desain, dan SOP toko** berdasarkan dokumen milik toko, bukan dari "ingatan" AI. Teknik ini disebut **RAG** (*Retrieval-Augmented Generation*).
+Chatbot informasi percetakan untuk satu bisnis. Pelanggan menggunakan WhatsApp melalui Fonnte; administrator mengelola dokumen, menguji jawaban, mengatur model, dan melihat evaluasi di dashboard React + shadcn.
 
-Chatbot hanya memberi **informasi**. Ia tidak memproses pesanan atau pembayaran; itu tetap dilakukan admin toko.
+Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding E5 lokal → pencarian Pinecone → jawaban OpenRouter. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
 
-Repositori: https://github.com/nadhif-ai/THESIS-PROJECT
+## Menjalankan di macOS
 
----
+Gunakan Python **3.12** dan Node **22.12+**. Jalankan perintah dari root proyek:
 
-## 1. Cara kerja singkat
-
-1. Pelanggan mengirim pesan ke WhatsApp toko. Layanan **Fonnte** meneruskannya ke server lewat *webhook*.
-2. Server (**FastAPI**) memeriksa pesan. Sapaan, perintah *reset*, dan menu angka 1-4 dijawab langsung tanpa AI.
-3. Pertanyaan lain dicari di basis pengetahuan (**ChromaDB**, 10 potongan dokumen paling mirip), lalu dirangkai bersama riwayat chat menjadi *prompt*.
-4. **LLM** (Gemini lewat OpenRouter) menyusun jawaban dari potongan dokumen itu. Jawaban dikirim balik lewat Fonnte.
-
-## 2. Komponen
-
-| Komponen | Fungsi |
-|---|---|
-| FastAPI + Uvicorn | Server: *webhook* WhatsApp dan portal admin |
-| LangChain | Merangkai pencarian, *prompt*, dan LLM |
-| ChromaDB | Penyimpanan vektor (folder `chroma_db`, dibuat otomatis) |
-| `intfloat/multilingual-e5-small` | Model *embedding* lokal (teks menjadi vektor) |
-| OpenRouter (default `google/gemini-2.5-flash`) | Akses ke LLM |
-| Fonnte | Penghubung WhatsApp (terima dan kirim pesan) |
-| ngrok | Membuka server lokal ke internet agar bisa dipanggil Fonnte |
-| Portal admin `/admin` | Lihat riwayat chat dan kelola berkas pengetahuan |
-
-## 3. Struktur folder
-
-| Lokasi | Isi |
-|---|---|
-| `app/main.py` | Titik masuk aplikasi |
-| `app/routes.py` | *Endpoint*: *webhook* WhatsApp dan portal admin |
-| `app/dependencies.py` | Membangun ulang indeks dan memantau perubahan KB |
-| `app/backend/` | `loader.py` (baca dan potong dokumen), `vectorstore.py` (ChromaDB), `models.py` (embedding dan LLM), `prompt_template.py` (aturan jawaban), `chain.py` (alur RAG) |
-| `app/config/settings.py` | Pembaca pengaturan dari `.env` |
-| `app/frontend/admin.html` | Halaman portal admin |
-| `dataset/knowledge_base/` | 6 berkas pengetahuan toko (`01_` sampai `06_`, `.txt`) |
-| `dataset/admin_chat_history.json` | Riwayat chat yang tersimpan |
-| `testing/` | Skrip dan soal uji *retrieval* |
-| `run-app.bat` | Menjalankan FastAPI dan ngrok sekaligus |
-
----
-
-## 4. Instalasi (Windows)
-
-### Yang perlu disiapkan
-
-- Windows 64-bit, **Python 3.10**, dan **Git**.
-- Akun **OpenRouter** (butuh API key).
-- Akun **Fonnte** dengan satu perangkat WhatsApp yang sudah terhubung (butuh token).
-- Akun **ngrok** (butuh *authtoken*; domain statis opsional).
-- Koneksi internet untuk instalasi pertama (paket Python berukuran beberapa GB karena `torch`).
-
-### Langkah
-
-**1. Unduh proyek**
-
-```bat
-git clone https://github.com/nadhif-ai/THESIS-PROJECT.git
-cd THESIS-PROJECT
+```bash
+uv venv --python 3.12 venv
+uv pip install --python venv/bin/python -r requirements.txt
 ```
 
-**2. Buat lingkungan Python bernama `venv`** (nama ini wajib, karena dipakai `run-app.bat`)
+Untuk membuat environment baru, salin `.env.example` menjadi `.env` lalu isi kredensial. Jika `.env` sudah ada, gunakan file tersebut.
 
-```bat
-py -3.10 -m venv venv
-venv\Scripts\activate
-python -m pip install --upgrade pip
+Unduh embedding sekali jika belum ada di cache:
+
+```bash
+HF_HUB_OFFLINE=0 TRANSFORMERS_OFFLINE=0 venv/bin/python -c "from app.backend.models import get_embedding_model; get_embedding_model()"
 ```
 
-**3. Pasang dependensi**
+Build dashboard:
 
-```bat
-pip install -r requirements.txt
-pip install watchdog
+```bash
+cd frontend
+npm ci
+npm run build
+cd ..
 ```
 
-`watchdog` belum tercantum di `requirements.txt`, tetapi dibutuhkan agar indeks otomatis diperbarui saat berkas pengetahuan berubah. `python-telegram-bot` di `requirements.txt` tidak dipakai kode.
+Mulai backend:
 
-**4. Unduh model *embedding* satu kali**
-
-Aplikasi berjalan dalam mode *offline* untuk HuggingFace, jadi model harus sudah ada di komputer. Jalankan di terminal biasa (bukan lewat `run-app.bat`):
-
-```bat
-python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('intfloat/multilingual-e5-small')"
+```bash
+venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-**5. Buat berkas `.env`** di folder utama (sejajar dengan `run-app.bat`). Berkas ini tidak ada di repositori dan tidak boleh di-*commit*.
+Buka [dashboard admin](http://127.0.0.1:8000/admin/) atau [API docs](http://127.0.0.1:8000/docs). Login pertama dibuat otomatis dan disimpan di `data/admin-credentials.txt`. Baca file itu secara lokal. `ADMIN_PASSWORD` dapat ditentukan sebelum startup pertama untuk memilih password sendiri; perubahan nilai ini tidak mengganti akun yang sudah tersimpan.
 
-```env
-OPENROUTER_API_KEY=isi_api_key_openrouter
-OPENROUTER_MODEL=google/gemini-2.5-flash
-FONNTE_TOKEN=isi_token_fonnte
-NGROK_DOMAIN=nama-domain-anda.ngrok-free.app
+Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal kedua dan buka [Vite admin](http://127.0.0.1:5173/admin/). Permintaan admin API diteruskan ke backend port 8000.
+
+## Konfigurasi
+
+| Variabel | Keterangan |
+| --- | --- |
+| `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | Indeks vector dense **384 dimensi, cosine** |
+| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | Provider dan model pemberi jawaban |
+| `EVAL_MODEL` | Model judge terpisah; default `google/gemini-2.5-flash` |
+| `SEMANTIC_TOP_K` | Jumlah passage untuk jawaban; dapat diubah di Providers |
+| `LANGSMITH_TRACING`, `LANGSMITH_ENDPOINT`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` | Trace dan laporan evaluasi |
+| `LANGSMITH_WORKSPACE_ID` | Opsional jika key LangSmith memerlukan workspace organisasi |
+| `FONNTE_TOKEN` | Pengiriman balasan WhatsApp |
+| `DATA_DIR` | SQLite, berkas knowledge, job state, laporan lokal; default `./data` |
+| `COOKIE_SECURE`, `ALLOWED_ORIGINS` | Cookie dan origin untuk lingkungan HTTPS atau origin tambahan |
+
+Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di SQLite; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Embedding tetap `intfloat/multilingual-e5-small` untuk perbandingan migrasi. Pergantian embedding memerlukan indeks yang kompatibel dan reindex.
+
+## Menggunakan dashboard
+
+1. **Dashboard**: status knowledge, aktivitas, waktu respons, dan baseline retrieval.
+2. **Knowledge**: pilih versi, buat draft, upload/edit dokumen TXT/MD/PDF/CSV, lalu index. PDF harus memiliki teks; OCR belum tersedia.
+   Di **Passage configuration**, simpan ukuran chunk dan overlap sebelum indexing. Draft dari versi lama dimulai dengan **1.000 karakter / overlap 100**. Pengaturan disimpan per versi; versi ready/published harus diklon menjadi draft untuk mengubahnya. Indexing mempertahankan heading produk pada tiap passage, menghapus separator kosong, dan menolak passage di atas batas **512 token E5** agar teks tidak terpotong diam-diam. Nilai karakter tidak sama dengan token.
+3. **Playground**: pilih versi published atau ready, ajukan pertanyaan, lihat konteks/sumber, penggunaan token, dan link trace LangSmith. Sesi playground terpisah dari pelanggan.
+4. Setelah review, **Publish to WhatsApp** mengaktifkan versi ready. Pilih versi ready sebelumnya dan publish untuk rollback. File gagal diindex tidak mengganti knowledge pelanggan.
+5. **Conversations**: filter WhatsApp, playground, API, atau evaluasi. Riwayat lama diimpor sekali tanpa mengubah file asal.
+6. **Providers**: model jawaban, model judge, top-k, dan status konfigurasi kredensial.
+7. **Evaluations**: jalankan pertanyaan asli atau skenario percakapan yang telah direview; periksa skor/alasan per kasus, ekspor JSON, dan buka eksperimen LangSmith.
+
+Job indexing dan evaluasi berjalan dengan satu worker lokal. Status dan hasil disimpan; pekerjaan yang terputus saat restart ditandai interrupted dan dapat dijalankan ulang. Kegagalan upload hasil LangSmith dapat di-retry memakai skor tersimpan tanpa memanggil judge lagi.
+
+## Baseline dan evaluasi
+
+Baseline Chroma tersimpan di `testing/baselines/2026-10-12-chroma/`: 10 pertanyaan, 95 passage beserta vector, snapshot source, konfigurasi dan checksum. Hit Rate@3 **90%**, source-file Precision@3 **60%**. Jawaban asli beserta konteks dan trace juga disimpan sebelum mengganti retriever.
+
+Perbandingan Pinecone:
+
+```bash
+HF_HUB_DISABLE_PROGRESS_BARS=1 venv/bin/python -m testing.compare_retrieval
 ```
 
-| Variabel | Wajib | Keterangan |
-|---|---|---|
-| `OPENROUTER_API_KEY` | Ya | Tanpa ini aplikasi gagal menyala |
-| `FONNTE_TOKEN` | Ya, untuk WhatsApp | Tanpa ini balasan tidak terkirim |
-| `OPENROUTER_MODEL` | Tidak | Bawaan `google/gemini-2.5-flash`; samakan dengan model yang dipakai saat pengujian skripsi |
-| `NGROK_DOMAIN` | Tidak | Tulis tanpa `https://`. Jika kosong, ngrok memakai alamat acak yang berubah setiap dijalankan |
-| `EMBEDDING_MODEL`, `SEMANTIC_TOP_K`, `CHROMA_PERSIST_DIR`, `LOG_LEVEL` | Tidak | Bawaan: `intfloat/multilingual-e5-small`, `10`, `./chroma_db`, `INFO` |
+Metrik lama adalah pencocokan nama source file pada k=3; runtime jawaban saat capture menggunakan k=5. Jangan menafsirkan skor retrieval sebagai akurasi jawaban.
 
-**6. Daftarkan *authtoken* ngrok** (cukup sekali; `ngrok.exe` sudah ada di folder proyek)
+### Review referensi dan eksperimen chunking
 
-```bat
-ngrok.exe config add-authtoken ISI_AUTHTOKEN_NGROK
+DeepEval QA sekarang menghitung **Contextual Precision** dan **Contextual Recall** selain Faithfulness, Answer Relevancy, dan Business Correctness. Skor retrieval lama tetap terpisah. Hasil run menyimpan konfigurasi chunking, hash corpus, hash dataset, model/judge, dan top-k; model jawaban, judge dan top-k dibekukan selama satu run.
+
+Di **Evaluations → QA reference review**, periksa `testing/evals/qa-reference-candidates.json`. Kandidat ini berasal dari 10 pertanyaan asli, dengan catatan fakta wajib/opsional dan klarifikasi yang diterima. **Kasus 8 sudah dikonfirmasi: Kiss Cut 5×5 cm = 35 pcs per lembar A3+**; hold dilepas dan 10 kasus tersedia setelah admin menandai referensinya reviewed. Referensi QA saat ini juga diperbarui; baseline historis tetap utuh. Perubahan isi membatalkan review. Review percakapan dan review QA merupakan dua status terpisah.
+
+Konteks kandidat percakapan lama mengandung tabel Kiss Cut yang sudah digantikan. Dataset itu ditandai stale dan tidak dapat ditandai reviewed sebelum konteks/outcome dikoreksi atau dibuat ulang. `testing/evals/dataset-stale.json` mengikat status ini pada checksum dataset lama. Angka potong manual merupakan metode berbeda; tidak dipakai sebagai jawaban acuan Kiss Cut.
+
+Audit ukuran tanpa API jawaban/judge:
+
+```bash
+venv/bin/python -m testing.compare_chunking
 ```
 
-**7. Jalankan**
+Untuk membuat versi Pinecone eksperimen terpisah dan menjalankan benchmark retrieval k=3:
 
-Klik dua kali `run-app.bat`. Dua jendela terbuka: **FastAPI** dan **ngrok**. Pada jalan pertama, indeks ChromaDB dibangun otomatis sehingga startup lebih lama. Tunggu sampai jendela FastAPI menampilkan "RAG system initialized successfully".
-
-**8. Hubungkan WhatsApp**
-
-Di dashboard Fonnte, buka pengaturan perangkat dan isi *Webhook URL*:
-
-```
-https://NAMA-DOMAIN-NGROK/chat/whatsapp
+```bash
+venv/bin/python -m testing.compare_chunking --index --output testing/comparisons/chunking-retrieval.json
 ```
 
-Kirim pesan ke nomor WhatsApp toko untuk mencoba.
+Setiap pemanggilan dengan `--index` membuat draft eksperimen baru; tidak memublikasikannya. Semua kandidat memakai preprocessing section yang sama. Kandidat di atas batas token dilaporkan blocked; snapshot historis 1.500/200 tetap tersedia sebagai pembanding terpisah. Perbandingan baseline lama dengan kandidat baru juga mencakup perubahan preprocessing, bukan ukuran chunk saja.
 
----
+Setelah review QA, pilih **Reviewed QA references** dan versi **1.000/100** di dashboard untuk menjalankan metrik jawaban. CLI yang sama dapat dipakai dengan versi tertentu:
 
-## 5. Memeriksa bahwa sistem berjalan
+```bash
+RUN_PAID_EVALS=1 EVAL_DATASET=audited EVAL_KNOWLEDGE_VERSION=<version-id> EVAL_CASE_LIMIT=10 venv/bin/deepeval test run testing/evals/test_chatbot.py --identifier chunking-1000-100
+```
 
-| Alamat | Fungsi |
-|---|---|
-| http://localhost:8000/docs | Dokumentasi API; bisa mencoba `POST /chat/faq` tanpa WhatsApp (isi `session_id` dan `question`) |
-| http://localhost:8000/admin | Portal admin (login; kredensial ada di bagian login `app/routes.py`) |
+Ganti `<version-id>` dengan ID versi ready. Bandingkan semua versi memakai referensi, model, judge, prompt dan top-k yang sama. Biaya API model berlaku untuk evaluasi jawaban; skor retrieval sumber-file yang tinggi belum membuktikan jawaban harga benar.
 
-## 6. Masalah yang sering terjadi
+Pengujian boundary tanpa panggilan model:
 
-| Gejala | Penyebab dan solusi |
-|---|---|
-| Error `OPENROUTER_API_KEY` *field required* | `.env` belum dibuat atau salah letak |
-| Gagal memuat model saat startup | Langkah 4 belum dilakukan |
-| Pesan WhatsApp tidak dibalas | Periksa *webhook* di Fonnte, `FONNTE_TOKEN`, status perangkat Fonnte, dan jendela ngrok masih terbuka |
-| Alamat ngrok berubah dan bot berhenti membalas | `NGROK_DOMAIN` kosong; isi domain statis atau perbarui *webhook* di Fonnte |
-| Isi KB diubah tapi jawaban lama | `watchdog` belum terpasang; pasang lalu restart |
-| Ingin mengosongkan indeks | Hentikan aplikasi, hapus folder `chroma_db`, jalankan ulang |
+```bash
+LANGSMITH_TRACING=false venv/bin/python -m pytest testing/test_admin_workflow.py -q
+```
 
----
+DeepEval smoke test dengan API model:
 
-## 7. Catatan untuk penulis Bab IV
+```bash
+RUN_PAID_EVALS=1 EVAL_CASE_LIMIT=1 venv/bin/deepeval test run testing/evals/test_chatbot.py --identifier smoke
+```
 
-**Urutan membaca kode** (dari alur paling dasar):
-`main.py` → `dependencies.py` → `loader.py` → `vectorstore.py` → `models.py` → `prompt_template.py` → `chain.py` → `routes.py` (bagian *webhook* dan `/admin`).
+Hilangkan `EVAL_CASE_LIMIT=1` untuk 10 pertanyaan asli. Skor di bawah threshold membuat quality test gagal; alasan dan skor tetap tersedia untuk diperiksa. Eval memakai API berbayar, dibatasi jumlah kasus/concurrency, dan tidak menjalankan loop optimasi otomatis.
 
-**Pengujian *retrieval*** ada di `testing/run_evaluation.py` (Hit Rate@3 dan Precision@3 atas soal di `test_dataset.csv`). Jalankan setelah ChromaDB terisi: `python testing/run_evaluation.py`.
+40 kandidat skenario percakapan dibuat dengan `deepeval generate` dari konteks knowledge di `testing/evals/.dataset.json`. Periksa skenario, satuan, harga, dan expected outcome, edit JSON bila perlu, lalu tandai reviewed di dashboard. Setiap perubahan isi membatalkan status review. Sebanyak 32 kasus tersedia untuk development dan 8 dicadangkan sebagai held-out; gunakan held-out untuk penilaian akhir setelah menentukan konfigurasi.
 
-**Bagian kode yang tidak dipakai** alur WhatsApp maupun portal admin. Tidak perlu didokumentasikan:
+Untuk suite percakapan setelah review:
 
-- `routes.py`: *endpoint* `/chat/questions`, `/chat/question/{id}`, `/price-calculator`, `/api/calculator/data`, dan `/chat/media/gdrive/...` (berkas pendukungnya tidak ada di repositori).
-- `main.py`: rute `/` (berkas `index.html` tidak ada).
-- `chain.py`: parameter `intent_filter`, penanganan `media_url`, dan fungsi `clear_all_session_histories`.
-- `temp_script_0.js`: salinan lama skrip portal admin.
-- `python-telegram-bot`: sisa fase awal.
+```bash
+RUN_PAID_EVALS=1 EVAL_DATASET=conversations EVAL_CASE_LIMIT=3 venv/bin/deepeval test run testing/evals/test_chatbot.py
+```
 
-Yang aktif: *webhook* `/chat/whatsapp`, delapan *endpoint* `/admin/api/*`, serta `/chat/faq` dan `/chat/reset` sebagai jalur uji lewat REST.
+Metrik QA: Faithfulness, Answer Relevancy, business correctness. Percakapan: Turn Faithfulness, Turn Relevancy, Conversation Completeness, business correctness. Threshold awal **0.7** adalah batas diagnostik. Kesalahan provider/metric dicatat terpisah dari nilai kualitas. Confident AI tidak dikonfigurasi; reporting memakai LangSmith.
+
+Chroma sudah dipisahkan dari dependency runtime. Untuk reproduksi benchmark historis, gunakan environment Python 3.12 terpisah dengan `testing/requirements-baseline.txt`, lalu `VECTOR_STORE=chroma` dan koleksi Chroma lama atau koleksi yang dipulihkan dari snapshot. Jangan memasang dependency Chroma lama dan DeepEval baru pada environment runtime yang sama: keduanya membutuhkan versi PostHog yang berbeda.
+
+## WhatsApp
+
+Backend menerima webhook GET/POST di `/chat/whatsapp`. Untuk menerima pesan dari Fonnte, device WhatsApp perlu terhubung di Fonnte dan URL webhook harus dapat dijangkau melalui HTTPS. Untuk percobaan lokal, jalankan tunnel ngrok terpisah dan pasang `<URL-tunnel>/chat/whatsapp` pada konfigurasi webhook Fonnte.
+
+Dashboard/playground dapat digunakan tanpa mengirim pesan WhatsApp. Pengujian dashboard tidak mengirim pesan ke pelanggan. Server lokal ini bukan konfigurasi deployment publik; frontend Vercel dan backend container tetap menjadi tahap deployment berikutnya.
+
+## Struktur aktif
+
+| Lokasi | Tanggung jawab |
+| --- | --- |
+| `app/main.py`, `app/routes.py` | Server, API chat, webhook WhatsApp |
+| `app/admin/` | Auth, knowledge versions, SQLite, job runner dan admin API |
+| `app/backend/` | Loader, embedding/LLM, Pinecone, prompt dan RAG |
+| `frontend/` | React + Vite + shadcn dashboard |
+| `testing/evals/` | Dataset, metrik DeepEval, suite dan LangSmith bridge |
+| `testing/baselines/`, `testing/comparisons/` | Capture historis dan perbandingan retrieval |
+| `data/` | Data runtime lokal yang diabaikan Git |
+| `docs/adr/`, `GLOSSARY.md` | Keputusan dan istilah proyek |
