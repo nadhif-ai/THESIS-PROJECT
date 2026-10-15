@@ -62,3 +62,7 @@ def run(identifier, kind, payload):
         )
         store.set_job_state(identifier, "failed", error=message)
         update_progress(identifier, phase="failed")
+
+
+def stop():
+    _worker.shutdown(wait=True)

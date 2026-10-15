@@ -9,7 +9,7 @@ from app.backend.vectorstore import similarity_search_with_score
 
 
 def main():
-    store.initialize()
+    store.check_ready()
     knowledge.bootstrap()
     rows = list(
         csv.DictReader(

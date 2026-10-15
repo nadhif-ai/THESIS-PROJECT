@@ -88,6 +88,9 @@ async def reset_chat_history(req: ResetChatRequest):
     """
     from app.backend.chain import clear_session_history
 
+    from app.admin import store
+
+    store.require_live()
     was_active = clear_session_history("api_" + req.session_id)
     return JSONResponse(
         {
@@ -126,6 +129,9 @@ def chat_faq(req: ChatFaqRequest) -> ChatFaqResponse:
         "[ChatRouter/faq] session=%s question=%r", req.session_id, req.question[:60]
     )
 
+    from app.admin import store
+
+    store.require_live()
     question = req.question
     if req.product_context:
         question = f"{req.question} [konteks produk: {req.product_context}]"
@@ -297,6 +303,13 @@ async def fonnte_whatsapp_webhook(
     """
     Endpoint Webhook WhatsApp via Fonnte (Fleksibel JSON & Form Data + Support Foto/Media).
     """
+    from app.config.settings import get_settings
+
+    if get_settings().whatsapp_provider != "fonnte":
+        return {"status": "ignored", "reason": "fonnte_disabled"}
+    from app.admin import store
+
+    store.require_live()
     sender = None
     message = None
     name = ""

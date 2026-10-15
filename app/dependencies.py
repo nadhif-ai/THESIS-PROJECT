@@ -1,15 +1,12 @@
 from app.backend.chain import RAGChain
-from app.admin import store, knowledge
-from app.config.settings import get_settings
+from app.admin import store
 
 _rag_chain = None
 
 
-def initialize_rag_system(recover_jobs=False):
+def initialize_rag_system():
     global _rag_chain
-    store.initialize(recover_jobs=recover_jobs)
-    if get_settings().vector_store == "pinecone":
-        knowledge.bootstrap()
+    store.check_ready()
     _rag_chain = RAGChain()
 
 

@@ -165,16 +165,16 @@ def process(row):
 
 def worker():
     while not _stop.is_set():
-        if store.get_runtime_mode() != "live":
-            _wake.wait(2)
-            _wake.clear()
-            continue
-        row = store.claim_inbox(get_settings().waha_session)
-        if row:
-            process(dict(row))
-        else:
-            _wake.wait(2)
-            _wake.clear()
+        try:
+            if store.get_runtime_mode() == "live":
+                row = store.claim_inbox(get_settings().waha_session)
+                if row:
+                    process(dict(row))
+                    continue
+        except store.StateUnavailable:
+            logger.warning("WhatsApp worker waiting for administration database availability.")
+        _wake.wait(2)
+        _wake.clear()
 
 
 def start():
@@ -194,7 +194,7 @@ def stop():
     _stop.set()
     _wake.set()
     if _thread:
-        _thread.join(timeout=5)
+        _thread.join()
 
 
 @router.get("/webhook")

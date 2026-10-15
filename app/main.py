@@ -22,25 +22,25 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Mengelola siklus hidup aplikasi FastAPI (startup dan shutdown).
-
-    Pada fase startup: menginisialisasi seluruh pipeline RAG termasuk
-    memuat model embedding, menghubungkan ke ChromaDB, dan menyiapkan RAGChain.
-    Pada fase shutdown: mencatat log bahwa aplikasi berhenti dengan bersih.
-
-    Args:
-        app: instance aplikasi FastAPI.
-    """
     logger.info("FastAPI Application Lifespan: Starting up...")
     try:
-        initialize_rag_system(recover_jobs=True)
+        initialize_rag_system()
         logger.info("Lifespan Startup: RAG system initialized successfully.")
     except Exception as e:
         logger.critical(f"Startup FAILED: {e}", exc_info=True)
         raise e
-    yield
-    logger.info("FastAPI Application Lifespan: Shutting down...")
+    from app.integrations import waha
+
+    waha.start()
+    try:
+        yield
+    finally:
+        from app.admin import jobs, store
+
+        waha.stop()
+        jobs.stop()
+        store.close_pool()
+        logger.info("FastAPI Application Lifespan: Shutting down...")
 
 
 from fastapi.responses import HTMLResponse
@@ -71,6 +71,9 @@ if assets.exists():
     app.mount("/admin/assets", StaticFiles(directory=assets), name="admin-assets")
 app.include_router(chat_router)
 app.include_router(admin_router)
+from app.integrations.waha import router as waha_router
+
+app.include_router(waha_router)
 
 
 @app.get("/health", tags=["Health"])
@@ -96,3 +99,12 @@ async def root():
     from fastapi.responses import RedirectResponse
 
     return RedirectResponse("/admin/")
+
+from app.admin.store import StateUnavailable
+from fastapi.responses import JSONResponse
+
+
+@app.exception_handler(StateUnavailable)
+async def state_unavailable(request, error):
+    return JSONResponse({"detail": "Chatbot is temporarily unavailable. Please try again later."},
+                        status_code=503, headers={"Retry-After": "5"})

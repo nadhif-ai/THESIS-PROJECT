@@ -45,6 +45,7 @@ def require_admin(request: Request):
             request.headers.get("x-csrf-token", ""), row["csrf"]
         ):
             raise HTTPException(403, "Refresh your session before saving changes.")
+        store.require_live()
     return row["csrf"]
 
 

@@ -142,11 +142,6 @@ def check_ready():
             raise StateUnavailable("Published knowledge selection is inconsistent.")
 
 
-def initialize(recover_jobs=False):
-    # Kept during caller migration; readiness never recovers another process's work.
-    check_ready()
-
-
 def get_runtime_mode():
     with _connection() as db:
         row = db.execute(
@@ -155,6 +150,11 @@ def get_runtime_mode():
     if not row:
         raise StateUnavailable("Administration control state is missing.")
     return row["mode"]
+
+
+def require_live():
+    if get_runtime_mode() != "live":
+        raise MaintenanceError("Chatbot maintenance is active. Please try again later.")
 
 
 def hash_password(password, salt):

@@ -33,7 +33,7 @@ def main():
         default=ROOT / "testing/comparisons/chunking-candidates.json",
     )
     args = parser.parse_args()
-    store.initialize()
+    store.check_ready()
     source = store.version(args.base_version)
     hashes = {
         name: hashlib.sha256(
