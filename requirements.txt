@@ -7,6 +7,8 @@ uvicorn==0.41.0
 python-multipart==0.0.22        # dibutuhkan FastAPI untuk Form / UploadFile
 pydantic==2.12.5
 pydantic-settings==2.12.0
+psycopg[binary]==3.3.6
+psycopg-pool==3.3.3
 python-dotenv==1.2.1            # membaca file .env
 
 # --- RAG ---
@@ -23,7 +25,7 @@ torch==2.10.0
 
 # --- Pendukung ---
 pandas==2.3.3
-requests==2.32.5                # kirim balasan ke Fonnte
+requests==2.32.5                # WhatsApp transport (WAHA / legacy Fonnte)
 pypdf==6.7.2                    # opsional: hanya jika mengunggah KB berformat PDF
 pinecone==7.3.0
 deepeval==4.2.8

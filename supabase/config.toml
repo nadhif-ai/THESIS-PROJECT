@@ -1,0 +1,7 @@
+project_id = "Nadhif-TA"
+
+[api]
+schemas = ["public", "graphql_public"]
+
+[db]
+major_version = 17
