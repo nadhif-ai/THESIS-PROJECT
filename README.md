@@ -118,6 +118,8 @@ Ganti `<version-id>` dengan ID versi ready. Bandingkan semua versi memakai refer
 
 Pengujian boundary tanpa panggilan model:
 
+Tes administrasi memerlukan PostgreSQL disposable pada loopback port 54585; fixture tidak memakai Supabase production. Lihat [persiapan database tes](docs/runbooks/supabase-state-cutover.md#verification-and-deployment-boundary).
+
 ```bash
 LANGSMITH_TRACING=false venv/bin/python -m pytest testing/test_admin_workflow.py -q
 ```
