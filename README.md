@@ -1,6 +1,6 @@
 # Chatbot Asia Visual Grafika — RAG + WhatsApp
 
-Chatbot informasi percetakan untuk satu bisnis. Pelanggan menggunakan WhatsApp melalui Fonnte; administrator mengelola dokumen, menguji jawaban, mengatur model, dan melihat evaluasi di dashboard React + shadcn.
+Chatbot informasi percetakan untuk satu bisnis. Pelanggan menggunakan WhatsApp melalui WAHA; administrator mengelola dokumen, menguji jawaban, mengatur model, dan melihat evaluasi di dashboard React + shadcn. Integrasi Fonnte tersedia untuk rollback.
 
 Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding E5 lokal → pencarian Pinecone → jawaban OpenRouter. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
 
@@ -50,7 +50,10 @@ Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal 
 | `SEMANTIC_TOP_K` | Jumlah passage untuk jawaban; dapat diubah di Providers |
 | `LANGSMITH_TRACING`, `LANGSMITH_ENDPOINT`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` | Trace dan laporan evaluasi |
 | `LANGSMITH_WORKSPACE_ID` | Opsional jika key LangSmith memerlukan workspace organisasi |
-| `FONNTE_TOKEN` | Pengiriman balasan WhatsApp |
+| `WHATSAPP_PROVIDER` | `waha` untuk koneksi aktif, atau `fonnte` untuk integrasi lama |
+| `WAHA_BASE_URL`, `WAHA_API_KEY`, `WAHA_SESSION` | Server WAHA, API key, dan nama session yang sudah terhubung |
+| `WAHA_WEBHOOK_SECRET`, `WAHA_WEBHOOK_URL` | Secret HMAC dan alamat callback HTTPS backend |
+| `FONNTE_TOKEN` | Token integrasi lama; hanya digunakan ketika provider `fonnte` |
 | `DATABASE_URL` | Koneksi PostgreSQL runtime dengan role terbatas `chatbot_app` |
 | `DATABASE_MIGRATION_URL` | Koneksi operator untuk migrasi eksplisit; tidak dipakai runtime |
 | `DATA_DIR` | Berkas knowledge, artefak evaluasi, dan backup lokal; default `./data` |
@@ -141,15 +144,49 @@ Chroma sudah dipisahkan dari dependency runtime. Untuk reproduksi benchmark hist
 
 ## WhatsApp
 
-Backend menerima webhook GET/POST di `/chat/whatsapp`. Untuk menerima pesan dari Fonnte, device WhatsApp perlu terhubung di Fonnte dan URL webhook harus dapat dijangkau melalui HTTPS. Untuk percobaan lokal, jalankan tunnel ngrok terpisah dan pasang `<URL-tunnel>/chat/whatsapp` pada konfigurasi webhook Fonnte.
+### WAHA di VPS, backend di Mac
 
-Dashboard/playground dapat digunakan tanpa mengirim pesan WhatsApp. Pengujian dashboard tidak mengirim pesan ke pelanggan. Server lokal ini bukan konfigurasi deployment publik; frontend Vercel dan backend container tetap menjadi tahap deployment berikutnya.
+Koneksi saat ini menggunakan session `asia-chatbot` pada WAHA GOWS. Mac dan VPS berada di jaringan Tailscale yang sama. Jalankan backend di Mac:
+
+```bash
+venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Aktifkan callback HTTPS privat melalui Tailscale Serve (konfigurasinya persisten):
+
+```bash
+tailscale serve --bg --https=8443 http://127.0.0.1:8000
+tailscale serve status
+```
+
+Callback yang terpasang pada session WAHA:
+`https://royans-macbook-pro.tail14234e.ts.net:8443/chat/waha/webhook`.
+Jika pindah host, sesuaikan hostname pada `WAHA_WEBHOOK_URL` dan konfigurasi webhook WAHA.
+
+Di konfigurasi session WAHA, gunakan event **`message`** dan **`message.ack`**, HMAC key yang sama dengan `WAHA_WEBHOOK_SECRET`, serta retry constant dengan delay 2 detik dan 5 attempts. Jangan membagikan API key atau secret. Session harus berstatus **WORKING**. Dashboard **Providers** menampilkan status session, worker, dan antrean; tombol Refresh memperbarui status.
+
+Webhook memverifikasi HMAC SHA-512 atas body asli, menyimpan pesan ke antrean PostgreSQL, lalu worker menjalankan pipeline RAG dan mengirim balasan. Pesan berulang dengan ID sama tidak diproses ulang. Pesan dari akun bot sendiri, grup, serta pesan tanpa teks diabaikan. Gunakan satu proses Uvicorn untuk antrean ini. Pengiriman yang terputus atau tidak pasti ditandai `uncertain`; periksa WhatsApp sebelum mencoba mengirim ulang.
+
+Mac harus tetap menyala dengan backend dan Tailscale aktif. WAHA di VPS saja belum cukup untuk menjawab pesan ketika Mac tidur atau backend berhenti. Untuk operasi terus-menerus, pindahkan backend dan data persisten ke host yang selalu aktif.
+
+### Preview gambar
+
+Pipeline mengirim gambar ketika dokumen hasil retrieval memiliki metadata `media_url`. Loader teks mengekstrak URL dari penanda `[MEDIA: https://host/gambar.png]` dalam dokumen; loader CSV menerima kolom `media_url`. Tambahkan gambar yang relevan pada sumber knowledge, index ulang, review di playground, lalu publish. Pipeline memilih URL pertama yang tersedia dari dokumen hasil retrieval. Mengunggah PDF tidak otomatis menghasilkan preview foto produk.
+
+Gunakan URL HTTPS gambar PNG/JPEG yang dapat diunduh dari server WAHA. URL localhost akan diterjemahkan ke host HTTPS callback yang dikonfigurasi. Gambar dikirim melalui `/api/sendImage`, lalu jawaban lengkap melalui `/api/sendText`. Jika gambar gagal, balasan teks tetap dicoba. Verifikasi koneksi awal berhasil mengirim teks dan PNG diagnostik kepada pengirim pesan uji; keduanya menerima delivery acknowledgement `2`.
+
+### Rollback Fonnte
+
+Set `WHATSAPP_PROVIDER=fonnte`, pastikan `FONNTE_TOKEN` tersedia, restart backend, dan arahkan webhook Fonnte ke URL HTTPS `/chat/whatsapp`. Ketika provider `waha`, endpoint Fonnte mengabaikan pesan agar tidak ada dua integrasi yang membalas bersamaan. Backup konfigurasi session WAHA sebelum migrasi disimpan lokal di `data/waha/`; file tersebut berisi konfigurasi privat dan tidak boleh dibagikan.
+
+Dashboard/playground dapat digunakan tanpa mengirim pesan WhatsApp. Pengujian dashboard tidak mengirim pesan ke pelanggan. Server lokal ini bukan konfigurasi deployment publik; deployment Vercel tetap memerlukan tahap worker persisten, penyimpanan artefak, dan konfigurasi routing.
 
 ## Struktur aktif
 
 | Lokasi | Tanggung jawab |
 | --- | --- |
 | `app/main.py`, `app/routes.py` | Server, API chat, webhook WhatsApp |
+| `app/integrations/waha.py` | Webhook WAHA, antrean persisten, pengiriman teks/gambar dan receipts |
 | `app/admin/` | Auth, knowledge versions, PostgreSQL, job runner dan admin API |
 | `app/backend/` | Loader, embedding/LLM, Pinecone, prompt dan RAG |
 | `frontend/` | React + Vite + shadcn dashboard |

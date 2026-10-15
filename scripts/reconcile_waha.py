@@ -104,12 +104,16 @@ def reconcile_messages(messages, session, write=False):
 
 def complete_reconciliation(messages, session, start, end, admin_dsn):
     messages=validated(messages)
+    if session!=get_settings().waha_session: raise ValueError('Reconciliation session does not match runtime.')
     if not 0<=start<=end: raise ValueError('Invalid reconciliation interval.')
     if any(row['timestamp']<start-1 or row['timestamp']>end+1 for row in messages):
         raise ValueError('History lies outside the fixed scan interval.')
     with admin_db(admin_dsn) as db:
         mode,started,_=control_row(db)
         if mode!='intake' or not started: raise ValueError('Completion requires intake maintenance.')
+        boundary,resumed=db.execute('SELECT maintenance_started_at,intake_started_at FROM chatbot.runtime_control WHERE id=1').fetchone()
+        if not boundary or not resumed or start>datetime.fromisoformat(boundary).timestamp() or end<datetime.fromisoformat(resumed).timestamp():
+            raise ValueError('Scan does not cover the current maintenance interval.')
         for row in messages:
             if eligible(row):
                 stored=db.execute('SELECT sender,body FROM chatbot.whatsapp_inbox WHERE session=%s AND message_id=%s',(session,row['id'])).fetchone()
@@ -118,7 +122,8 @@ def complete_reconciliation(messages, session, start, end, admin_dsn):
         if len(ledger)!=1: raise ValueError('Verified import ledger is required.')
         digest,raw=ledger[0];metadata=json.loads(raw)
         receipt={'snapshot_sha256':digest,'session':session,'start':start,'end':end,
-                 'scan_sha256':hashlib.sha256(encoded(messages).encode()).hexdigest(),'complete':True}
+                 'scan_sha256':hashlib.sha256(encoded(messages).encode()).hexdigest(),'complete':True,
+                 'maintenance_started_at':boundary,'intake_started_at':resumed}
         metadata['reconciliation']=receipt
         db.execute('UPDATE chatbot.state_imports SET manifest=%s WHERE snapshot_sha256=%s',(encoded(metadata),digest))
     return receipt

@@ -135,3 +135,30 @@ def test_startup_does_not_mutate_inflight_delivery(client):
             db.execute("SELECT status FROM chatbot.whatsapp_inbox").fetchone()[0]
             == "sending"
         )
+
+
+def test_image_timeout_retains_uncertainty_after_text_success(client,monkeypatch):
+    import requests
+    signed_post(client,event())
+    row=store.get_inbox('asia-chatbot','test-message-1')
+    row.update(answer='Prepared answer.',media_url='https://example.com/image.png')
+    calls=[]
+    def api(method,path,payload,**kwargs):
+        calls.append(path)
+        if path=='/api/sendImage': raise requests.Timeout()
+        return {'id':'known-text-reply'}
+    monkeypatch.setattr(waha,'api',api)
+    waha.send_reply(row)
+    persisted=store.get_inbox('asia-chatbot','test-message-1')
+    assert persisted['status']=='uncertain'
+    assert json.loads(persisted['reply_ids'])==['known-text-reply']
+    assert calls==['/api/sendImage','/api/sendText']
+
+
+def test_missing_send_response_identity_is_uncertain(client,monkeypatch):
+    signed_post(client,event())
+    store.update_inbox('asia-chatbot','test-message-1',{'answer':'Prepared answer.'})
+    row=store.get_inbox('asia-chatbot','test-message-1')
+    monkeypatch.setattr(waha,'api',lambda *a,**k:{})
+    waha.process(row)
+    assert store.get_inbox('asia-chatbot','test-message-1')['status']=='uncertain'

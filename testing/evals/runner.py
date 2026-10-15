@@ -225,9 +225,11 @@ def load_cases(dataset, limit):
     ][:limit]
 
 
-def _metric_results(case, metrics):
+def _metric_results(case, metrics, progress=None):
     scores = []
     for metric in metrics:
+        if progress:
+            progress(phase="scoring", metric=metric.__name__, metrics_completed=len(scores), metrics_total=len(metrics))
         try:
             metric.measure(case)
             scores.append(
@@ -250,6 +252,8 @@ def _metric_results(case, metrics):
                     "error": type(error).__name__,
                 }
             )
+        if progress:
+            progress(metrics_completed=len(scores))
     return scores
 
 
@@ -292,9 +296,14 @@ def _sync_dataset(client, name, rows, kind):
 
 def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
     from app.dependencies import get_rag_chain
+    from app.admin.jobs import update_progress
+
+    def progress(**fields):
+        update_progress(job_id, **fields)
 
     item = store.version(version_id)
     rows = load_cases(dataset, limit)
+    progress(phase="preparing", completed=0, total=len(rows), errors=0)
     s = get_settings()
     folder = store.data_path() / "evaluations" / job_id
     folder.mkdir(parents=True, exist_ok=True)
@@ -352,6 +361,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
         "threshold": 0.7,
     }
     for row in rows:
+        progress(phase="answering", case_id=row["id"], case_label=row.get("question") or row.get("scenario"), metric=None, metrics_completed=0, metrics_total=0)
         with tracing_context(
             client=client,
             project_name=result["experiment_name"]
@@ -403,6 +413,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
                             single_turn_metrics(
                                 row.get("review_notes"), result["judge"]
                             ),
+                            progress,
                         )
                 else:
 
@@ -448,7 +459,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
                         turns=[turn.model_dump(mode="json") for turn in case.turns],
                     )
                     record["metrics"] = _metric_results(
-                        case, conversational_metrics(result["judge"])
+                        case, conversational_metrics(result["judge"]), progress
                     )
                 tree.end(outputs=record)
                 try:
@@ -459,6 +470,8 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
                 (folder / "results.json").write_text(
                     json.dumps(result, ensure_ascii=False, indent=2) + "\n"
                 )
+                progress(completed=len(result["cases"]), errors=sum(bool(case.get("error")) or any(metric.get("error") for metric in case["metrics"]) for case in result["cases"]))
+    progress(phase="reporting", case_id=None, case_label=None, metric=None)
     client.flush(timeout=30)
     result["completed_at"] = store.now()
     names = {score["name"] for row in result["cases"] for score in row["metrics"]}

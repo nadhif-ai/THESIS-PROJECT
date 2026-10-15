@@ -122,7 +122,7 @@ def check_ready():
         versions = db.execute(
             "SELECT version FROM chatbot.schema_migrations ORDER BY version"
         ).fetchall()
-        if [r["version"] for r in versions] != [1]:
+        if [r["version"] for r in versions] != [1, 2]:
             raise StateUnavailable(
                 "Apply the expected administration schema migration before startup."
             )

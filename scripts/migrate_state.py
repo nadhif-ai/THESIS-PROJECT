@@ -190,7 +190,7 @@ def admin_db(dsn):
 
 
 def control_row(db):
-    if db.execute('SELECT version FROM chatbot.schema_migrations ORDER BY version').fetchall()!=[(1,)]:
+    if db.execute('SELECT version FROM chatbot.schema_migrations ORDER BY version').fetchall()!=[(1,),(2,)]:
         raise ValueError('Unexpected administration schema version.')
     row=db.execute('SELECT mode,cutover_started_at,first_live_write_at FROM chatbot.runtime_control WHERE id=1 FOR UPDATE').fetchone()
     if not row:
@@ -247,6 +247,12 @@ def set_runtime_mode(mode, admin_dsn):
         current,started,first=control_row(db)
         if current==mode:
             return
+        boundary,resumed=db.execute('SELECT maintenance_started_at,intake_started_at FROM chatbot.runtime_control WHERE id=1').fetchone()
+        if current=='live' and mode!='live':
+            active_jobs=db.execute("SELECT EXISTS(SELECT 1 FROM chatbot.jobs WHERE status='running')").fetchone()[0]
+            active_sends=db.execute("SELECT EXISTS(SELECT 1 FROM chatbot.whatsapp_inbox WHERE status IN ('generating','sending'))").fetchone()[0]
+            if active_jobs or active_sends:
+                raise ValueError('Drain active execution before entering maintenance.')
         ledger=db.execute('SELECT snapshot_sha256,manifest FROM chatbot.state_imports').fetchall()
         if mode!='closed':
             if len(ledger)!=1 or not json.loads(ledger[0][1]).get('verified'):
@@ -258,13 +264,23 @@ def set_runtime_mode(mode, admin_dsn):
                 receipt=metadata.get('reconciliation',{})
                 if current!='intake' or not started or receipt.get('snapshot_sha256')!=ledger[0][0] or not receipt.get('complete'):
                     raise ValueError('Completed reconciliation is required before live mode.')
-                if receipt.get('start',float('inf'))>datetime.fromisoformat(started).timestamp() or receipt.get('end',0)<datetime.fromisoformat(started).timestamp():
-                    raise ValueError('Reconciliation watermarks do not cover cutover.')
+                if receipt.get('session')!=get_settings().waha_session:
+                    raise ValueError('Reconciliation session does not match runtime.')
+                if not boundary or not resumed or receipt.get('maintenance_started_at')!=boundary or receipt.get('intake_started_at')!=resumed:
+                    raise ValueError('Reconciliation does not match the current maintenance interval.')
+                if receipt.get('start',float('inf'))>datetime.fromisoformat(boundary).timestamp() or receipt.get('end',0)<datetime.fromisoformat(resumed).timestamp():
+                    raise ValueError('Reconciliation watermarks do not cover the current interval.')
         if mode!='live' and ledger:
             metadata=json.loads(ledger[0][1]);metadata.pop('reconciliation',None)
             db.execute('UPDATE chatbot.state_imports SET manifest=%s WHERE snapshot_sha256=%s',(encoded(metadata),ledger[0][0]))
-        db.execute('UPDATE chatbot.runtime_control SET mode=%s,cutover_started_at=COALESCE(cutover_started_at,%s) WHERE id=1',
-                   (mode,datetime.now(timezone.utc).isoformat() if mode=='intake' else None))
+        timestamp=datetime.now(timezone.utc).isoformat()
+        if mode=='closed':
+            boundary,resumed=timestamp,None
+        elif mode=='intake':
+            boundary=timestamp if current=='live' else boundary or timestamp
+            resumed=timestamp
+        db.execute('UPDATE chatbot.runtime_control SET mode=%s,cutover_started_at=COALESCE(cutover_started_at,%s),maintenance_started_at=%s,intake_started_at=%s WHERE id=1',
+                   (mode,timestamp if mode=='intake' else None,boundary,resumed))
 
 
 def rollback_check(admin_dsn):

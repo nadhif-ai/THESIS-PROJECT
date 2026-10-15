@@ -72,11 +72,19 @@ def plain_text(answer):
     return html.unescape(re.sub(r"<[^>]+>", "", text)).strip()
 
 
+def _reply_id(response):
+    identifier = response.get("id") if isinstance(response, dict) else None
+    if not isinstance(identifier, str) or not identifier.strip():
+        raise requests.RequestException("WAHA send response has no identity; delivery outcome unknown.")
+    return identifier
+
+
 def send_reply(row):
     settings = get_settings()
     base = {"session": row["session"], "chatId": row["sender"]}
     replies = []
     media_error = None
+    media_uncertain = False
     if row["media_url"]:
         try:
             from urllib.parse import urlsplit
@@ -111,16 +119,17 @@ def send_reply(row):
                 },
                 timeout=60,
             )
-            replies.append(image["id"])
+            replies.append(_reply_id(image))
             update(row, reply_ids=json.dumps(replies))
-        except (requests.RequestException, ValueError, KeyError) as error:
+        except (requests.RequestException, ValueError) as error:
+            media_uncertain = isinstance(error, requests.RequestException)
             media_error = f"Image delivery: {type(error).__name__}; text fallback used."
             logger.warning("WAHA image delivery failed; sending text fallback.")
     text = api(
         "POST", "/api/sendText", {**base, "text": row["answer"], "linkPreview": True}
     )
-    replies.append(text["id"])
-    update(row, status="sent", reply_ids=json.dumps(replies), error=media_error)
+    replies.append(_reply_id(text))
+    update(row, status="uncertain" if media_uncertain else "sent", reply_ids=json.dumps(replies), error=media_error)
 
 
 def process(row):

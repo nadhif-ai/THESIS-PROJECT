@@ -83,6 +83,11 @@ def health():
 
     try:
         get_rag_chain()
+        from app.admin import store
+
+        store.check_ready()
+    except StateUnavailable:
+        raise
     except RuntimeError:
         raise HTTPException(503, "RAG is not ready.")
     return {"status": "ready", "backend": settings.vector_store}

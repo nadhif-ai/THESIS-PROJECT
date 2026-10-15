@@ -103,3 +103,29 @@ def test_conflicting_history_duplicates_refused():
         return []
     with pytest.raises(ValueError,match='Conflicting'):
         scan_interval(100,101,request)
+
+
+def test_previous_scan_cannot_authorize_a_later_maintenance_interval(source_snapshot,pg_workspace):
+    import time
+    import_snapshot(source_snapshot,pg_workspace.admin_dsn,'local-rehearsal')
+    set_runtime_mode('intake',pg_workspace.admin_dsn)
+    end=time.time()
+    complete_reconciliation([],'asia-chatbot',0,end,pg_workspace.admin_dsn)
+    set_runtime_mode('live',pg_workspace.admin_dsn)
+    set_runtime_mode('closed',pg_workspace.admin_dsn)
+    set_runtime_mode('intake',pg_workspace.admin_dsn)
+    with pytest.raises(ValueError,match='interval'):
+        complete_reconciliation([],'asia-chatbot',0,end,pg_workspace.admin_dsn)
+    with pytest.raises(ValueError,match='reconciliation'):
+        set_runtime_mode('live',pg_workspace.admin_dsn)
+
+
+def test_completion_must_cover_resumed_intake_and_same_session(source_snapshot,pg_workspace):
+    import time
+    import_snapshot(source_snapshot,pg_workspace.admin_dsn,'local-rehearsal')
+    before=time.time()
+    set_runtime_mode('intake',pg_workspace.admin_dsn)
+    with pytest.raises(ValueError,match='interval'):
+        complete_reconciliation([],'asia-chatbot',0,before,pg_workspace.admin_dsn)
+    with pytest.raises(ValueError,match='session'):
+        complete_reconciliation([],'different-session',0,time.time(),pg_workspace.admin_dsn)

@@ -103,3 +103,30 @@ def test_synthetic_cutover_lifespan_and_reconciliation(source_snapshot,pg_worksp
         assert len(store.conversations(channel='playground'))==1
 
 from testing.test_state_migration import source_snapshot
+
+
+def test_state_failure_during_answer_uses_503(pg_live,monkeypatch):
+    from types import SimpleNamespace
+    from app import routes
+    from app.main import app
+    def run(**kwargs): raise store.StateUnavailable('Database unavailable.')
+    monkeypatch.setattr(routes,'_get_rag_chain',lambda:SimpleNamespace(run=run))
+    assert TestClient(app).post('/chat/faq',json={'session_id':'synthetic','question':'Hi'}).status_code==503
+
+
+def test_health_fails_when_database_is_unavailable(pg_live,monkeypatch):
+    from app.main import app
+    from app import dependencies
+    monkeypatch.setattr(dependencies,'get_rag_chain',lambda:object())
+    def unavailable(): raise store.StateUnavailable('Database unavailable.')
+    monkeypatch.setattr(store,'check_ready',unavailable)
+    assert TestClient(app).get('/health').status_code==503
+
+
+def test_control_refuses_to_interrupt_active_whatsapp_execution(pg_live):
+    from scripts.migrate_state import set_runtime_mode
+    store.enqueue_inbox('asia-chatbot','active-send','123@lid','synthetic')
+    store.claim_inbox('asia-chatbot')
+    with pytest.raises(ValueError,match='Drain'):
+        set_runtime_mode('closed',pg_live.admin_dsn)
+    assert store.get_runtime_mode()=='live'
