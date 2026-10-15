@@ -2,7 +2,7 @@
 
 Date: 2026-10-15, Asia/Jakarta.
 
-Status: written spec approved by the user's instruction to continue implementation on 2026-10-15. The implementation plan still requires review and execution-method selection under the chosen brainstorming workflow. Live cutover remains subject to the preflight and preservation requirements below.
+Status: written spec approved by the user's instruction to continue implementation on 2026-10-15. The implementation plan and Native execution in this chat were approved by the user. Live cutover remains subject to the preflight and preservation requirements below.
 
 ## Intent and agreed decisions
 

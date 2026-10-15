@@ -102,7 +102,7 @@ def rows(db, table, dialect, observed=None):
     query=sql.SQL('SELECT {} FROM chatbot.{} ORDER BY {}').format(
         sql.SQL(',').join(map(sql.Identifier,columns)),sql.Identifier(table),
         sql.SQL(',').join(map(sql.Identifier,KEYS[table])))
-    return db.execute(query).fetchall()
+    return db.execute(query,binary=True).fetchall()
 
 
 def cell(table,column,value):

@@ -111,3 +111,13 @@ def test_legacy_progress_and_first_intake_blocks_rollback(source_snapshot,pg_wor
     assert not rollback_check(pg_workspace.admin_dsn)['allowed']
     with pg_workspace.admin_connection() as db:
         assert db.execute('SELECT progress FROM chatbot.jobs').fetchone()[0]=='{}'
+
+
+def test_verification_preserves_float_bits_with_hosted_text_rounding(source_snapshot,pg_workspace):
+    from psycopg.conninfo import make_conninfo
+    with sqlite3.connect(source_snapshot) as db:
+        db.execute('UPDATE conversations SET latency=?',(1.2345678901234567,))
+        db.execute('UPDATE sessions SET expires=?',(1777777777.1234567,))
+    hosted_behavior=make_conninfo(pg_workspace.admin_dsn,options='-c extra_float_digits=0')
+    import_snapshot(source_snapshot,hosted_behavior,'local-rehearsal')
+    assert verify_snapshot(source_snapshot,hosted_behavior)['verified']

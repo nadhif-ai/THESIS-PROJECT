@@ -73,3 +73,33 @@ def test_database_error_is_sanitized(pg_live):
         with store._connection() as db:
             db.execute("SELECT 'secret-value'::integer")
     assert 'secret-value' not in str(error.value)
+
+
+def test_synthetic_cutover_lifespan_and_reconciliation(source_snapshot,pg_workspace,monkeypatch):
+    import time
+    from app import dependencies
+    from app.main import app
+    from app.integrations import waha
+    from scripts.migrate_state import snapshot,import_snapshot,verify_snapshot,set_runtime_mode,rollback_check
+    from scripts.reconcile_waha import reconcile_messages,complete_reconciliation
+    backup=pg_workspace.root/'backup.sqlite3'
+    snapshot(source_snapshot,backup)
+    import_snapshot(backup,pg_workspace.admin_dsn,'local-rehearsal')
+    assert verify_snapshot(backup,pg_workspace.admin_dsn)['verified']
+    monkeypatch.setattr(dependencies,'RAGChain',lambda:object())
+    monkeypatch.setattr(waha,'start',lambda:None)
+    monkeypatch.setattr(waha,'stop',lambda:None)
+    monkeypatch.setattr(waha,'api',lambda *a,**k:pytest.fail('No provider calls in rehearsal'))
+    from app.admin import jobs
+    monkeypatch.setattr(jobs,'stop',lambda:None)
+    with TestClient(app) as client:
+        assert client.get('/health').status_code==200
+        set_runtime_mode('intake',pg_workspace.admin_dsn)
+        rows=[{'id':'maintenance-only','from':'123@lid','body':'synthetic','fromMe':False,'timestamp':time.time()}]
+        assert reconcile_messages(rows,'asia-chatbot',True)['inserted']==1
+        complete_reconciliation(rows,'asia-chatbot',0,time.time(),pg_workspace.admin_dsn)
+        set_runtime_mode('live',pg_workspace.admin_dsn)
+        assert not rollback_check(pg_workspace.admin_dsn)['allowed']
+        assert len(store.conversations(channel='playground'))==1
+
+from testing.test_state_migration import source_snapshot

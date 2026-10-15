@@ -36,7 +36,7 @@ Mulai backend:
 venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Buka [dashboard admin](http://127.0.0.1:8000/admin/) atau [API docs](http://127.0.0.1:8000/docs). Login pertama dibuat otomatis dan disimpan di `data/admin-credentials.txt`. Baca file itu secara lokal. `ADMIN_PASSWORD` dapat ditentukan sebelum startup pertama untuk memilih password sendiri; perubahan nilai ini tidak mengganti akun yang sudah tersimpan.
+Buka [dashboard admin](http://127.0.0.1:8000/admin/) atau [API docs](http://127.0.0.1:8000/docs). State administrasi harus dimigrasikan terlebih dahulu mengikuti [runbook Supabase](docs/runbooks/supabase-state-cutover.md). Akun, hash password, dan sesi lama dipertahankan; startup tidak membuat akun atau mengimpor data secara otomatis. Kredensial lama tetap berlaku.
 
 Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal kedua dan buka [Vite admin](http://127.0.0.1:5173/admin/). Permintaan admin API diteruskan ke backend port 8000.
 
@@ -51,10 +51,12 @@ Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal 
 | `LANGSMITH_TRACING`, `LANGSMITH_ENDPOINT`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` | Trace dan laporan evaluasi |
 | `LANGSMITH_WORKSPACE_ID` | Opsional jika key LangSmith memerlukan workspace organisasi |
 | `FONNTE_TOKEN` | Pengiriman balasan WhatsApp |
-| `DATA_DIR` | SQLite, berkas knowledge, job state, laporan lokal; default `./data` |
+| `DATABASE_URL` | Koneksi PostgreSQL runtime dengan role terbatas `chatbot_app` |
+| `DATABASE_MIGRATION_URL` | Koneksi operator untuk migrasi eksplisit; tidak dipakai runtime |
+| `DATA_DIR` | Berkas knowledge, artefak evaluasi, dan backup lokal; default `./data` |
 | `COOKIE_SECURE`, `ALLOWED_ORIGINS` | Cookie dan origin untuk lingkungan HTTPS atau origin tambahan |
 
-Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di SQLite; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Embedding tetap `intfloat/multilingual-e5-small` untuk perbandingan migrasi. Pergantian embedding memerlukan indeks yang kompatibel dan reindex.
+Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di PostgreSQL; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Embedding tetap `intfloat/multilingual-e5-small` untuk perbandingan migrasi. Pergantian embedding memerlukan indeks yang kompatibel dan reindex.
 
 ## Menggunakan dashboard
 
@@ -67,7 +69,7 @@ Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di SQLit
 6. **Providers**: model jawaban, model judge, top-k, dan status konfigurasi kredensial.
 7. **Evaluations**: jalankan pertanyaan asli atau skenario percakapan yang telah direview; periksa skor/alasan per kasus, ekspor JSON, dan buka eksperimen LangSmith.
 
-Job indexing dan evaluasi berjalan dengan satu worker lokal. Status dan hasil disimpan; pekerjaan yang terputus saat restart ditandai interrupted dan dapat dijalankan ulang. Kegagalan upload hasil LangSmith dapat di-retry memakai skor tersimpan tanpa memanggil judge lagi.
+Job indexing dan evaluasi berjalan dengan satu worker lokal. Status dan hasil disimpan; startup mempertahankan status pekerjaan yang terputus. Periksa proses pemilik dan hasilnya sebelum melakukan pemulihan manual. Kegagalan upload hasil LangSmith dapat di-retry memakai skor tersimpan tanpa memanggil judge lagi.
 
 ## Baseline dan evaluasi
 
@@ -148,10 +150,17 @@ Dashboard/playground dapat digunakan tanpa mengirim pesan WhatsApp. Pengujian da
 | Lokasi | Tanggung jawab |
 | --- | --- |
 | `app/main.py`, `app/routes.py` | Server, API chat, webhook WhatsApp |
-| `app/admin/` | Auth, knowledge versions, SQLite, job runner dan admin API |
+| `app/admin/` | Auth, knowledge versions, PostgreSQL, job runner dan admin API |
 | `app/backend/` | Loader, embedding/LLM, Pinecone, prompt dan RAG |
 | `frontend/` | React + Vite + shadcn dashboard |
 | `testing/evals/` | Dataset, metrik DeepEval, suite dan LangSmith bridge |
 | `testing/baselines/`, `testing/comparisons/` | Capture historis dan perbandingan retrieval |
 | `data/` | Data runtime lokal yang diabaikan Git |
 | `docs/adr/`, `GLOSSARY.md` | Keputusan dan istilah proyek |
+
+
+## Penyimpanan administrasi dan maintenance
+
+Delapan tabel administrasi memakai schema privat `chatbot` pada Supabase PostgreSQL. Akses hanya melalui backend; frontend tetap memakai sesi dan CSRF API yang sama. Mode bersama `closed` → `intake` → `live` melindungi pemindahan data. Tidak ada fallback SQLite atau bootstrap knowledge saat startup.
+
+Ikuti [runbook migrasi, verifikasi, dan batas rollback](docs/runbooks/supabase-state-cutover.md). SQLite lama dan backup dipertahankan sebagai arsip; file knowledge/evaluasi masih lokal. Migrasi database ini belum menyelesaikan kebutuhan deployment Vercel untuk worker, artefak, dan embedding.

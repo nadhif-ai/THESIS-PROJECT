@@ -1,6 +1,6 @@
 # Supabase Administration State Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Execution method has not yet been selected.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Execution method: Native in this chat, approved by the user.
 
 **Goal:** Move all existing chatbot administration state from SQLite into the confirmed Supabase PostgreSQL project while preserving login, knowledge publication, conversations, job results, and WhatsApp delivery state.
 
