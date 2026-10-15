@@ -92,7 +92,8 @@ def _connection(purpose=None):
                 control = db.execute(
                     "SELECT * FROM chatbot.runtime_control WHERE id=1 FOR UPDATE"
                 ).fetchone()
-                allowed = ("intake", "live") if purpose == "intake" else ("live",)
+                allowed = (("intake",) if purpose == "reconciliation" else
+                           ("intake", "live") if purpose == "intake" else ("live",))
                 if not control or control["mode"] not in allowed:
                     raise MaintenanceError(
                         "Chatbot maintenance is active. Please try again later."
@@ -417,23 +418,35 @@ def merge_job_progress(identifier, fields):
             )
 
 
+def _enqueue_inbox(db, session, message_id, sender, body, received_at=None):
+    inserted = db.execute(
+        """INSERT INTO chatbot.whatsapp_inbox(session,message_id,sender,body,status,reply_ids,created_at,updated_at)
+        VALUES(%s,%s,%s,%s,'queued','[]',%s,%s) ON CONFLICT(session,message_id) DO NOTHING""",
+        (session, message_id, sender, body, received_at or now(), now()),
+    ).rowcount
+    if not inserted:
+        row = db.execute(
+            "SELECT sender,body FROM chatbot.whatsapp_inbox WHERE session=%s AND message_id=%s",
+            (session,message_id),
+        ).fetchone()
+        if row["sender"] != sender or row["body"] != body:
+            raise ValueError("Duplicate WhatsApp ID has conflicting content; review before replay.")
+    return bool(inserted)
+
+
 def enqueue_inbox(session, message_id, sender, body, received_at=None):
     with _connection("intake") as db:
-        inserted = db.execute(
-            """INSERT INTO chatbot.whatsapp_inbox(session,message_id,sender,body,status,reply_ids,created_at,updated_at)
-           VALUES(%s,%s,%s,%s,'queued','[]',%s,%s) ON CONFLICT(session,message_id) DO NOTHING""",
-            (session, message_id, sender, body, received_at or now(), now()),
-        ).rowcount
-        if not inserted:
-            row = db.execute(
-                "SELECT sender,body FROM chatbot.whatsapp_inbox WHERE session=%s AND message_id=%s",
-                (session, message_id),
-            ).fetchone()
-            if row["sender"] != sender or row["body"] != body:
-                raise ValueError(
-                    "Duplicate WhatsApp ID has conflicting content; review before replay."
-                )
-    return bool(inserted)
+        return _enqueue_inbox(db,session,message_id,sender,body,received_at)
+
+
+def reconcile_intake(session, messages, acknowledgements):
+    inserted = 0
+    with _connection("reconciliation") as db:
+        for item in messages:
+            inserted += _enqueue_inbox(db,session,**item)
+        for message_id, ack in acknowledgements.items():
+            _record_ack(db,message_id,ack)
+    return inserted
 
 
 def claim_inbox(session):
@@ -495,15 +508,19 @@ def inbox_rows(session):
         ).fetchall()
 
 
-def record_ack(message_id, ack):
+def _record_ack(db, message_id, ack):
     if type(ack) is not int or not -1 <= ack <= 4:
         raise ValueError("Invalid WhatsApp acknowledgement.")
+    db.execute(
+        """INSERT INTO chatbot.whatsapp_receipts VALUES(%s,%s,%s)
+        ON CONFLICT(message_id) DO UPDATE SET ack=GREATEST(chatbot.whatsapp_receipts.ack,excluded.ack),updated_at=excluded.updated_at""",
+        (message_id,ack,now()),
+    )
+
+
+def record_ack(message_id, ack):
     with _connection("intake") as db:
-        db.execute(
-            """INSERT INTO chatbot.whatsapp_receipts VALUES(%s,%s,%s)
-          ON CONFLICT(message_id) DO UPDATE SET ack=GREATEST(chatbot.whatsapp_receipts.ack,excluded.ack),updated_at=excluded.updated_at""",
-            (message_id, ack, now()),
-        )
+        _record_ack(db,message_id,ack)
 
 
 def whatsapp_observations(session):
