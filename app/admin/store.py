@@ -361,3 +361,168 @@ def clear_session(session_id):
             ("reset:" + session_id, json.dumps(last)),
         )
     return bool(last)
+
+
+def list_job_rows(limit=100):
+    with _connection() as db:
+        rows = db.execute(
+            "SELECT * FROM chatbot.jobs ORDER BY created_at DESC LIMIT %s", (limit,)
+        ).fetchall()
+    return [
+        dict(
+            r,
+            payload=json.loads(r["payload"]),
+            result=json.loads(r["result"]) if r["result"] else None,
+            progress=json.loads(r["progress"]),
+        )
+        for r in rows
+    ]
+
+
+def create_job_row(identifier, kind, payload):
+    with _connection("administration") as db:
+        db.execute(
+            "INSERT INTO chatbot.jobs(id,kind,status,payload,created_at,updated_at) VALUES(%s,%s,%s,%s,%s,%s)",
+            (identifier, kind, "queued", json.dumps(payload), now(), now()),
+        )
+
+
+def set_job_state(identifier, status, result=None, error=None):
+    if status not in ("queued", "running", "completed", "failed", "interrupted"):
+        raise ValueError("Invalid job state.")
+    with _connection("execution") as db:
+        db.execute(
+            "UPDATE chatbot.jobs SET status=%s,result=%s,error=%s,updated_at=%s WHERE id=%s",
+            (
+                status,
+                json.dumps(result) if result is not None else None,
+                error,
+                now(),
+                identifier,
+            ),
+        )
+
+
+def merge_job_progress(identifier, fields):
+    with _connection("execution") as db:
+        row = db.execute(
+            "SELECT progress FROM chatbot.jobs WHERE id=%s FOR UPDATE", (identifier,)
+        ).fetchone()
+        if row:
+            progress = json.loads(row["progress"])
+            progress.update(fields)
+            db.execute(
+                "UPDATE chatbot.jobs SET progress=%s,updated_at=%s WHERE id=%s",
+                (json.dumps(progress), now(), identifier),
+            )
+
+
+def enqueue_inbox(session, message_id, sender, body, received_at=None):
+    with _connection("intake") as db:
+        inserted = db.execute(
+            """INSERT INTO chatbot.whatsapp_inbox(session,message_id,sender,body,status,reply_ids,created_at,updated_at)
+           VALUES(%s,%s,%s,%s,'queued','[]',%s,%s) ON CONFLICT(session,message_id) DO NOTHING""",
+            (session, message_id, sender, body, received_at or now(), now()),
+        ).rowcount
+        if not inserted:
+            row = db.execute(
+                "SELECT sender,body FROM chatbot.whatsapp_inbox WHERE session=%s AND message_id=%s",
+                (session, message_id),
+            ).fetchone()
+            if row["sender"] != sender or row["body"] != body:
+                raise ValueError(
+                    "Duplicate WhatsApp ID has conflicting content; review before replay."
+                )
+    return bool(inserted)
+
+
+def claim_inbox(session):
+    with _connection("execution") as db:
+        return db.execute(
+            """WITH candidate AS (
+            SELECT pending.session,pending.message_id FROM chatbot.whatsapp_inbox AS pending
+            WHERE pending.session=%s AND pending.status='queued'
+            AND NOT EXISTS(SELECT 1 FROM chatbot.whatsapp_inbox AS active
+               WHERE active.session=pending.session AND active.sender=pending.sender AND active.status IN ('generating','sending'))
+            ORDER BY pending.created_at,pending.message_id LIMIT 1 FOR UPDATE SKIP LOCKED)
+            UPDATE chatbot.whatsapp_inbox AS inbox SET status='generating',updated_at=%s FROM candidate
+            WHERE inbox.session=candidate.session AND inbox.message_id=candidate.message_id RETURNING inbox.*""",
+            (session, now()),
+        ).fetchone()
+
+
+def update_inbox(session, message_id, fields):
+    from psycopg import sql
+
+    allowed = {"status", "answer", "media_url", "reply_ids", "error"}
+    if not fields or not set(fields) <= allowed:
+        raise ValueError("Invalid inbox update fields.")
+    if "status" in fields and fields["status"] not in (
+        "queued",
+        "generating",
+        "sending",
+        "sent",
+        "failed",
+        "uncertain",
+    ):
+        raise ValueError("Invalid inbox state.")
+    values = dict(fields, updated_at=now())
+    assignments = sql.SQL(",").join(
+        sql.SQL("{}=%s").format(sql.Identifier(k)) for k in values
+    )
+    with _connection("execution") as db:
+        db.execute(
+            sql.SQL(
+                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s"
+            ).format(assignments),
+            (*values.values(), session, message_id),
+        )
+
+
+def get_inbox(session, message_id):
+    with _connection() as db:
+        return db.execute(
+            "SELECT * FROM chatbot.whatsapp_inbox WHERE session=%s AND message_id=%s",
+            (session, message_id),
+        ).fetchone()
+
+
+def inbox_rows(session):
+    with _connection() as db:
+        return db.execute(
+            "SELECT * FROM chatbot.whatsapp_inbox WHERE session=%s ORDER BY created_at,message_id",
+            (session,),
+        ).fetchall()
+
+
+def record_ack(message_id, ack):
+    if type(ack) is not int or not -1 <= ack <= 4:
+        raise ValueError("Invalid WhatsApp acknowledgement.")
+    with _connection("intake") as db:
+        db.execute(
+            """INSERT INTO chatbot.whatsapp_receipts VALUES(%s,%s,%s)
+          ON CONFLICT(message_id) DO UPDATE SET ack=GREATEST(chatbot.whatsapp_receipts.ack,excluded.ack),updated_at=excluded.updated_at""",
+            (message_id, ack, now()),
+        )
+
+
+def whatsapp_observations(session):
+    with _connection() as db:
+        counts = db.execute(
+            "SELECT status,count(*) AS n FROM chatbot.whatsapp_inbox WHERE session=%s GROUP BY status",
+            (session,),
+        ).fetchall()
+        times = db.execute(
+            "SELECT MAX(created_at) AS received,MAX(updated_at) FILTER(WHERE status='sent') AS sent FROM chatbot.whatsapp_inbox WHERE session=%s",
+            (session,),
+        ).fetchone()
+        ack = db.execute(
+            "SELECT MAX(updated_at) AS latest FROM chatbot.whatsapp_receipts"
+        ).fetchone()["latest"]
+    return dict(
+        queue={r["status"]: r["n"] for r in counts},
+        last_received_at=times["received"],
+        last_sent_at=times["sent"],
+        last_ack_at=ack,
+        checked_at=now(),
+    )

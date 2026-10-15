@@ -94,3 +94,47 @@ def test_password_hash_and_nonconsecutive_ids_survive(pg_live):
     assert store.get_user("test")["password_hash"] == digest
     store.clear_session("gap")
     assert store.prompt_turns("gap") == []
+
+
+def test_only_one_caller_claims_one_message(pg_live):
+    from concurrent.futures import ThreadPoolExecutor
+
+    store.enqueue_inbox("asia-chatbot", "message-1", "123@lid", "question")
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        rows = list(pool.map(store.claim_inbox, ["asia-chatbot"] * 2))
+    assert sum(row is not None for row in rows) == 1
+
+
+def test_receipt_does_not_move_backwards(pg_live):
+    store.record_ack("reply-1", 3)
+    store.record_ack("reply-1", 1)
+    with pg_live.admin_connection() as db:
+        assert (
+            db.execute(
+                "SELECT ack FROM chatbot.whatsapp_receipts WHERE message_id='reply-1'"
+            ).fetchone()[0]
+            == 3
+        )
+
+
+def test_progress_merge_preserves_both_callers_fields(pg_live):
+    from concurrent.futures import ThreadPoolExecutor
+
+    store.create_job_row("progress-1", "evaluate", {})
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        list(
+            pool.map(
+                lambda fields: store.merge_job_progress("progress-1", fields),
+                [{"completed": 1}, {"total": 3}],
+            )
+        )
+    progress = store.list_job_rows()[0]["progress"]
+    assert progress["completed"] == 1 and progress["total"] == 3
+
+
+def test_conflicting_duplicate_and_unknown_fields_are_rejected(pg_live):
+    store.enqueue_inbox("s", "id", "123@lid", "body")
+    with pytest.raises(ValueError):
+        store.enqueue_inbox("s", "id", "123@lid", "different")
+    with pytest.raises(ValueError):
+        store.update_inbox("s", "id", {"session": "other"})

@@ -1,4 +1,3 @@
-import json
 import uuid
 import logging
 from concurrent.futures import ThreadPoolExecutor
@@ -8,50 +7,28 @@ _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="admin-job")
 
 
 def list_jobs():
-    with store.connection() as db:
-        rows = db.execute(
-            "SELECT * FROM jobs ORDER BY created_at DESC LIMIT 100"
-        ).fetchall()
-    return [
-        dict(
-            row,
-            payload=json.loads(row["payload"]),
-            result=json.loads(row["result"]) if row["result"] else None,
-        )
-        for row in rows
-    ]
+    return store.list_job_rows()
 
 
 def create(kind, payload):
     identifier = uuid.uuid4().hex
-    with store.connection() as db:
-        db.execute(
-            "INSERT INTO jobs VALUES (?,?,?,?,?,?,?,?)",
-            (
-                identifier,
-                kind,
-                "queued",
-                json.dumps(payload),
-                None,
-                None,
-                store.now(),
-                store.now(),
-            ),
-        )
+    store.create_job_row(identifier, kind, payload)
     _worker.submit(run, identifier, kind, payload)
     return identifier
 
 
+def update_progress(identifier, **fields):
+    store.merge_job_progress(identifier, fields)
+
+
 def run(identifier, kind, payload):
-    with store.connection() as db:
-        db.execute(
-            "UPDATE jobs SET status='running',updated_at=? WHERE id=?",
-            (store.now(), identifier),
-        )
+    store.set_job_state(identifier, "running")
+    update_progress(identifier, phase="preparing", started_at=store.now())
     try:
         if kind == "index":
             from app.admin.knowledge import index_version
 
+            update_progress(identifier, phase="indexing")
             result = index_version(payload["version_id"])
         elif kind == "evaluate":
             from testing.evals.runner import run_evaluation
@@ -60,18 +37,19 @@ def run(identifier, kind, payload):
         elif kind == "generate":
             from testing.evals.runner import generate_candidates
 
+            update_progress(identifier, phase="generating")
             result = generate_candidates(**payload)
         elif kind == "report":
             from testing.evals.runner import retry_report
 
+            update_progress(identifier, phase="reporting")
             result = retry_report(payload["evaluation_id"])
         else:
             raise ValueError("Unknown job type.")
-        with store.connection() as db:
-            db.execute(
-                "UPDATE jobs SET status='completed',result=?,updated_at=? WHERE id=?",
-                (json.dumps(result), store.now(), identifier),
-            )
+        store.set_job_state(identifier, "completed", result=result)
+        update_progress(
+            identifier, phase="completed", case_id=None, case_label=None, metric=None
+        )
     except Exception as error:
         logging.getLogger(__name__).exception(
             "Administration job %s failed", identifier
@@ -82,8 +60,5 @@ def run(identifier, kind, payload):
             if isinstance(error, (ValueError, TimeoutError, FileNotFoundError))
             else f"{type(error).__name__}: job failed; inspect the application log before retrying."
         )
-        with store.connection() as db:
-            db.execute(
-                "UPDATE jobs SET status='failed',error=?,updated_at=? WHERE id=?",
-                (message, store.now(), identifier),
-            )
+        store.set_job_state(identifier, "failed", error=message)
+        update_progress(identifier, phase="failed")
