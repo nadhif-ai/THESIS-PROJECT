@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import requests
+import psycopg
 from pydantic import ValidationError
 from app.admin import store
 from app.integrations import waha
@@ -163,7 +164,7 @@ def main():
             if args.write:
                 complete_reconciliation(report['messages'],session,report['start'],report['end'],get_settings().database_migration_url)
         print(encoded(result))
-    except (ValueError,KeyError,TypeError,OSError,requests.RequestException,store.StateUnavailable):
+    except (ValueError,KeyError,TypeError,OSError,requests.RequestException,psycopg.Error,store.StateUnavailable):
         parser.exit(1,'History reconciliation refused or failed; maintain intake mode and inspect private evidence. No message content is printed.\n')
 
 

@@ -129,3 +129,23 @@ def test_completion_must_cover_resumed_intake_and_same_session(source_snapshot,p
         complete_reconciliation([],'asia-chatbot',0,before,pg_workspace.admin_dsn)
     with pytest.raises(ValueError,match='session'):
         complete_reconciliation([],'different-session',0,time.time(),pg_workspace.admin_dsn)
+
+
+def test_replay_database_failure_never_prints_credentials(tmp_path,monkeypatch,capsys):
+    import hashlib
+    import sys
+    from types import SimpleNamespace
+    import psycopg
+    from scripts import reconcile_waha as replay
+    from scripts.migrate_state import encoded,private_json
+    monkeypatch.setattr(replay,'get_settings',lambda:SimpleNamespace(waha_session='s',waha_base_url='https://example.test',database_migration_url='synthetic'))
+    report={'format':1,'session':'s','gateway_sha256':replay.gateway_identity(),'start':0,'end':1,'messages':[]}
+    report['sha256']=hashlib.sha256(encoded(report).encode()).hexdigest()
+    path=tmp_path/'scan.json';private_json(path,report)
+    monkeypatch.setattr(replay,'reconcile_messages',lambda *a,**k:{'eligible':0})
+    def unavailable(*a,**k): raise psycopg.OperationalError('private-secret-token')
+    monkeypatch.setattr(replay,'complete_reconciliation',unavailable)
+    monkeypatch.setattr(sys,'argv',['reconcile_waha','replay','--report',str(path),'--write'])
+    with pytest.raises(SystemExit) as error: replay.main()
+    assert error.value.code==1
+    assert 'private-secret-token' not in capsys.readouterr().err
