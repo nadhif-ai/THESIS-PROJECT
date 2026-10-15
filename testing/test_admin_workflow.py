@@ -11,11 +11,12 @@ from app.admin.routes import admin_router
 
 
 @pytest.fixture
-def workspace(tmp_path, monkeypatch):
+def workspace(tmp_path, monkeypatch, pg_live):
     monkeypatch.setenv("DATA_DIR", str(tmp_path))
     monkeypatch.setenv("ADMIN_PASSWORD", "local-test-password")
     get_settings.cache_clear()
-    store.initialize()
+    with pg_live.admin_connection() as db:
+        db.execute("INSERT INTO chatbot.users VALUES(%s,%s,%s)", ("admin", "00"*16, store.hash_password("local-test-password", "00"*16)))
     item = {
         "id": "original",
         "namespace": "original-only",

@@ -22,8 +22,12 @@ def pg_workspace(tmp_path, monkeypatch):
     runtime_dsn = admin_dsn.replace("//postgres@", "//chatbot_app@")
     with psycopg.connect(admin_dsn) as db:
         for role in ("anon", "authenticated"):
-            if not db.execute("SELECT 1 FROM pg_roles WHERE rolname=%s", (role,)).fetchone():
-                db.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(role)))
+            if not db.execute(
+                "SELECT 1 FROM pg_roles WHERE rolname=%s", (role,)
+            ).fetchone():
+                db.execute(
+                    sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(role))
+                )
         files = sorted((ROOT / "supabase/migrations").glob("*.sql"))
         assert files, "PostgreSQL administration schema has not been implemented"
         for path in files:
@@ -36,7 +40,9 @@ def pg_workspace(tmp_path, monkeypatch):
 
     get_settings.cache_clear()
     yield SimpleNamespace(
-        admin_dsn=admin_dsn, runtime_dsn=runtime_dsn, root=tmp_path,
+        admin_dsn=admin_dsn,
+        runtime_dsn=runtime_dsn,
+        root=tmp_path,
         admin_connection=lambda: psycopg.connect(admin_dsn),
     )
     from app.admin import store
@@ -45,4 +51,16 @@ def pg_workspace(tmp_path, monkeypatch):
         store.close_pool()
     get_settings.cache_clear()
     with psycopg.connect(LOCAL_ADMIN, autocommit=True) as db:
-        db.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))
+        db.execute(
+            sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name))
+        )
+
+
+@pytest.fixture
+def pg_live(pg_workspace):
+    with pg_workspace.admin_connection() as db:
+        db.execute("UPDATE chatbot.runtime_control SET mode='live' WHERE id=1")
+    from app.admin import store
+
+    store.open_pool()
+    return pg_workspace

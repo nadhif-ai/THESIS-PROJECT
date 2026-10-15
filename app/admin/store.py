@@ -1,14 +1,30 @@
-"""Local administration state. Connections are short-lived and thread-safe."""
+"""Administration persistence. SQL and transaction ownership stay in this module."""
 
 import hashlib
 import json
-import secrets
-import sqlite3
+import threading
+import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
+import psycopg
+from psycopg.conninfo import conninfo_to_dict
+from psycopg.rows import dict_row
+from psycopg_pool import ConnectionPool, PoolTimeout
+
 from app.config.settings import get_settings
+
+_pool = None
+_pool_lock = threading.RLock()
+
+
+class StateUnavailable(RuntimeError):
+    pass
+
+
+class MaintenanceError(StateUnavailable):
+    pass
 
 
 def now():
@@ -22,76 +38,123 @@ def data_path():
     return path
 
 
+def open_pool():
+    global _pool
+    with _pool_lock:
+        if _pool is not None:
+            return
+        dsn = get_settings().database_url
+        if not dsn:
+            raise StateUnavailable(
+                "DATABASE_URL is required; local state fallback is disabled."
+            )
+        try:
+            options = conninfo_to_dict(dsn)
+            local = options.get("host") in ("127.0.0.1", "localhost", "::1")
+            kwargs = dict(
+                row_factory=dict_row, prepare_threshold=None, connect_timeout=5
+            )
+            kwargs["sslmode"] = "disable" if local else "require"
+            pool = ConnectionPool(
+                dsn,
+                min_size=0,
+                max_size=2,
+                timeout=5,
+                max_waiting=20,
+                open=False,
+                kwargs=kwargs,
+                check=ConnectionPool.check_connection,
+            )
+            pool.open()
+            _pool = pool
+        except (psycopg.Error, ValueError):
+            raise StateUnavailable(
+                "PostgreSQL connection configuration is invalid."
+            ) from None
+
+
+def close_pool():
+    global _pool
+    with _pool_lock:
+        if _pool is not None:
+            _pool.close()
+            _pool = None
+
+
 @contextmanager
-def connection():
-    with sqlite3.connect(data_path() / "admin.sqlite3", timeout=30) as db:
-        db.row_factory = sqlite3.Row
-        db.execute("PRAGMA foreign_keys=ON")
-        yield db
+def _connection(purpose=None):
+    open_pool()
+    try:
+        with _pool.connection() as db:
+            db.execute("SET LOCAL statement_timeout='30s'")
+            db.execute("SET LOCAL lock_timeout='5s'")
+            if purpose:
+                control = db.execute(
+                    "SELECT * FROM chatbot.runtime_control WHERE id=1 FOR UPDATE"
+                ).fetchone()
+                allowed = ("intake", "live") if purpose == "intake" else ("live",)
+                if not control or control["mode"] not in allowed:
+                    raise MaintenanceError(
+                        "Chatbot maintenance is active. Please try again later."
+                    )
+                if control["cutover_started_at"] and not control["first_live_write_at"]:
+                    db.execute(
+                        "UPDATE chatbot.runtime_control SET first_live_write_at=%s WHERE id=1",
+                        (now(),),
+                    )
+            yield db
+    except (psycopg.Error, PoolTimeout):
+        raise StateUnavailable(
+            "Administration database is unavailable; inspect the private backend log."
+        ) from None
+
+
+def check_ready():
+    with _connection() as db:
+        if (
+            db.execute("SELECT current_user AS name").fetchone()["name"]
+            != "chatbot_app"
+        ):
+            raise StateUnavailable(
+                "Use the restricted chatbot_app database role for runtime."
+            )
+        versions = db.execute(
+            "SELECT version FROM chatbot.schema_migrations ORDER BY version"
+        ).fetchall()
+        if [r["version"] for r in versions] != [1]:
+            raise StateUnavailable(
+                "Apply the expected administration schema migration before startup."
+            )
+        if not db.execute(
+            "SELECT 1 FROM chatbot.runtime_control WHERE id=1"
+        ).fetchone():
+            raise StateUnavailable("Administration control state is missing.")
+        row = db.execute(
+            "SELECT value FROM chatbot.settings WHERE key='published_version'"
+        ).fetchone()
+        if not row:
+            raise StateUnavailable("Import administration data before startup.")
+        item = db.execute(
+            "SELECT 1 FROM chatbot.versions WHERE id=%s AND status='published'",
+            (json.loads(row["value"]),),
+        ).fetchone()
+        if not item:
+            raise StateUnavailable("Published knowledge selection is inconsistent.")
 
 
 def initialize(recover_jobs=False):
-    with connection() as db:
-        db.execute("PRAGMA journal_mode=WAL")
-        db.executescript("""
-        CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-        CREATE TABLE IF NOT EXISTS users (name TEXT PRIMARY KEY, salt TEXT, password_hash TEXT);
-        CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, expires REAL, csrf TEXT);
-        CREATE TABLE IF NOT EXISTS versions (
-          id TEXT PRIMARY KEY, namespace TEXT UNIQUE, status TEXT, created_at TEXT,
-          manifest TEXT, records TEXT, error TEXT);
-        CREATE TABLE IF NOT EXISTS jobs (
-          id TEXT PRIMARY KEY, kind TEXT, status TEXT, payload TEXT, result TEXT,
-          error TEXT, created_at TEXT, updated_at TEXT);
-        CREATE TABLE IF NOT EXISTS conversations (
-          id INTEGER PRIMARY KEY, session_id TEXT, channel TEXT, question TEXT,
-          answer TEXT, usage TEXT, latency REAL, trace_id TEXT, created_at TEXT);
-        CREATE INDEX IF NOT EXISTS conversation_session ON conversations(session_id, id);
-        """)
-        if recover_jobs:
-            db.execute(
-                "UPDATE jobs SET status='interrupted', error='Application restarted; rerun this job.' WHERE status IN ('running','queued')"
-            )
-            db.execute(
-                "UPDATE versions SET status='failed', error='Indexing interrupted; retry indexing.' WHERE status='indexing'"
-            )
-        settings = get_settings()
-        if not db.execute(
-            "SELECT 1 FROM users WHERE name=?", (settings.admin_username,)
-        ).fetchone():
-            password = settings.admin_password or secrets.token_urlsafe(18)
-            salt = secrets.token_hex(16)
-            db.execute(
-                "INSERT INTO users VALUES (?,?,?)",
-                (settings.admin_username, salt, hash_password(password, salt)),
-            )
-            if not settings.admin_password:
-                credentials = data_path() / "admin-credentials.txt"
-                credentials.write_text(
-                    f"Username: {settings.admin_username}\nPassword: {password}\n"
-                )
-                credentials.chmod(0o600)
-        if not db.execute(
-            "SELECT 1 FROM settings WHERE key='history_imported'"
-        ).fetchone():
-            history = Path("dataset/admin_chat_history.json")
-            if history.exists():
-                for row in reversed(json.loads(history.read_text())):
-                    session = row.get("session_id", "")
-                    db.execute(
-                        "INSERT INTO conversations (session_id,channel,question,answer,usage,created_at) VALUES (?,?,?,?,?,?)",
-                        (
-                            session,
-                            "whatsapp" if session.startswith("wa_") else "api",
-                            row.get("question", ""),
-                            row.get("answer", ""),
-                            "{}",
-                            row.get("timestamp", now()),
-                        ),
-                    )
-            db.execute(
-                "INSERT INTO settings VALUES (?,?)", ("history_imported", "true")
-            )
+    # Kept during caller migration; readiness never recovers another process's work.
+    check_ready()
+
+
+def get_runtime_mode():
+    with _connection() as db:
+        row = db.execute(
+            "SELECT mode FROM chatbot.runtime_control WHERE id=1"
+        ).fetchone()
+    if not row:
+        raise StateUnavailable("Administration control state is missing.")
+    return row["mode"]
 
 
 def hash_password(password, salt):
@@ -100,16 +163,82 @@ def hash_password(password, salt):
     ).hex()
 
 
+def get_user(name):
+    with _connection() as db:
+        return db.execute(
+            "SELECT * FROM chatbot.users WHERE name=%s", (name,)
+        ).fetchone()
+
+
+def get_session(token_hash, at):
+    with _connection() as db:
+        return db.execute(
+            "SELECT * FROM chatbot.sessions WHERE token_hash=%s AND expires>%s",
+            (token_hash, at),
+        ).fetchone()
+
+
+def create_session(token_hash, expires, csrf):
+    with _connection("administration") as db:
+        db.execute("DELETE FROM chatbot.sessions WHERE expires<%s", (time.time(),))
+        db.execute(
+            "INSERT INTO chatbot.sessions VALUES(%s,%s,%s)", (token_hash, expires, csrf)
+        )
+
+
+def delete_session(token_hash):
+    with _connection("administration") as db:
+        db.execute("DELETE FROM chatbot.sessions WHERE token_hash=%s", (token_hash,))
+
+
+def login_allowed(client_hash, at):
+    with _connection("administration") as db:
+        db.execute(
+            "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))", (client_hash,)
+        )
+        db.execute(
+            "DELETE FROM chatbot.login_attempts WHERE client_hash=%s AND attempted_at<=%s",
+            (client_hash, at - 300),
+        )
+        return (
+            db.execute(
+                "SELECT count(*) AS n FROM chatbot.login_attempts WHERE client_hash=%s",
+                (client_hash,),
+            ).fetchone()["n"]
+            < 10
+        )
+
+
+def record_login_failure(client_hash, at):
+    with _connection("administration") as db:
+        db.execute(
+            "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))", (client_hash,)
+        )
+        db.execute(
+            "INSERT INTO chatbot.login_attempts VALUES(%s,%s)", (client_hash, at)
+        )
+
+
+def clear_login_failures(client_hash):
+    with _connection("administration") as db:
+        db.execute(
+            "DELETE FROM chatbot.login_attempts WHERE client_hash=%s", (client_hash,)
+        )
+
+
 def get_setting(key, default=None):
-    with connection() as db:
-        row = db.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
-        return json.loads(row["value"]) if row else default
+    with _connection() as db:
+        row = db.execute(
+            "SELECT value FROM chatbot.settings WHERE key=%s", (key,)
+        ).fetchone()
+    return json.loads(row["value"]) if row else default
 
 
 def set_setting(key, value):
-    with connection() as db:
+    with _connection("administration") as db:
         db.execute(
-            "INSERT OR REPLACE INTO settings VALUES (?,?)", (key, json.dumps(value))
+            "INSERT INTO chatbot.settings VALUES(%s,%s) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (key, json.dumps(value)),
         )
 
 
@@ -121,24 +250,31 @@ def decode_version(row):
 
 
 def versions():
-    with connection() as db:
-        rows = db.execute("SELECT * FROM versions ORDER BY created_at DESC").fetchall()
-    return [decode_version(row) for row in rows]
+    with _connection() as db:
+        rows = db.execute(
+            "SELECT * FROM chatbot.versions ORDER BY created_at DESC"
+        ).fetchall()
+    return [decode_version(r) for r in rows]
 
 
 def version(version_id=None):
     version_id = version_id or get_setting("published_version")
-    with connection() as db:
-        row = db.execute("SELECT * FROM versions WHERE id=?", (version_id,)).fetchone()
+    with _connection() as db:
+        row = db.execute(
+            "SELECT * FROM chatbot.versions WHERE id=%s", (version_id,)
+        ).fetchone()
     if not row:
         raise ValueError("Knowledge version not found.")
     return decode_version(row)
 
 
 def save_version(item):
-    with connection() as db:
+    with _connection("administration") as db:
         db.execute(
-            "INSERT OR REPLACE INTO versions VALUES (?,?,?,?,?,?,?)",
+            """INSERT INTO chatbot.versions(id,namespace,status,created_at,manifest,records,error)
+          VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(id) DO UPDATE SET
+          namespace=excluded.namespace,status=excluded.status,created_at=excluded.created_at,
+          manifest=excluded.manifest,records=excluded.records,error=excluded.error""",
             (
                 item["id"],
                 item["namespace"],
@@ -152,26 +288,30 @@ def save_version(item):
 
 
 def publish(version_id):
-    with connection() as db:
+    with _connection("administration") as db:
         row = db.execute(
-            "SELECT status FROM versions WHERE id=?", (version_id,)
+            "SELECT status FROM chatbot.versions WHERE id=%s FOR UPDATE", (version_id,)
         ).fetchone()
         if not row or row["status"] not in ("ready", "published"):
             raise ValueError("Only fully indexed, ready versions can be published.")
-        db.execute("UPDATE versions SET status='ready' WHERE status='published'")
-        db.execute("UPDATE versions SET status='published' WHERE id=?", (version_id,))
         db.execute(
-            "INSERT OR REPLACE INTO settings VALUES (?,?)",
-            ("published_version", json.dumps(version_id)),
+            "UPDATE chatbot.versions SET status='ready' WHERE status='published'"
+        )
+        db.execute(
+            "UPDATE chatbot.versions SET status='published' WHERE id=%s", (version_id,)
+        )
+        db.execute(
+            "INSERT INTO chatbot.settings VALUES('published_version',%s) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (json.dumps(version_id),),
         )
 
 
 def record_conversation(
     session_id, channel, question, answer, usage=None, latency=0, trace_id=None
 ):
-    with connection() as db:
+    with _connection("execution") as db:
         db.execute(
-            "INSERT INTO conversations (session_id,channel,question,answer,usage,latency,trace_id,created_at) VALUES (?,?,?,?,?,?,?,?)",
+            "INSERT INTO chatbot.conversations(session_id,channel,question,answer,usage,latency,trace_id,created_at) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
             (
                 session_id,
                 channel,
@@ -186,36 +326,38 @@ def record_conversation(
 
 
 def conversations(channel=None, limit=200):
-    with connection() as db:
+    with _connection() as db:
         if channel:
             rows = db.execute(
-                "SELECT * FROM conversations WHERE channel=? ORDER BY id DESC LIMIT ?",
+                "SELECT * FROM chatbot.conversations WHERE channel=%s ORDER BY id DESC LIMIT %s",
                 (channel, limit),
             ).fetchall()
         else:
             rows = db.execute(
-                "SELECT * FROM conversations ORDER BY id DESC LIMIT ?", (limit,)
+                "SELECT * FROM chatbot.conversations ORDER BY id DESC LIMIT %s",
+                (limit,),
             ).fetchall()
-    return [dict(row, usage=json.loads(row["usage"] or "{}")) for row in rows]
+    return [dict(r, usage=json.loads(r["usage"] or "{}")) for r in rows]
 
 
 def prompt_turns(session_id):
     boundary = get_setting("reset:" + session_id, 0)
-    with connection() as db:
+    with _connection() as db:
         rows = db.execute(
-            "SELECT question,answer FROM conversations WHERE session_id=? AND id>? ORDER BY id DESC LIMIT 2",
+            "SELECT question,answer FROM chatbot.conversations WHERE session_id=%s AND id>%s ORDER BY id DESC LIMIT 2",
             (session_id, boundary),
         ).fetchall()
     return [(r["question"], r["answer"]) for r in reversed(rows)]
 
 
 def clear_session(session_id):
-    with connection() as db:
-        last = (
-            db.execute(
-                "SELECT MAX(id) FROM conversations WHERE session_id=?", (session_id,)
-            ).fetchone()[0]
-            or 0
+    with _connection("administration") as db:
+        last = db.execute(
+            "SELECT COALESCE(MAX(id),0) AS last FROM chatbot.conversations WHERE session_id=%s",
+            (session_id,),
+        ).fetchone()["last"]
+        db.execute(
+            "INSERT INTO chatbot.settings VALUES(%s,%s) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            ("reset:" + session_id, json.dumps(last)),
         )
-    set_setting("reset:" + session_id, last)
     return bool(last)

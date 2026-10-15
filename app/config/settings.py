@@ -43,10 +43,18 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO")
 
     fonnte_token: str = Field(default="")
+    whatsapp_provider: Literal["waha", "fonnte"] = "fonnte"
+    waha_base_url: str = "http://127.0.0.1:3000"
+    waha_api_key: str = ""
+    waha_session: str = "asia-chatbot"
+    waha_webhook_secret: str = ""
+    waha_webhook_url: str = ""
     vector_store: Literal["pinecone", "chroma"] = "pinecone"
     pinecone_api_key: str = ""
     pinecone_index_name: str = "chatbot-avg"
     data_dir: str = "./data"
+    database_url: str = Field(default="", repr=False)
+    database_migration_url: str = Field(default="", repr=False)
     eval_model: str = "google/gemini-2.5-flash"
     admin_username: str = "admin"
     admin_password: str = ""

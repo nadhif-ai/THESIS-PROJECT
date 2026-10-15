@@ -22,7 +22,6 @@ from app.admin.chunking import Chunking, LEGACY
 from app.config.settings import get_settings
 
 admin_router = APIRouter(prefix="/admin", tags=["Admin"])
-_attempts = {}
 
 
 def check_origin(request):
@@ -37,11 +36,7 @@ def check_origin(request):
 
 def require_admin(request: Request):
     token = request.cookies.get("avg_admin", "")
-    with store.connection() as db:
-        row = db.execute(
-            "SELECT * FROM sessions WHERE token_hash=? AND expires>?",
-            (hashlib.sha256(token.encode()).hexdigest(), time.time()),
-        ).fetchone()
+    row = store.get_session(hashlib.sha256(token.encode()).hexdigest(), time.time())
     if not row:
         raise HTTPException(401, "Sign in to continue.")
     if request.method not in ("GET", "HEAD", "OPTIONS"):
@@ -65,26 +60,21 @@ class Login(BaseModel):
 def login(body: Login, request: Request, response: Response):
     check_origin(request)
     ip = request.client.host if request.client else "local"
-    times = [t for t in _attempts.get(ip, []) if t > time.time() - 300]
-    if len(times) >= 10:
+    client_hash = hashlib.sha256(ip.encode()).hexdigest()
+    if not store.login_allowed(client_hash, time.time()):
         raise HTTPException(429, "Too many attempts. Try again in five minutes.")
-    with store.connection() as db:
-        user = db.execute(
-            "SELECT * FROM users WHERE name=?", (body.username.strip(),)
-        ).fetchone()
-        salt = user["salt"] if user else "00" * 16
-        digest = store.hash_password(body.password, salt)
-        if not user or not secrets.compare_digest(digest, user["password_hash"]):
-            _attempts[ip] = times + [time.time()]
-            raise HTTPException(401, "Username or password is incorrect.")
-        _attempts.pop(ip, None)
-        token = secrets.token_urlsafe(32)
-        csrf = secrets.token_urlsafe(24)
-        db.execute("DELETE FROM sessions WHERE expires<?", (time.time(),))
-        db.execute(
-            "INSERT INTO sessions VALUES (?,?,?)",
-            (hashlib.sha256(token.encode()).hexdigest(), time.time() + 28800, csrf),
-        )
+    user = store.get_user(body.username.strip())
+    salt = user["salt"] if user else "00" * 16
+    digest = store.hash_password(body.password, salt)
+    if not user or not secrets.compare_digest(digest, user["password_hash"]):
+        store.record_login_failure(client_hash, time.time())
+        raise HTTPException(401, "Username or password is incorrect.")
+    store.clear_login_failures(client_hash)
+    token = secrets.token_urlsafe(32)
+    csrf = secrets.token_urlsafe(24)
+    store.create_session(
+        hashlib.sha256(token.encode()).hexdigest(), time.time() + 28800, csrf
+    )
     response.set_cookie(
         "avg_admin",
         token,
@@ -104,15 +94,9 @@ def me(csrf: Annotated[str, Depends(require_admin)]):
 
 @protected.post("/logout")
 def logout(request: Request, response: Response):
-    with store.connection() as db:
-        db.execute(
-            "DELETE FROM sessions WHERE token_hash=?",
-            (
-                hashlib.sha256(
-                    request.cookies.get("avg_admin", "").encode()
-                ).hexdigest(),
-            ),
-        )
+    store.delete_session(
+        hashlib.sha256(request.cookies.get("avg_admin", "").encode()).hexdigest()
+    )
     response.delete_cookie("avg_admin", path="/admin")
     return {"ok": True}
 
@@ -302,14 +286,25 @@ def settings():
         "embedding_model": s.embedding_model,
         "dimension": 384,
         "pinecone_index": s.pinecone_index_name,
+        "whatsapp_provider": s.whatsapp_provider,
+        "waha_session": s.waha_session if s.whatsapp_provider == "waha" else None,
         "langsmith_project": __import__("os").getenv("LANGSMITH_PROJECT", "default"),
         "providers": {
             "openrouter": bool(s.openrouter_api_key),
             "pinecone": bool(s.pinecone_api_key),
             "langsmith": bool(__import__("os").getenv("LANGSMITH_API_KEY")),
-            "whatsapp": bool(s.fonnte_token),
+            "whatsapp": bool(s.waha_api_key and s.waha_webhook_secret)
+            if s.whatsapp_provider == "waha"
+            else bool(s.fonnte_token),
         },
     }
+
+
+@protected.get("/whatsapp/status")
+def whatsapp_status():
+    from app.integrations.waha import status
+
+    return status()
 
 
 class ProviderSettings(BaseModel):
@@ -408,15 +403,17 @@ def export(evaluation_id: str):
 admin_router.include_router(protected)
 
 
+FRONTEND_INDEX = Path(__file__).resolve().parents[2] / "frontend/dist/index.html"
+
+
 @admin_router.get("")
 @admin_router.get("/")
 @admin_router.get("/{path:path}", include_in_schema=False)
 def dashboard(path: str = ""):
     if path.startswith("api/"):
         raise HTTPException(404, "API endpoint not found.")
-    index = Path(__file__).resolve().parents[2] / "frontend/dist/index.html"
-    if not index.exists():
+    if not FRONTEND_INDEX.exists():
         raise HTTPException(
             503, "Build the dashboard: cd frontend && npm install && npm run build"
         )
-    return FileResponse(index)
+    return FileResponse(FRONTEND_INDEX)
