@@ -2,7 +2,7 @@
 
 Date: 2026-10-15, Asia/Jakarta.
 
-Status: conversational design approved; written spec awaiting user review. This document does not authorize implementation or a live cutover. After written-spec approval, prepare an implementation plan and let the user select its execution method.
+Status: written spec approved by the user's instruction to continue implementation on 2026-10-15. The implementation plan still requires review and execution-method selection under the chosen brainstorming workflow. Live cutover remains subject to the preflight and preservation requirements below.
 
 ## Intent and agreed decisions
 
