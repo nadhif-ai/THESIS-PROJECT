@@ -2,7 +2,7 @@
 
 Chatbot informasi percetakan untuk satu bisnis. Pelanggan menggunakan WhatsApp melalui WAHA; administrator mengelola dokumen, menguji jawaban, mengatur model, dan melihat evaluasi di dashboard React + shadcn. Integrasi Fonnte tersedia untuk rollback.
 
-Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding E5 lokal → pencarian Pinecone → jawaban OpenRouter. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
+Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding Nemotron melalui OpenRouter → pencarian Pinecone → jawaban OpenRouter. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
 
 ## Menjalankan di macOS
 
@@ -15,10 +15,10 @@ uv pip install --python venv/bin/python -r requirements.txt
 
 Untuk membuat environment baru, salin `.env.example` menjadi `.env` lalu isi kredensial. Jika `.env` sudah ada, gunakan file tersebut.
 
-Unduh embedding sekali jika belum ada di cache:
+Embedding memakai API OpenRouter; tidak perlu mengunduh model lokal:
 
 ```bash
-HF_HUB_OFFLINE=0 TRANSFORMERS_OFFLINE=0 venv/bin/python -c "from app.backend.models import get_embedding_model; get_embedding_model()"
+venv/bin/python -c "from app.backend.models import get_embedding_model; assert len(get_embedding_model().embed_query('uji koneksi')) == 2048; print('Embedding ready: 2048 dimensions')"
 ```
 
 Build dashboard:
@@ -36,15 +36,15 @@ Mulai backend:
 venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Buka [dashboard admin](http://127.0.0.1:8000/admin/) atau [API docs](http://127.0.0.1:8000/docs). State administrasi harus dimigrasikan terlebih dahulu mengikuti [runbook Supabase](docs/runbooks/supabase-state-cutover.md). Akun, hash password, dan sesi lama dipertahankan; startup tidak membuat akun atau mengimpor data secara otomatis. Kredensial lama tetap berlaku.
+Buka [halaman utama](http://127.0.0.1:8000/), [login administrator](http://127.0.0.1:8000/admin/login), [dashboard admin](http://127.0.0.1:8000/admin/), atau [API docs](http://127.0.0.1:8000/docs). Halaman utama bersifat publik; data workspace tetap memerlukan sesi administrator. State administrasi harus dimigrasikan terlebih dahulu mengikuti [runbook Supabase](docs/runbooks/supabase-state-cutover.md). Akun, hash password, dan sesi lama dipertahankan; startup tidak membuat akun atau mengimpor data secara otomatis. Kredensial lama tetap berlaku.
 
-Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal kedua dan buka [Vite admin](http://127.0.0.1:5173/admin/). Permintaan admin API diteruskan ke backend port 8000.
+Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal kedua dan buka [Vite halaman utama](http://127.0.0.1:5173/) atau [Vite admin](http://127.0.0.1:5173/admin/). Permintaan admin API diteruskan ke backend port 8000.
 
 ## Konfigurasi
 
 | Variabel | Keterangan |
 | --- | --- |
-| `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | Indeks vector dense **384 dimensi, cosine** |
+| `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | Indeks `chatbot-nadhif`, vector dense **2048 dimensi, cosine** |
 | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | Provider dan model pemberi jawaban |
 | `EVAL_MODEL` | Model judge terpisah; default `google/gemini-2.5-flash` |
 | `SEMANTIC_TOP_K` | Jumlah passage untuk jawaban; dapat diubah di Providers |
@@ -59,13 +59,13 @@ Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal 
 | `DATA_DIR` | Berkas knowledge, artefak evaluasi, dan backup lokal; default `./data` |
 | `COOKIE_SECURE`, `ALLOWED_ORIGINS` | Cookie dan origin untuk lingkungan HTTPS atau origin tambahan |
 
-Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di PostgreSQL; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Embedding tetap `intfloat/multilingual-e5-small` untuk perbandingan migrasi. Pergantian embedding memerlukan indeks yang kompatibel dan reindex.
+Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di PostgreSQL; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Runtime aktif memakai `nvidia/nemotron-3-embed-1b:free` melalui OpenRouter dengan `EMBEDDING_DIMENSIONS=2048`. Versi menyimpan identitas embedding dan index; versi E5 lama hanya menjadi arsip. Pergantian embedding memerlukan reindex. Prosedur persiapan, evaluasi, dan peralihan WhatsApp tersedia di [runbook migrasi Nemotron](docs/runbooks/nemotron-embedding-migration.md).
 
 ## Menggunakan dashboard
 
 1. **Dashboard**: status knowledge, aktivitas, waktu respons, dan baseline retrieval.
 2. **Knowledge**: pilih versi, buat draft, upload/edit dokumen TXT/MD/PDF/CSV, lalu index. PDF harus memiliki teks; OCR belum tersedia.
-   Di **Passage configuration**, simpan ukuran chunk dan overlap sebelum indexing. Draft dari versi lama dimulai dengan **1.000 karakter / overlap 100**. Pengaturan disimpan per versi; versi ready/published harus diklon menjadi draft untuk mengubahnya. Indexing mempertahankan heading produk pada tiap passage, menghapus separator kosong, dan menolak passage di atas batas **512 token E5** agar teks tidak terpotong diam-diam. Nilai karakter tidak sama dengan token.
+   Di **Passage configuration**, simpan ukuran chunk dan overlap sebelum indexing. Draft dari versi lama dimulai dengan **1.000 karakter / overlap 100**. Pengaturan disimpan per versi; versi ready/published harus diklon menjadi draft untuk mengubahnya. Indexing mempertahankan heading produk pada tiap passage, menghapus separator kosong, dan memeriksa batas konservatif input **32.768 token Nemotron** berdasarkan byte UTF-8 + allowance, bukan hitungan tokenizer aktual; input tidak dipotong diam-diam. Nilai karakter tidak sama dengan token.
 3. **Playground**: pilih versi published atau ready, ajukan pertanyaan, lihat konteks/sumber, penggunaan token, dan link trace LangSmith. Sesi playground terpisah dari pelanggan.
 4. Setelah review, **Publish to WhatsApp** mengaktifkan versi ready. Pilih versi ready sebelumnya dan publish untuk rollback. File gagal diindex tidak mengganti knowledge pelanggan.
 5. **Conversations**: filter WhatsApp, playground, API, atau evaluasi. Riwayat lama diimpor sekali tanpa mengubah file asal.
@@ -203,3 +203,23 @@ Dashboard/playground dapat digunakan tanpa mengirim pesan WhatsApp. Pengujian da
 Delapan tabel administrasi memakai schema privat `chatbot` pada Supabase PostgreSQL. Akses hanya melalui backend; frontend tetap memakai sesi dan CSRF API yang sama. Mode bersama `closed` → `intake` → `live` melindungi pemindahan data. Tidak ada fallback SQLite atau bootstrap knowledge saat startup.
 
 Ikuti [runbook migrasi, verifikasi, dan batas rollback](docs/runbooks/supabase-state-cutover.md). SQLite lama dan backup dipertahankan sebagai arsip; file knowledge/evaluasi masih lokal. Migrasi database ini belum menyelesaikan kebutuhan deployment Vercel untuk worker, artefak, dan embedding.
+
+## Performa dashboard
+
+Jika mengubah `.env` (termasuk `PINECONE_INDEX_NAME`), restart backend: konfigurasi dan klien provider disimpan selama proses berjalan. Startup memvalidasi bahwa index Pinecone sesuai dengan Nemotron (2048 dimensi, cosine); mengubah nama index tidak memindahkan namespace atau embedding. Jalur chat hanya membaca metadata versi knowledge, bukan snapshot embedding. Lihat [perbaikan Playground dan WhatsApp](testing/rag-whatsapp-recovery-20261016.md).
+
+Read API memeriksa session dan membaca snapshot dalam satu perintah PostgreSQL melalui simple query protocol yang kompatibel dengan transaction pooler. `Server-Timing` di DevTools memisahkan waktu akuisisi koneksi, pembacaan database, dan request aplikasi. Login melaporkan fase database, verifikasi password, dan pembuatan session. Request admin yang melebihi satu detik mencatat statistik pool tanpa credential atau isi percakapan.
+
+Jika gangguan jaringan menghabiskan periode reconnect, callback pool memulai pemulihan koneksi lagi. Ini mencegah pool kosong macet ketika antrean request yang sudah timeout memenuhi batas antrean. Gangguan database tetap mengembalikan 503 sampai koneksi pulih; operasi tulis dan pengiriman WhatsApp tidak diulang oleh mekanisme ini.
+
+Koneksi yang kehilangan balasan dibatasi I/O 35 detik dan transaksi idle dibatasi 35 detik. Akuisisi koneksi dan siklus reconnect memakai anggaran 15 detik. Session awal mencoba ulang gangguan sementara secara otomatis; read biasa dibatasi dua percobaan tambahan. GET/HEAD memiliki deadline browser 20 detik. Status 401/403 tetap mengakhiri sesi sesuai respons backend. Lihat [investigasi 503 berulang dan bukti pemulihan](testing/dashboard-resilience-fix.md).
+
+TanStack Query menyimpan cache dalam memori tab, melakukan prefetch satu tujuan saat sidebar di-hover/fokus, dan menampilkan widget evaluasi secara independen. Cache privat dibersihkan saat logout/session berakhir. Respons admin memakai `Cache-Control: private, no-store`.
+
+Versi baru menyimpan jumlah chunk dalam metadata. Untuk data lama, jalankan backfill idempoten dari root repository dengan runtime role `chatbot_app` dan mode `live`:
+
+```bash
+venv/bin/python -m scripts.backfill_version_metadata
+```
+
+Lihat [hasil pengukuran dan batas target di bawah satu detik](testing/dashboard-subsecond-implementation.md). Waktu cold start, login production, dan penempatan backend dekat database tetap perlu diperiksa saat deployment.
