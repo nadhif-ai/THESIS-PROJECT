@@ -158,7 +158,7 @@ def test_image_timeout_retains_uncertainty_after_text_success(client,monkeypatch
 def test_missing_send_response_identity_is_uncertain(client,monkeypatch):
     signed_post(client,event())
     store.update_inbox('asia-chatbot','test-message-1',{'answer':'Prepared answer.'})
-    row=store.get_inbox('asia-chatbot','test-message-1')
+    row=store.claim_inbox('asia-chatbot')
     monkeypatch.setattr(waha,'api',lambda *a,**k:{})
     waha.process(row)
     assert store.get_inbox('asia-chatbot','test-message-1')['status']=='uncertain'

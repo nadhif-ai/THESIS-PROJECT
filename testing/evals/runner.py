@@ -509,8 +509,11 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
 def retry_report(evaluation_id):
     if not evaluation_id.isalnum():
         raise ValueError("Invalid evaluation ID.")
-    path = store.data_path() / "evaluations" / evaluation_id / "results.json"
-    result = json.loads(path.read_text())
+    result = store.evaluation_result(evaluation_id)
+    path = None
+    if result is None:
+        path = store.data_path() / "evaluations" / evaluation_id / "results.json"
+        result = json.loads(path.read_text())
     client = Client()
     try:
         if not result.get("project_id"):
@@ -542,5 +545,7 @@ def retry_report(evaluation_id):
         result["experiment_url"] = project.url
     except Exception as error:
         result["reporting_error"] = type(error).__name__
-    path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    store.save_evaluation_result(evaluation_id, result)
+    if path is not None:
+        path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return result

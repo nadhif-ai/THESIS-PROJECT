@@ -32,6 +32,7 @@ import { useTheme } from "next-themes";
 import brandMark from "@/assets/brand-mark.png";
 import printingDesk from "@/assets/printing-desk.jpg";
 import { api, ApiError, jsonBody, setCsrf } from "@/lib/api";
+import { adminPagePath, readAdminPage } from "@/lib/admin-navigation";
 import { isTransientReadError, queryClient, resourceKey } from "@/lib/query-client";
 import { prefetchResource, useResource } from "@/hooks/use-resource";
 import type {
@@ -68,12 +69,14 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   FieldGroup,
   Field,
+  FieldContent,
   FieldLabel,
   FieldDescription,
 } from "@/components/ui/field";
@@ -1520,7 +1523,7 @@ function Conversations() {
       </FieldGroup>
       <Panel
         title="Conversation history"
-        description={`${rows.length} matching replies from the latest ${data.length} records in this channel.`}
+        description={`${rows.length} matching messages from the latest ${data.length} records in this channel.`}
       >
         {rows.length ? (
           <Table className="conversation-table">
@@ -1543,7 +1546,7 @@ function Conversations() {
                       {row.question}
                     </button>
                     <p className="answer-preview">
-                      {displayAnswer(row.answer)}
+                      {row.answer ? displayAnswer(row.answer) : "No automatic reply recorded."}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -1631,7 +1634,7 @@ function Conversations() {
             <p className="whitespace-pre-wrap">
               <strong>Chatbot</strong>
               <br />
-              {selected ? displayAnswer(selected.answer) : ""}
+              {selected ? selected.answer ? displayAnswer(selected.answer) : "No automatic reply recorded." : ""}
             </p>
           </div>
         </DialogContent>
@@ -1774,12 +1777,29 @@ function ProvidersPage() {
 function WhatsAppConnection({ compact = false }: { compact?: boolean }) {
   const { data, error, reload, refreshing, updatedAt } =
     useResource<WhatsAppStatus>("/whatsapp/status", true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  async function save(path: string, method: string, body: unknown, message: string) {
+    setSaving(true);
+    setSaveError("");
+    try {
+      await api(path, { method, body: jsonBody(body) });
+      toast.success(message);
+      reload();
+    } catch (error) {
+      setSaveError((error as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
   const connected = data?.session_status === "WORKING";
   const pending = ["STARTING", "SCAN_QR_CODE"].includes(
     data?.session_status || "",
   );
   const queue = data?.queue;
-  const attention = queue ? (queue.failed || 0) + (queue.uncertain || 0) : null;
+  const attention = data?.attention
+    ? data.attention.failed + data.attention.uncertain
+    : queue ? (queue.failed || 0) + (queue.uncertain || 0) : null;
   const guidance: Record<string, string> = {
     STARTING:
       "WAHA is starting the session. The status refreshes automatically.",
@@ -1877,6 +1897,32 @@ function WhatsAppConnection({ compact = false }: { compact?: boolean }) {
                   : "Reply worker stopped"}
               </span>
             </div>
+            <Field orientation="horizontal" className="mt-4" data-disabled={saving || data.bot_replies_enabled === undefined}>
+              <FieldContent>
+                <FieldLabel htmlFor={compact ? "dashboard-bot-replies" : "providers-bot-replies"}>Bot replies</FieldLabel>
+                <FieldDescription id={compact ? "dashboard-bot-help" : "providers-bot-help"}>
+                  {data.bot_replies_enabled === false
+                    ? "Off. New messages are saved without an automatic reply."
+                    : "On. New WhatsApp messages receive automatic replies."}
+                </FieldDescription>
+              </FieldContent>
+              <div className="flex min-h-11 shrink-0 items-center gap-2">
+                {saving && <Spinner aria-label="Saving WhatsApp settings" />}
+                <Switch
+                  id={compact ? "dashboard-bot-replies" : "providers-bot-replies"}
+                  checked={data.bot_replies_enabled === true}
+                  aria-describedby={compact ? "dashboard-bot-help" : "providers-bot-help"}
+                  disabled={saving || data.bot_replies_enabled === undefined}
+                  onCheckedChange={(enabled) => void save("/whatsapp/replies", "PUT",
+                    { enabled }, enabled ? "Bot replies turned on" : "Bot replies turned off")}
+                />
+              </div>
+            </Field>
+            <p className="help-copy mt-2">
+              Turning replies back on only answers new messages. Playground stays available.
+              A reply already being sent may still arrive.
+            </p>
+            {saveError && <div className="mt-4"><ErrorNotice error={saveError} /></div>}
             {!connected && compact && (
               <p className="help-copy mt-4">
                 {guidance[data.session_status || ""] ||
@@ -1924,6 +1970,7 @@ function WhatsAppConnection({ compact = false }: { compact?: boolean }) {
                     (queue.generating || 0) + (queue.sending || 0),
                   ],
                   ["Sent", queue.sent || 0],
+                  ["Not answered (bot off)", queue.skipped || 0],
                 ].map(([name, value]) => (
                   <div key={name}>
                     <strong>{value}</strong>
@@ -1936,10 +1983,21 @@ function WhatsAppConnection({ compact = false }: { compact?: boolean }) {
               <Alert variant="destructive" className="mt-4">
                 <CircleAlert />
                 <AlertTitle>{attention} messages need attention</AlertTitle>
-                <AlertDescription>
-                  {queue?.failed || 0} failed · {queue?.uncertain || 0} delivery
-                  uncertain. Check WhatsApp before retrying an uncertain
-                  delivery.
+                <AlertDescription className="flex flex-col items-start gap-3">
+                  <span>
+                    {data.attention?.failed ?? queue?.failed ?? 0} failed · {data.attention?.uncertain ?? queue?.uncertain ?? 0} delivery
+                    uncertain. Check WhatsApp before retrying an uncertain delivery.
+                  </span>
+                  <span>Ignoring this warning keeps the message history. New failures will still appear.</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={saving || !data.attention?.items.length}
+                    onClick={() => void save("/whatsapp/attention/ignore", "POST",
+                      { items: data.attention?.items }, "Warning ignored")}
+                  >
+                    Ignore warning
+                  </Button>
                 </AlertDescription>
               </Alert>
             )}
@@ -2819,12 +2877,13 @@ function WorkspaceLink({
   return (
     <SidebarMenuButton asChild isActive={active} tooltip={item.name}>
       <a
-        href={`#${item.name}`}
+        href={adminPagePath(item.name)}
         aria-current={active ? "page" : undefined}
         aria-label={item.name}
         onPointerEnter={prefetch}
         onFocus={prefetch}
         onClick={(event) => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           event.preventDefault();
           navigate(item.name);
           setOpenMobile(false);
@@ -2855,10 +2914,11 @@ function WorkspaceBrand({ navigate }: { navigate: (name: string) => void }) {
   return (
     <a
       className="workspace-brand"
-      href="#Dashboard"
+      href={adminPagePath("Dashboard")}
       aria-label="Asia Visual Grafika dashboard"
       title="Asia Visual Grafika"
       onClick={(event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
         navigate("Dashboard");
         setOpenMobile(false);
@@ -2996,12 +3056,7 @@ function WorkspaceTools({
   );
 }
 function readPage() {
-  try {
-    const name = decodeURIComponent(location.hash.slice(1));
-    return pages.some((item) => item.name === name) ? name : "Dashboard";
-  } catch {
-    return "Dashboard";
-  }
+  return readAdminPage(window.location);
 }
 
 function Workspace() {
@@ -3032,13 +3087,20 @@ function Workspace() {
     setAuth(null);
   };
   const navigate = (name: string) => {
-    window.history.pushState(null, "", "#" + encodeURIComponent(name));
+    if (window.location.pathname !== adminPagePath(name))
+      window.history.pushState(null, "", adminPagePath(name));
     setPage(name);
     window.scrollTo(0, 0);
   };
   useEffect(() => {
     const expired = () => clearSession();
-    const change = () => setPage(readPage());
+    const change = () => {
+      const name = readPage();
+      if (window.location.pathname !== "/admin/login")
+        window.history.replaceState(null, "", adminPagePath(name) + window.location.search);
+      setPage(name);
+    };
+    change();
     window.addEventListener("auth-expired", expired);
     window.addEventListener("hashchange", change);
     window.addEventListener("popstate", change);
@@ -3072,7 +3134,7 @@ function Workspace() {
             window.history.replaceState(
               null,
               "",
-              "/admin/" + window.location.hash,
+              adminPagePath(page) + window.location.search,
             );
             setAuth(user);
           }}

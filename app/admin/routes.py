@@ -351,6 +351,31 @@ def whatsapp_status(request: Request):
     return status(request.state.admin_data)
 
 
+class BotReplies(BaseModel):
+    enabled: bool = Field(strict=True)
+
+
+@protected.put("/whatsapp/replies")
+def bot_replies(body: BotReplies):
+    return store.set_bot_replies(body.enabled)
+
+
+class AttentionItem(BaseModel):
+    message_id: str = Field(min_length=1, max_length=512)
+    updated_at: str = Field(min_length=1, max_length=100)
+
+
+class IgnoreAttention(BaseModel):
+    items: list[AttentionItem] = Field(min_length=1, max_length=1000)
+
+
+@protected.post("/whatsapp/attention/ignore")
+def ignore_attention(body: IgnoreAttention):
+    session = get_settings().waha_session
+    ignored = store.ignore_whatsapp_attention(session, [item.model_dump() for item in body.items])
+    return {"ignored": ignored, **store.whatsapp_observations(session)}
+
+
 class ProviderSettings(BaseModel):
     openrouter_model: str = Field(
         min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:-]+$"
@@ -377,15 +402,6 @@ def job_detail(job_id: str, request: Request):
     item = request.state.admin_data
     if not item:
         raise HTTPException(404, "Job not found.")
-    result = item.get("result")
-    evaluation_id = result.get("id") if isinstance(result, dict) else None
-    if isinstance(evaluation_id, str) and evaluation_id.isalnum():
-        path = store.data_path() / "evaluations" / evaluation_id / "results.json"
-        if path.is_file():
-            try:
-                item["result"] = json.loads(path.read_text())
-            except (OSError, ValueError):
-                raise HTTPException(503, "Saved evaluation results could not be read.") from None
     return item
 
 
@@ -456,10 +472,13 @@ def retry_report(evaluation_id: str):
 def export(evaluation_id: str):
     if not evaluation_id.isalnum():
         raise HTTPException(400, "Invalid evaluation ID.")
-    path = store.data_path() / "evaluations" / evaluation_id / "results.json"
-    if not path.exists():
+    result = store.evaluation_result(evaluation_id)
+    if result is None:
         raise HTTPException(404, "Results not found.")
-    return FileResponse(path, filename="evaluation-" + evaluation_id + ".json")
+    return Response(
+        content=json.dumps(result, ensure_ascii=False), media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="evaluation-{evaluation_id}.json"'},
+    )
 
 
 admin_router.include_router(protected)

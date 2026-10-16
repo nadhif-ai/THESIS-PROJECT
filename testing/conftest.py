@@ -39,6 +39,7 @@ def pg_workspace(tmp_path, monkeypatch):
     monkeypatch.setenv("EMBEDDING_DIMENSIONS", "2048")
     monkeypatch.setenv("PINECONE_INDEX_NAME", "chatbot-nadhif")
     monkeypatch.setenv("ADMIN_PASSWORD", "local-test-password")
+    monkeypatch.setenv("WAHA_TYPING_ENABLED", "false")
     from app.config.settings import get_settings
 
     get_settings.cache_clear()

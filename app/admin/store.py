@@ -298,6 +298,41 @@ def set_settings(values):
         )
 
 
+def _bot_replies_enabled(db):
+    row = db.execute(
+        "SELECT value FROM chatbot.settings WHERE key='bot_replies_enabled'"
+    ).fetchone()
+    return row is None or json.loads(row["value"]) is True
+
+
+def set_bot_replies(enabled):
+    # All write transactions already lock runtime_control, including intake and send claims.
+    with _connection("administration") as db:
+        db.execute(
+            """INSERT INTO chatbot.settings(key,value) VALUES('bot_replies_enabled',%s)
+            ON CONFLICT(key) DO UPDATE SET value=excluded.value""",
+            (json.dumps(enabled),),
+        )
+        if not enabled:
+            db.execute(
+                """UPDATE chatbot.whatsapp_inbox SET status='skipped',updated_at=%s
+                WHERE status IN ('queued','generating')""", (now(),),
+            )
+    return {"bot_replies_enabled": enabled}
+
+
+def ignore_whatsapp_attention(session, items):
+    with _connection("administration") as db:
+        return db.execute(
+            """UPDATE chatbot.whatsapp_inbox AS inbox SET ignored_at=CURRENT_TIMESTAMP
+            FROM jsonb_to_recordset(%s::jsonb) AS item(message_id text,updated_at text)
+            WHERE inbox.session=%s AND inbox.message_id=item.message_id
+              AND inbox.updated_at=item.updated_at AND inbox.ignored_at IS NULL
+              AND inbox.status IN ('failed','uncertain')""",
+            (json.dumps(items), session),
+        ).rowcount
+
+
 def decode_version(row):
     item = dict(row)
     item["manifest"] = json.loads(item["manifest"])
@@ -331,9 +366,19 @@ _CONVERSATION_JSON = """to_jsonb(item) || jsonb_build_object(
     'usage',COALESCE(NULLIF(item.usage,'')::jsonb,'{}'::jsonb))"""
 _PUBLISHED = "(SELECT value::jsonb FROM chatbot.settings WHERE key='published_version')"
 _WHATSAPP_JSON = """jsonb_build_object(
+    'bot_replies_enabled',COALESCE((SELECT value::jsonb FROM chatbot.settings
+        WHERE key='bot_replies_enabled'),'true'::jsonb),
     'queue',(SELECT COALESCE(jsonb_object_agg(status,n),'{}'::jsonb) FROM (
         SELECT status,count(*) AS n FROM chatbot.whatsapp_inbox
         WHERE session=%(session)s GROUP BY status) counts),
+    'attention',(SELECT jsonb_build_object(
+        'failed',count(*) FILTER (WHERE status='failed'),
+        'uncertain',count(*) FILTER (WHERE status='uncertain'),
+        'items',COALESCE(jsonb_agg(jsonb_build_object(
+            'message_id',message_id,'updated_at',updated_at)),'[]'::jsonb))
+        FROM (SELECT message_id,updated_at,status FROM chatbot.whatsapp_inbox
+            WHERE session=%(session)s AND status IN ('failed','uncertain') AND ignored_at IS NULL
+            ORDER BY created_at,message_id LIMIT 1000) attention),
     'last_received_at',(SELECT MAX(created_at) FROM chatbot.whatsapp_inbox WHERE session=%(session)s),
     'last_sent_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_inbox WHERE session=%(session)s AND status='sent'),
     'last_ack_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_receipts))"""
@@ -567,6 +612,25 @@ def job(identifier):
     return _decode_job(row) if row else None
 
 
+def evaluation_result(identifier):
+    with _connection() as db:
+        row = db.execute(
+            """SELECT result FROM chatbot.jobs WHERE kind='evaluate'
+            AND result::jsonb->>'id'=%s ORDER BY created_at DESC LIMIT 1""",
+            (identifier,),
+        ).fetchone()
+    return json.loads(row["result"]) if row else None
+
+
+def save_evaluation_result(identifier, result):
+    with _connection("execution") as db:
+        db.execute(
+            """UPDATE chatbot.jobs SET result=%s,updated_at=%s
+            WHERE kind='evaluate' AND result::jsonb->>'id'=%s""",
+            (json.dumps(result), now(), identifier),
+        )
+
+
 def create_job_row(identifier, kind, payload):
     with _connection("administration") as db:
         db.execute(
@@ -606,10 +670,11 @@ def merge_job_progress(identifier, fields):
 
 
 def _enqueue_inbox(db, session, message_id, sender, body, received_at=None):
+    status = "queued" if _bot_replies_enabled(db) else "skipped"
     inserted = db.execute(
         """INSERT INTO chatbot.whatsapp_inbox(session,message_id,sender,body,status,reply_ids,created_at,updated_at)
-        VALUES(%s,%s,%s,%s,'queued','[]',%s,%s) ON CONFLICT(session,message_id) DO NOTHING""",
-        (session, message_id, sender, body, received_at or now(), now()),
+        VALUES(%s,%s,%s,%s,%s,'[]',%s,%s) ON CONFLICT(session,message_id) DO NOTHING""",
+        (session, message_id, sender, body, status, received_at or now(), now()),
     ).rowcount
     if not inserted:
         row = db.execute(
@@ -618,6 +683,12 @@ def _enqueue_inbox(db, session, message_id, sender, body, received_at=None):
         ).fetchone()
         if row["sender"] != sender or row["body"] != body:
             raise ValueError("Duplicate WhatsApp ID has conflicting content; review before replay.")
+    elif status == "skipped":
+        db.execute(
+            """INSERT INTO chatbot.conversations(session_id,channel,question,answer,usage,latency,created_at)
+            VALUES(%s,'whatsapp',%s,'','{}',0,%s)""",
+            ("wa_" + sender.removesuffix("@c.us"), body, received_at or now()),
+        )
     return bool(inserted)
 
 
@@ -651,6 +722,17 @@ def claim_inbox(session):
         ).fetchone()
 
 
+def begin_inbox_send(session, message_id):
+    with _connection("execution") as db:
+        if not _bot_replies_enabled(db):
+            return False
+        return bool(db.execute(
+            """UPDATE chatbot.whatsapp_inbox SET status='sending',updated_at=%s
+            WHERE session=%s AND message_id=%s AND status='generating'""",
+            (now(), session, message_id),
+        ).rowcount)
+
+
 def update_inbox(session, message_id, fields):
     from psycopg import sql
 
@@ -664,6 +746,7 @@ def update_inbox(session, message_id, fields):
         "sent",
         "failed",
         "uncertain",
+        "skipped",
     ):
         raise ValueError("Invalid inbox state.")
     values = dict(fields, updated_at=now())
@@ -673,7 +756,7 @@ def update_inbox(session, message_id, fields):
     with _connection("execution") as db:
         db.execute(
             sql.SQL(
-                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s"
+                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s AND status<>'skipped'"
             ).format(assignments),
             (*values.values(), session, message_id),
         )

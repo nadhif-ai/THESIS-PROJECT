@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     waha_session: str = "asia-chatbot"
     waha_webhook_secret: str = ""
     waha_webhook_url: str = ""
+    waha_typing_enabled: bool = True
     vector_store: Literal["pinecone", "chroma"] = "pinecone"
     pinecone_api_key: str = ""
     pinecone_index_name: str = "chatbot-nadhif"

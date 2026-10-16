@@ -106,16 +106,17 @@ def test_draft_failure_cannot_change_published_knowledge(workspace, monkeypatch)
     assert store.version()["id"] == draft["id"]
 
 
-def test_dashboard_summaries_and_lazy_results(workspace):
-    import json
-
+def test_dashboard_summaries_and_lazy_results(workspace, monkeypatch):
     store.record_conversation("synthetic", "whatsapp", "question", "answer", latency=2)
     store.create_job_row("saved", "evaluate", {})
     result = {"id": "syntheticevaluation", "cases": [], "reporting_error": "offline"}
     store.set_job_state("saved", "completed", result=result)
-    path = store.data_path() / "evaluations" / result["id"] / "results.json"
-    path.parent.mkdir(parents=True)
-    path.write_text(json.dumps(result | {"reporting_error": None, "experiment_url": "https://example.test/report"}))
+    store.save_evaluation_result(result["id"], result | {
+        "reporting_error": None, "experiment_url": "https://example.test/report",
+    })
+    def read_only():
+        raise PermissionError("Read-only deployment filesystem")
+    monkeypatch.setattr(store, "data_path", read_only)
 
     app = FastAPI()
     app.include_router(admin_router)
@@ -136,6 +137,8 @@ def test_dashboard_summaries_and_lazy_results(workspace):
         detail = client.get("/admin/api/jobs/saved").json()["result"]
         assert detail["cases"] == [] and detail["reporting_error"] is None
         assert detail["experiment_url"] == "https://example.test/report"
+        exported = client.get(f"/admin/api/evaluations/{result['id']}/export")
+        assert exported.status_code == 200 and exported.json() == detail
         assert client.get("/admin/api/jobs/missing").status_code == 404
 
         overview = client.get("/admin/api/overview").json()
