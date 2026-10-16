@@ -1,0 +1,1445 @@
+{
+  "measured_at": "2026-10-16T01:24:13+0700",
+  "context": "Local Mac HTTP to Supabase transaction pooler; WAHA worker and ambient browser polling active; temporary expiring benchmark session; 20 samples per read endpoint; no password login measurement",
+  "summary": {
+    "/me": {
+      "n": 20,
+      "p50_ms": 225.8,
+      "p95_ms": 356.9,
+      "max_ms": 438.3,
+      "bytes": 62,
+      "errors": 0
+    },
+    "/overview": {
+      "n": 20,
+      "p50_ms": 231.1,
+      "p95_ms": 320.8,
+      "max_ms": 820.8,
+      "bytes": 7771,
+      "errors": 0
+    },
+    "/versions": {
+      "n": 20,
+      "p50_ms": 243.4,
+      "p95_ms": 527.8,
+      "max_ms": 794.4,
+      "bytes": 8964,
+      "errors": 0
+    },
+    "/settings": {
+      "n": 20,
+      "p50_ms": 215.1,
+      "p95_ms": 372.8,
+      "max_ms": 747.3,
+      "bytes": 382,
+      "errors": 0
+    },
+    "/jobs": {
+      "n": 20,
+      "p50_ms": 218.5,
+      "p95_ms": 335.8,
+      "max_ms": 447.8,
+      "bytes": 1681,
+      "errors": 0
+    },
+    "/conversations?channel=whatsapp": {
+      "n": 20,
+      "p50_ms": 463.0,
+      "p95_ms": 731.9,
+      "max_ms": 1035.9,
+      "bytes": 52909,
+      "errors": 0
+    },
+    "/evaluations/dataset": {
+      "n": 20,
+      "p50_ms": 221.8,
+      "p95_ms": 458.6,
+      "max_ms": 468.1,
+      "bytes": 214612,
+      "errors": 0
+    },
+    "/evaluations/dataset?kind=audited": {
+      "n": 20,
+      "p50_ms": 212.4,
+      "p95_ms": 251.7,
+      "max_ms": 490.6,
+      "bytes": 5487,
+      "errors": 0
+    },
+    "/jobs/{id}": {
+      "n": 20,
+      "p50_ms": 685.5,
+      "p95_ms": 946.5,
+      "max_ms": 1142.5,
+      "bytes": 99807,
+      "errors": 0
+    },
+    "concurrent_four_reads": {
+      "n": 4,
+      "p50_ms": 430.1,
+      "p95_ms": 643.4,
+      "max_ms": 643.4,
+      "bytes": 382,
+      "errors": 0
+    },
+    "/whatsapp/status": {
+      "n": 20,
+      "p50_ms": 554.1,
+      "p95_ms": 694.2,
+      "max_ms": 1267.8,
+      "bytes": 463,
+      "errors": 0
+    }
+  },
+  "samples": {
+    "/me": [
+      {
+        "ms": 268.0,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=263.7, app;dur=264.9"
+      },
+      {
+        "ms": 219.5,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=215.8, app;dur=217.0"
+      },
+      {
+        "ms": 195.0,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=192.3, app;dur=193.1"
+      },
+      {
+        "ms": 356.9,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=352.9, app;dur=354.2"
+      },
+      {
+        "ms": 215.4,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=211.4, app;dur=212.8"
+      },
+      {
+        "ms": 244.8,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=241.1, app;dur=242.3"
+      },
+      {
+        "ms": 213.9,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=210.1, app;dur=211.4"
+      },
+      {
+        "ms": 224.1,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=219.5, app;dur=220.9"
+      },
+      {
+        "ms": 223.2,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=219.5, app;dur=220.7"
+      },
+      {
+        "ms": 211.1,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=209.7, app;dur=210.2"
+      },
+      {
+        "ms": 274.3,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=270.6, app;dur=271.8"
+      },
+      {
+        "ms": 212.3,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=208.2, app;dur=209.3"
+      },
+      {
+        "ms": 318.5,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=314.1, app;dur=315.5"
+      },
+      {
+        "ms": 235.9,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=231.9, app;dur=233.2"
+      },
+      {
+        "ms": 211.5,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=207.8, app;dur=208.8"
+      },
+      {
+        "ms": 438.3,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=243.5, db_read;dur=191.8, app;dur=436.1"
+      },
+      {
+        "ms": 233.4,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=229.8, app;dur=231.0"
+      },
+      {
+        "ms": 204.5,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=202.4, app;dur=203.1"
+      },
+      {
+        "ms": 235.2,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=231.5, app;dur=232.7"
+      },
+      {
+        "ms": 227.5,
+        "status": 200,
+        "bytes": 62,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=224.5, app;dur=225.4"
+      }
+    ],
+    "/overview": [
+      {
+        "ms": 224.5,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=219.1, app;dur=221.5"
+      },
+      {
+        "ms": 210.3,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=204.8, app;dur=207.5"
+      },
+      {
+        "ms": 244.7,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=239.9, app;dur=242.2"
+      },
+      {
+        "ms": 221.9,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=217.9, app;dur=219.4"
+      },
+      {
+        "ms": 242.5,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=238.2, app;dur=240.0"
+      },
+      {
+        "ms": 320.8,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=314.5, app;dur=317.4"
+      },
+      {
+        "ms": 223.8,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=218.3, app;dur=221.1"
+      },
+      {
+        "ms": 231.9,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=225.9, app;dur=228.9"
+      },
+      {
+        "ms": 232.6,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=227.3, app;dur=229.9"
+      },
+      {
+        "ms": 820.8,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=595.6, db_read;dur=223.5, app;dur=819.8"
+      },
+      {
+        "ms": 226.0,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=220.7, app;dur=223.0"
+      },
+      {
+        "ms": 230.3,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=226.8, app;dur=228.3"
+      },
+      {
+        "ms": 219.0,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.5, app;dur=216.1"
+      },
+      {
+        "ms": 239.0,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.1, db_read;dur=233.3, app;dur=236.1"
+      },
+      {
+        "ms": 222.2,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=218.1, app;dur=219.6"
+      },
+      {
+        "ms": 208.7,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=205.3, app;dur=206.7"
+      },
+      {
+        "ms": 316.9,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=311.7, app;dur=314.0"
+      },
+      {
+        "ms": 235.9,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=233.2, app;dur=234.3"
+      },
+      {
+        "ms": 237.7,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=233.2, app;dur=234.8"
+      },
+      {
+        "ms": 212.5,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=208.1, app;dur=210.3"
+      }
+    ],
+    "/versions": [
+      {
+        "ms": 221.9,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=216.7, app;dur=219.4"
+      },
+      {
+        "ms": 240.7,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=235.4, app;dur=238.0"
+      },
+      {
+        "ms": 243.5,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=238.7, app;dur=241.2"
+      },
+      {
+        "ms": 214.7,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=211.4, app;dur=212.7"
+      },
+      {
+        "ms": 243.4,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=238.2, app;dur=240.6"
+      },
+      {
+        "ms": 298.5,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=293.2, app;dur=295.6"
+      },
+      {
+        "ms": 204.2,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=199.4, app;dur=201.5"
+      },
+      {
+        "ms": 224.4,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=220.4, app;dur=221.8"
+      },
+      {
+        "ms": 794.4,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=590.0, db_read;dur=200.5, app;dur=792.3"
+      },
+      {
+        "ms": 219.0,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=217.4, app;dur=218.0"
+      },
+      {
+        "ms": 348.9,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=344.2, app;dur=346.6"
+      },
+      {
+        "ms": 233.5,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=228.3, app;dur=230.7"
+      },
+      {
+        "ms": 293.1,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=288.5, app;dur=290.2"
+      },
+      {
+        "ms": 187.4,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=182.9, app;dur=184.9"
+      },
+      {
+        "ms": 317.6,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=312.7, app;dur=315.1"
+      },
+      {
+        "ms": 527.8,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=524.8, app;dur=525.9"
+      },
+      {
+        "ms": 259.3,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=254.7, app;dur=257.1"
+      },
+      {
+        "ms": 514.7,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=301.9, db_read;dur=208.5, app;dur=512.9"
+      },
+      {
+        "ms": 228.0,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=223.3, app;dur=225.7"
+      },
+      {
+        "ms": 261.5,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=257.7, app;dur=259.2"
+      }
+    ],
+    "/settings": [
+      {
+        "ms": 203.6,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=200.2, app;dur=201.3"
+      },
+      {
+        "ms": 232.8,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=228.2, app;dur=229.6"
+      },
+      {
+        "ms": 204.6,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=200.1, app;dur=201.7"
+      },
+      {
+        "ms": 216.4,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.1, db_read;dur=212.7, app;dur=214.3"
+      },
+      {
+        "ms": 206.9,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=201.8, app;dur=203.4"
+      },
+      {
+        "ms": 185.0,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=180.9, app;dur=182.3"
+      },
+      {
+        "ms": 214.5,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=210.5, app;dur=211.8"
+      },
+      {
+        "ms": 191.0,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=187.7, app;dur=188.7"
+      },
+      {
+        "ms": 747.3,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=511.6, db_read;dur=232.5, app;dur=744.9"
+      },
+      {
+        "ms": 217.0,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=215.5, app;dur=215.9"
+      },
+      {
+        "ms": 199.7,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=196.1, app;dur=197.3"
+      },
+      {
+        "ms": 217.8,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.3, app;dur=214.8"
+      },
+      {
+        "ms": 226.5,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=222.4, app;dur=223.6"
+      },
+      {
+        "ms": 372.8,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=369.0, app;dur=370.3"
+      },
+      {
+        "ms": 220.9,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=217.0, app;dur=218.2"
+      },
+      {
+        "ms": 215.7,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.2, app;dur=213.9"
+      },
+      {
+        "ms": 212.7,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=208.9, app;dur=209.9"
+      },
+      {
+        "ms": 225.9,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=222.3, app;dur=223.3"
+      },
+      {
+        "ms": 197.7,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=193.2, app;dur=194.7"
+      },
+      {
+        "ms": 200.1,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=196.4, app;dur=197.6"
+      }
+    ],
+    "/jobs": [
+      {
+        "ms": 320.2,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=317.0, app;dur=318.2"
+      },
+      {
+        "ms": 234.8,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=230.8, app;dur=231.8"
+      },
+      {
+        "ms": 277.3,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=272.4, app;dur=274.2"
+      },
+      {
+        "ms": 206.0,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=202.9, app;dur=203.9"
+      },
+      {
+        "ms": 237.3,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=233.2, app;dur=234.8"
+      },
+      {
+        "ms": 236.2,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=231.4, app;dur=233.2"
+      },
+      {
+        "ms": 197.8,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=194.1, app;dur=195.3"
+      },
+      {
+        "ms": 216.5,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.2, app;dur=214.7"
+      },
+      {
+        "ms": 202.7,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=198.8, app;dur=200.3"
+      },
+      {
+        "ms": 210.6,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=208.7, app;dur=209.4"
+      },
+      {
+        "ms": 234.8,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=230.5, app;dur=232.1"
+      },
+      {
+        "ms": 206.2,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=202.1, app;dur=203.3"
+      },
+      {
+        "ms": 206.8,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=203.3, app;dur=204.4"
+      },
+      {
+        "ms": 299.2,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=294.6, app;dur=296.4"
+      },
+      {
+        "ms": 220.5,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=216.0, app;dur=217.6"
+      },
+      {
+        "ms": 211.0,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=207.8, app;dur=208.9"
+      },
+      {
+        "ms": 447.8,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=233.1, db_read;dur=210.6, app;dur=445.0"
+      },
+      {
+        "ms": 202.5,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=197.6, app;dur=199.3"
+      },
+      {
+        "ms": 335.8,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=330.7, app;dur=332.4"
+      },
+      {
+        "ms": 212.5,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=208.8, app;dur=209.8"
+      }
+    ],
+    "/conversations?channel=whatsapp": [
+      {
+        "ms": 413.2,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=409.3, app;dur=411.4"
+      },
+      {
+        "ms": 613.8,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=608.8, app;dur=611.8"
+      },
+      {
+        "ms": 450.0,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=444.1, app;dur=447.1"
+      },
+      {
+        "ms": 583.6,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=576.8, app;dur=581.5"
+      },
+      {
+        "ms": 610.9,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=604.7, app;dur=608.5"
+      },
+      {
+        "ms": 717.6,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=710.4, app;dur=714.6"
+      },
+      {
+        "ms": 438.8,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=435.1, app;dur=436.9"
+      },
+      {
+        "ms": 209.6,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=203.2, app;dur=206.9"
+      },
+      {
+        "ms": 248.8,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=242.9, app;dur=246.3"
+      },
+      {
+        "ms": 441.1,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=436.9, app;dur=438.9"
+      },
+      {
+        "ms": 581.7,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=575.2, app;dur=578.8"
+      },
+      {
+        "ms": 471.7,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=465.2, app;dur=469.4"
+      },
+      {
+        "ms": 454.3,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=449.6, app;dur=451.9"
+      },
+      {
+        "ms": 712.1,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=706.2, app;dur=709.4"
+      },
+      {
+        "ms": 221.3,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.4, app;dur=218.1"
+      },
+      {
+        "ms": 241.9,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=237.4, app;dur=239.5"
+      },
+      {
+        "ms": 1035.9,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=601.1, db_read;dur=428.4, app;dur=1033.4"
+      },
+      {
+        "ms": 404.6,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=399.6, app;dur=402.6"
+      },
+      {
+        "ms": 642.8,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=636.0, app;dur=639.8"
+      },
+      {
+        "ms": 731.9,
+        "status": 200,
+        "bytes": 52909,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=725.0, app;dur=729.8"
+      }
+    ],
+    "/evaluations/dataset": [
+      {
+        "ms": 468.1,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=202.5, app;dur=466.1"
+      },
+      {
+        "ms": 417.9,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=208.7, db_read;dur=202.0, app;dur=414.8"
+      },
+      {
+        "ms": 207.1,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=200.4, app;dur=204.7"
+      },
+      {
+        "ms": 222.0,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=216.0, app;dur=219.6"
+      },
+      {
+        "ms": 248.5,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=243.4, app;dur=246.4"
+      },
+      {
+        "ms": 254.9,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=245.8, app;dur=251.9"
+      },
+      {
+        "ms": 218.2,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=210.3, app;dur=216.5"
+      },
+      {
+        "ms": 216.4,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=209.5, app;dur=213.8"
+      },
+      {
+        "ms": 216.8,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=210.5, app;dur=214.4"
+      },
+      {
+        "ms": 218.1,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.0, app;dur=216.3"
+      },
+      {
+        "ms": 217.7,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=210.3, app;dur=215.2"
+      },
+      {
+        "ms": 224.0,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=215.4, app;dur=221.4"
+      },
+      {
+        "ms": 226.7,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=221.8, app;dur=224.5"
+      },
+      {
+        "ms": 319.1,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=310.1, app;dur=316.1"
+      },
+      {
+        "ms": 221.6,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=214.1, app;dur=219.1"
+      },
+      {
+        "ms": 201.5,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=193.1, app;dur=199.5"
+      },
+      {
+        "ms": 223.9,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=215.9, app;dur=221.6"
+      },
+      {
+        "ms": 209.6,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=202.9, app;dur=207.3"
+      },
+      {
+        "ms": 458.6,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=213.9, db_read;dur=236.5, app;dur=455.9"
+      },
+      {
+        "ms": 208.8,
+        "status": 200,
+        "bytes": 214612,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=200.2, app;dur=206.4"
+      }
+    ],
+    "/evaluations/dataset?kind=audited": [
+      {
+        "ms": 203.2,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=197.8, app;dur=201.9"
+      },
+      {
+        "ms": 199.1,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=195.5, app;dur=197.1"
+      },
+      {
+        "ms": 251.7,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=246.7, app;dur=249.3"
+      },
+      {
+        "ms": 209.0,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=205.8, app;dur=207.2"
+      },
+      {
+        "ms": 198.6,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=196.4, app;dur=197.3"
+      },
+      {
+        "ms": 239.8,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=235.0, app;dur=237.3"
+      },
+      {
+        "ms": 224.3,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=219.8, app;dur=221.9"
+      },
+      {
+        "ms": 232.2,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=227.6, app;dur=229.9"
+      },
+      {
+        "ms": 211.3,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=206.1, app;dur=208.7"
+      },
+      {
+        "ms": 199.2,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=195.8, app;dur=197.4"
+      },
+      {
+        "ms": 245.0,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=239.6, app;dur=242.2"
+      },
+      {
+        "ms": 208.7,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=204.0, app;dur=206.1"
+      },
+      {
+        "ms": 247.6,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=243.9, app;dur=245.7"
+      },
+      {
+        "ms": 208.3,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=203.9, app;dur=205.4"
+      },
+      {
+        "ms": 220.2,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=215.6, app;dur=217.9"
+      },
+      {
+        "ms": 490.6,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=485.6, app;dur=488.1"
+      },
+      {
+        "ms": 213.6,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=209.0, app;dur=211.4"
+      },
+      {
+        "ms": 185.4,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=182.1, app;dur=183.4"
+      },
+      {
+        "ms": 241.6,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=237.4, app;dur=239.0"
+      },
+      {
+        "ms": 204.0,
+        "status": 200,
+        "bytes": 5487,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=198.8, app;dur=201.3"
+      }
+    ],
+    "/jobs/{id}": [
+      {
+        "ms": 777.6,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=769.6, app;dur=775.3"
+      },
+      {
+        "ms": 595.5,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=587.4, app;dur=593.5"
+      },
+      {
+        "ms": 525.2,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=515.9, app;dur=522.5"
+      },
+      {
+        "ms": 453.7,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=445.3, app;dur=451.4"
+      },
+      {
+        "ms": 946.5,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=940.9, app;dur=945.0"
+      },
+      {
+        "ms": 853.3,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=844.3, app;dur=850.9"
+      },
+      {
+        "ms": 816.6,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=807.4, app;dur=813.8"
+      },
+      {
+        "ms": 1142.5,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=1133.7, app;dur=1139.9"
+      },
+      {
+        "ms": 826.8,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=822.0, app;dur=824.4"
+      },
+      {
+        "ms": 672.8,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=664.3, app;dur=670.6"
+      },
+      {
+        "ms": 939.7,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=931.7, app;dur=937.1"
+      },
+      {
+        "ms": 569.6,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=560.7, app;dur=566.8"
+      },
+      {
+        "ms": 469.2,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=461.7, app;dur=466.7"
+      },
+      {
+        "ms": 784.6,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=777.2, app;dur=782.5"
+      },
+      {
+        "ms": 665.1,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=656.8, app;dur=662.6"
+      },
+      {
+        "ms": 475.7,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=467.9, app;dur=473.0"
+      },
+      {
+        "ms": 698.2,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=693.5, app;dur=696.0"
+      },
+      {
+        "ms": 472.8,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=464.2, app;dur=470.3"
+      },
+      {
+        "ms": 488.8,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=481.5, app;dur=485.9"
+      },
+      {
+        "ms": 835.2,
+        "status": 200,
+        "bytes": 99807,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=826.9, app;dur=832.6"
+      }
+    ],
+    "concurrent_four_reads": [
+      {
+        "ms": 227.4,
+        "status": 200,
+        "bytes": 7771,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=221.8, app;dur=224.8"
+      },
+      {
+        "ms": 434.0,
+        "status": 200,
+        "bytes": 8964,
+        "server_timing": "db_acquire;dur=220.4, db_read;dur=208.0, app;dur=430.4"
+      },
+      {
+        "ms": 643.4,
+        "status": 200,
+        "bytes": 1681,
+        "server_timing": "db_acquire;dur=421.7, db_read;dur=217.0, app;dur=640.1"
+      },
+      {
+        "ms": 426.3,
+        "status": 200,
+        "bytes": 382,
+        "server_timing": "db_acquire;dur=192.2, db_read;dur=229.4, app;dur=423.6"
+      }
+    ],
+    "/whatsapp/status": [
+      {
+        "ms": 652.1,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=222.3, app;dur=640.7"
+      },
+      {
+        "ms": 523.6,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=212.2, app;dur=521.0"
+      },
+      {
+        "ms": 518.9,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=203.0, app;dur=516.6"
+      },
+      {
+        "ms": 1267.8,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=732.8, db_read;dur=209.2, app;dur=1265.3"
+      },
+      {
+        "ms": 580.3,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=110.4, db_read;dur=207.0, app;dur=578.2"
+      },
+      {
+        "ms": 550.7,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=213.6, app;dur=548.7"
+      },
+      {
+        "ms": 518.5,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=210.4, app;dur=516.1"
+      },
+      {
+        "ms": 611.8,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=281.8, app;dur=609.7"
+      },
+      {
+        "ms": 694.2,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=222.6, app;dur=691.6"
+      },
+      {
+        "ms": 569.5,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=223.5, app;dur=567.1"
+      },
+      {
+        "ms": 511.8,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=211.6, app;dur=509.6"
+      },
+      {
+        "ms": 552.2,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=226.0, app;dur=550.6"
+      },
+      {
+        "ms": 528.7,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=221.4, app;dur=526.9"
+      },
+      {
+        "ms": 499.5,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=200.0, app;dur=496.9"
+      },
+      {
+        "ms": 497.5,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=219.7, app;dur=495.0"
+      },
+      {
+        "ms": 507.9,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=214.9, app;dur=505.5"
+      },
+      {
+        "ms": 616.2,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=217.1, app;dur=614.1"
+      },
+      {
+        "ms": 619.4,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=232.6, app;dur=617.2"
+      },
+      {
+        "ms": 569.8,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=225.2, app;dur=567.3"
+      },
+      {
+        "ms": 556.0,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=218.2, app;dur=553.6"
+      }
+    ]
+  },
+  "before_status_consolidation": {
+    "summary": {
+      "n": 3,
+      "p50_ms": 1717.3,
+      "p95_ms": 1957.1,
+      "max_ms": 1957.1,
+      "bytes": 463,
+      "errors": 0
+    },
+    "samples": [
+      {
+        "ms": 1565.8,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=206.1, app;dur=1563.6"
+      },
+      {
+        "ms": 1957.1,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=219.7, app;dur=1953.9"
+      },
+      {
+        "ms": 1717.3,
+        "status": 200,
+        "bytes": 463,
+        "server_timing": "db_acquire;dur=0.0, db_read;dur=305.1, app;dur=1713.9"
+      }
+    ]
+  },
+  "status_measured_at": "2026-10-16T01:28:01+0700",
+  "version_metadata_plan_after_backfill": {
+    "execution_ms": 0.166,
+    "planning_ms": 0.077,
+    "rows": 8,
+    "buffer_hits": 5,
+    "buffer_reads": 0
+  },
+  "browser_navigation_checks": [
+    {
+      "section": "Dashboard",
+      "automation_click_to_content_ms": 727
+    },
+    {
+      "section": "Knowledge",
+      "automation_click_to_content_ms": 243
+    },
+    {
+      "section": "Playground",
+      "automation_click_to_content_ms": 232
+    },
+    {
+      "section": "Conversations",
+      "automation_click_to_content_ms": 249
+    },
+    {
+      "section": "Providers",
+      "automation_click_to_content_ms": 231
+    },
+    {
+      "section": "Evaluations",
+      "automation_click_to_content_ms": 243
+    }
+  ],
+  "browser_cached_repeat_checks": [
+    {
+      "section": "Dashboard",
+      "automation_click_to_content_ms": 290
+    },
+    {
+      "section": "Knowledge",
+      "automation_click_to_content_ms": 242
+    },
+    {
+      "section": "Playground",
+      "automation_click_to_content_ms": 221
+    },
+    {
+      "section": "Conversations",
+      "automation_click_to_content_ms": 238
+    },
+    {
+      "section": "Providers",
+      "automation_click_to_content_ms": 232
+    },
+    {
+      "section": "Evaluations",
+      "automation_click_to_content_ms": 234
+    }
+  ],
+  "browser_measurement_note": "Node wall clock around supported browser click and visible-content wait; includes automation overhead, six samples, not browser-only paint timing or p95.",
+  "cold_restart_observations": {
+    "source": "backend Server-Timing slow-request logs after process restart; not a controlled cold-start distribution",
+    "app_request_ms": [
+      6871.4,
+      1690.5,
+      4954.5,
+      2965.1
+    ],
+    "pool_connection_total_ms": 8321,
+    "pool_connections": 2,
+    "pool_checkout_errors": 1
+  }
+}

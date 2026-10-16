@@ -1,0 +1,99 @@
+[
+  {
+    "id": "1",
+    "question": "Min bisa share lokasi toko? alamatnya dimana",
+    "kategori_variasi": "Fakta Langsung",
+    "expected_source": "01_sop_dan_kebijakan_toko.txt",
+    "ground_truth": "Cabang Utama (Ciputat Timur): Jl. Ir. H. Juanda No. 17, Cempaka Putih. Cabang Kedua (Pamulang): Jl. Pajajaran No. 38.",
+    "review_status": "candidate",
+    "review_notes": "Required: both branch addresses. Operating hours and phone numbers are optional because the question asks for location."
+  },
+  {
+    "id": "2",
+    "question": "Kalo mau cetak bisa dibayar pas ambil apa harus DP?",
+    "kategori_variasi": "Fakta Langsung",
+    "expected_source": "01_sop_dan_kebijakan_toko.txt",
+    "ground_truth": "Pesanan kustom wajib membayar uang muka minimal sebesar 50% hingga 60% dari total nilai transaksi sebelum berkas dinaikkan ke antrean cetak mesin.",
+    "review_status": "candidate",
+    "review_notes": "Verify the business facts and units against the knowledge before marking reviewed."
+  },
+  {
+    "id": "3",
+    "question": "Berapa harga cetak stiker label makanan yang tahan air?",
+    "kategori_variasi": "Fakta Langsung",
+    "expected_source": "04_daftar_estimasi_harga.txt",
+    "ground_truth": "Stiker tahan air menggunakan bahan Stiker Vinyl Ritrama 250 GSM dengan harga Rp 65.000 per m² atau Stiker Vinyl A3+ tanpa kiss cut Rp 12.500 per lembar.",
+    "review_status": "candidate",
+    "review_notes": "Check waterproof material, price and unit. Inspect output truncation separately from retrieval quality."
+  },
+  {
+    "id": "4",
+    "question": "File yang dikirim pakenya format apa? jpeg bisa?",
+    "kategori_variasi": "Fakta Langsung",
+    "expected_source": "03_panduan_berkas_siap_cetak.txt",
+    "ground_truth": "Format file yang disarankan adalah PDF Print, CDR (CorelDRAW), AI, atau JPEG High Quality resolusi minimal 300 DPI dengan mode warna CMYK. Kirim sebagai Dokumen agar tidak dikompresi.",
+    "review_status": "candidate",
+    "review_notes": "Verify the business facts and units against the knowledge before marking reviewed."
+  },
+  {
+    "id": "5",
+    "question": "klo banner 2x1 mtr pke flexi 280 dpt hrg brp min?",
+    "kategori_variasi": "Variasi Bahasa",
+    "expected_source": "04_daftar_estimasi_harga.txt",
+    "ground_truth": "Harga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m². Total biaya 2m x 1m x Rp 16.500 = Rp 33.000.",
+    "review_status": "candidate",
+    "review_notes": "Known retrieval miss. Check Flexi 280 standard price and area formula; do not confuse it with Roll Up Banner."
+  },
+  {
+    "id": "6",
+    "question": "klo hasil cetakan buram/salah dr toko bsa diretur nggak?",
+    "kategori_variasi": "Variasi Bahasa",
+    "expected_source": "01_sop_dan_kebijakan_toko.txt",
+    "ground_truth": "Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan.",
+    "review_status": "candidate",
+    "review_notes": "Verify the business facts and units against the knowledge before marking reviewed."
+  },
+  {
+    "id": "7",
+    "question": "Berapa total harga cetak banner 2x1 meter sebanyak 3 lembar Flexi 280?",
+    "kategori_variasi": "Informasi Implisit",
+    "expected_source": "04_daftar_estimasi_harga.txt",
+    "ground_truth": "Harga per m2 Flexi 280 standar = Rp 16.500. Perhitungan: 2m x 1m x Rp 16.500 x 3 lembar = Rp 99.000.",
+    "review_status": "candidate",
+    "review_notes": "The question omits print quality. Accept either an explicitly conditional standard-price calculation or a relevant quality clarification; do not invent a default."
+  },
+  {
+    "id": "8",
+    "question": "1 lembar A3+ muat berapa pcs stiker ukuran 5x5 cm?",
+    "kategori_variasi": "Informasi Implisit",
+    "expected_source": "03_panduan_berkas_siap_cetak.txt",
+    "ground_truth": "Stiker ukuran 5 cm × 5 cm dengan metode Kiss Cut: 35 pcs per lembar A3+ menurut tabel acuan resmi toko.",
+    "review_status": "candidate",
+    "review_notes": "Business owner confirmation relayed by the user: Kiss Cut 5×5 cm is 35 pcs per A3+ sheet. Require 35 for this case; do not substitute the old 40-pcs estimate or a manual-cut quantity. Other cutting methods are outside this reference.",
+    "business_confirmation": {
+      "value": 35,
+      "unit": "pcs per lembar A3+",
+      "method": "Kiss Cut",
+      "date": "2026-10-12",
+      "source": "User relayed confirmation from business contact"
+    }
+  },
+  {
+    "id": "9",
+    "question": "Kalau saya cetak Kartu Nama 2 box 1 sisi dan X-Banner Flexi 280 1 paket berapa total biayanya?",
+    "kategori_variasi": "Informasi Implisit",
+    "expected_source": "04_daftar_estimasi_harga.txt",
+    "ground_truth": "Kartu Nama Art Carton 1S (2 box) = 2 x Rp 25.000 = Rp 50.000. X-Banner Flexi 280 (1 paket) = Rp 50.000. Total biaya keseluruhan = Rp 100.000.",
+    "review_status": "candidate",
+    "review_notes": "The question omits card stock/lamination. Accept a relevant clarification or a conditional estimate with explicit assumptions; do not silently assume the reference variant."
+  },
+  {
+    "id": "10",
+    "question": "Stiker untuk dipasang di etalase kaca ruko outdoor bagusnya pakai bahan apa?",
+    "kategori_variasi": "Informasi Implisit",
+    "expected_source": "02_spesifikasi_bahan_dan_finishing.txt",
+    "ground_truth": "Untuk etalase kaca ruko disarankan menggunakan Stiker Vinyl Ritrama (tahan air & lem tidak berbekas saat dikupas) atau Stiker One Way Vision (tampak gambar penuh dari luar, tembus pandang dari dalam).",
+    "review_status": "candidate",
+    "review_notes": "Verify the business facts and units against the knowledge before marking reviewed."
+  }
+]

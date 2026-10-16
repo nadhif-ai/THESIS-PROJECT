@@ -1,71 +1,97 @@
 import logging
+import math
+import time
 from functools import lru_cache
-from langchain_huggingface import HuggingFaceEmbeddings
+
+import requests
+from langchain_core.embeddings import Embeddings
 from langchain_openai import ChatOpenAI
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
+NEMOTRON = "nvidia/nemotron-3-embed-1b:free"
+
+
+def embedding_identity():
+    settings = get_settings()
+    if settings.embedding_model != NEMOTRON or settings.embedding_dimensions != 2048:
+        raise ValueError("The active runtime requires Nemotron/OpenRouter with 2048 dimensions. Use the separate baseline environment for E5.")
+    return {"provider": "openrouter", "model": settings.embedding_model,
+            "dimensions": settings.embedding_dimensions, "normalization": "l2",
+            "input_contract": "nvidia-query-passage-v1"}
+
+
+class EmbeddingUnavailable(RuntimeError):
+    pass
+
+
+class OpenRouterEmbeddings(Embeddings):
+    def __init__(self):
+        self.identity = embedding_identity()
+        self.settings = get_settings()
+
+    def _embed(self, texts, input_type):
+        if any(not isinstance(t, str) or not t.strip() or len(t.encode("utf-8")) + 64 > 32768 for t in texts):
+            raise ValueError("Embedding inputs must be nonempty text within the conservative 32768-token bound.")
+        for attempt in range(3):
+            status = None
+            try:
+                response = requests.post(
+                    self.settings.openrouter_base_url.rstrip("/") + "/embeddings",
+                    headers={"Authorization": "Bearer " + self.settings.openrouter_api_key},
+                    json={"model": self.identity["model"], "input": texts,
+                          "dimensions": self.identity["dimensions"], "encoding_format": "float",
+                          "input_type": input_type, "provider": {"allow_fallbacks": False}},
+                    timeout=(10, 60),
+                )
+                status = response.status_code
+            except requests.RequestException:
+                if attempt == 2:
+                    raise EmbeddingUnavailable("OpenRouter embedding transport unavailable after 3 attempts.") from None
+            else:
+                if status == 200:
+                    break
+                if status != 429 and status < 500:
+                    raise EmbeddingUnavailable(f"OpenRouter embeddings returned HTTP {status}; check credentials and request configuration.")
+                if attempt == 2:
+                    raise EmbeddingUnavailable(f"OpenRouter embeddings returned HTTP {status} after 3 attempts; retry the job later.")
+            time.sleep(2 ** attempt)
+        try:
+            rows = response.json()["data"]
+            if len(rows) != len(texts) or sorted(r["index"] for r in rows) != list(range(len(texts))):
+                raise ValueError
+            vectors = []
+            for row in sorted(rows, key=lambda r: r["index"]):
+                vector = row["embedding"]
+                if len(vector) != self.identity["dimensions"] or any(type(v) not in (int, float) or not math.isfinite(v) for v in vector):
+                    raise ValueError
+                norm = math.sqrt(sum(v * v for v in vector))
+                if not math.isfinite(norm) or norm == 0:
+                    raise ValueError
+                vectors.append([v / norm for v in vector])
+            return vectors
+        except (KeyError, TypeError, ValueError):
+            raise ValueError("OpenRouter returned incomplete or invalid embedding vectors; indexing was stopped.") from None
+
+    def embed_documents(self, texts):
+        vectors = []
+        for start in range(0, len(texts), 32):
+            vectors.extend(self._embed(texts[start:start + 32], "passage"))
+        return vectors
+
+    def embed_query(self, text):
+        return self._embed([text], "query")[0]
 
 
 @lru_cache(maxsize=1)
 def get_embedding_model():
+    return OpenRouterEmbeddings()
+
+
+@lru_cache(maxsize=8)
+def get_llm(model: str | None = None) -> ChatOpenAI:
     """
-    Memuat model embedding teks dari HuggingFace secara lokal.
-
-    Model ini mengubah kalimat menjadi representasi vektor berdimensi 384.
-    Fungsi hanya dieksekusi sekali; eksekusi berikutnya langsung dari cache (lru_cache).
-
-    Returns:
-        Instance model embedding, dibungkus E5EmbeddingsWrapper jika model E5.
-    """
-    settings   = get_settings()
-    model_name = settings.embedding_model.strip()
-
-    logger.info(f"[Embeddings] Provider: HuggingFace Lokal → model: {model_name}")
-
-    base_embeddings = HuggingFaceEmbeddings(
-        model_name=model_name,
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={
-            "normalize_embeddings": True,
-            "batch_size": 32,
-        },
-    )
-
-    if "e5" in model_name.lower():
-        logger.info("[Embeddings] Model E5 terdeteksi. Menggunakan E5EmbeddingsWrapper.")
-
-        class E5EmbeddingsWrapper:
-            """
-            Pembungkus model E5 yang menambahkan prefix 'passage:' dan 'query:'
-            secara otomatis sesuai persyaratan model intfloat/e5-*.
-            """
-
-            def __init__(self, inner):
-                self.inner = inner
-
-            def embed_documents(self, texts: list[str]) -> list[list[float]]:
-                """Tambahkan prefix 'passage:' pada dokumen sebelum di-embed."""
-                prefixed = [t if t.startswith("passage: ") else f"passage: {t}" for t in texts]
-                return self.inner.embed_documents(prefixed)
-
-            def embed_query(self, text: str) -> list[float]:
-                """Tambahkan prefix 'query:' pada pertanyaan sebelum di-embed."""
-                prefixed = text if text.startswith("query: ") else f"query: {text}"
-                return self.inner.embed_query(prefixed)
-
-            def __getattr__(self, name):
-                return getattr(self.inner, name)
-
-
-        return E5EmbeddingsWrapper(base_embeddings)
-
-    return base_embeddings
-
-
-def get_llm() -> ChatOpenAI:
-    """
-    Membuat klien LLM yang terhubung ke model Gemini melalui layanan OpenRouter.
+    Membuat klien model jawaban melalui layanan OpenRouter.
 
     Returns:
         Instance ChatOpenAI yang siap digunakan untuk memanggil LLM.
@@ -75,7 +101,7 @@ def get_llm() -> ChatOpenAI:
     logger.info(f"Initializing LLM: {settings.openrouter_model} via OpenRouter")
 
     llm = ChatOpenAI(
-        model=settings.openrouter_model,
+        model=model or settings.openrouter_model,
         api_key=settings.openrouter_api_key,
         base_url=settings.openrouter_base_url,
         temperature=0.0,

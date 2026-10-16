@@ -7,6 +7,13 @@ venv/
 __pycache__/
 *.pyc
 .env
+chroma_db/
+.agents
+.claude
+graphify-out/
+skills-lock.json
+.impeccable
+.codex
 
 # Byte-compiled / cache files
 __pycache__/
@@ -25,3 +32,10 @@ Thumbs.db
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 AGENTS.md
+.pytest_cache/
+.deepeval/
+node_modules/
+dist/
+
+# Testing screenshots
+testing/*.png

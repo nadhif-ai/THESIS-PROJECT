@@ -1,7 +1,10 @@
 import logging
 import time
+import hashlib
 from typing import Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from langsmith import traceable, get_current_run_tree
+from app.admin import store
 from app.backend.models import get_llm
 from app.backend.prompt_template import get_chat_prompt, format_context
 from app.config.settings import get_settings
@@ -12,32 +15,128 @@ _FAQ_FILTER = None
 
 _GREETINGS = {
     # Standar & Variasi Halo / Hi
-    "halo", "halo kak", "halo min", "halo admin", "halo mas", "halo mba", "halo mbak", "halo gan", "halo sis", "halo bos",
-    "hi", "hi kak", "hi min", "hi admin", "hi mas", "hi mba", "hi gan", "hi sis",
-    "hai", "hai kak", "hai min", "hai admin", "hai mas", "hai mba", "hai gan", "hai sis",
-    "helo", "hello", "hei", "hey", "hoy",
-
+    "halo",
+    "halo kak",
+    "halo min",
+    "halo admin",
+    "halo mas",
+    "halo mba",
+    "halo mbak",
+    "halo gan",
+    "halo sis",
+    "halo bos",
+    "hi",
+    "hi kak",
+    "hi min",
+    "hi admin",
+    "hi mas",
+    "hi mba",
+    "hi gan",
+    "hi sis",
+    "hai",
+    "hai kak",
+    "hai min",
+    "hai admin",
+    "hai mas",
+    "hai mba",
+    "hai gan",
+    "hai sis",
+    "helo",
+    "hello",
+    "hei",
+    "hey",
+    "hoy",
     # Sebutan / Panggilan
-    "kak", "kakak", "min", "admin", "mas", "mba", "mbak", "bang", "bg", "kk", "bos", "bu", "pak", "gan", "sis", "bro", "sis/gan", "gan/sis",
-
+    "kak",
+    "kakak",
+    "min",
+    "admin",
+    "mas",
+    "mba",
+    "mbak",
+    "bang",
+    "bg",
+    "kk",
+    "bos",
+    "bu",
+    "pak",
+    "gan",
+    "sis",
+    "bro",
+    "sis/gan",
+    "gan/sis",
     # Tes & Panggilan Singkat
-    "p", "ping", "tes", "test", "testing", "tes tes", "permisi", "permisi kak", "permisi min", "spada", "misi", "misi kak",
-
+    "p",
+    "ping",
+    "tes",
+    "test",
+    "testing",
+    "tes tes",
+    "permisi",
+    "permisi kak",
+    "permisi min",
+    "spada",
+    "misi",
+    "misi kak",
     # Salam Waktu & Variasinya
-    "pagi", "pagi kak", "pagi min", "pagi admin", "pagi mas", "pagi mba",
-    "siang", "siang kak", "siang min", "siang admin", "siang mas", "siang mba",
-    "sore", "sore kak", "sore min", "sore admin", "sore mas", "sore mba",
-    "malam", "malam kak", "malam min", "malam admin", "malam mas", "malam mba",
-    "selamat pagi", "selamat siang", "selamat sore", "selamat malam",
-    "met pagi", "met siang", "met sore", "met malam",
-    "sugeng enjang", "sugeng siang", "sugeng sore", "sugeng dalu",
-
+    "pagi",
+    "pagi kak",
+    "pagi min",
+    "pagi admin",
+    "pagi mas",
+    "pagi mba",
+    "siang",
+    "siang kak",
+    "siang min",
+    "siang admin",
+    "siang mas",
+    "siang mba",
+    "sore",
+    "sore kak",
+    "sore min",
+    "sore admin",
+    "sore mas",
+    "sore mba",
+    "malam",
+    "malam kak",
+    "malam min",
+    "malam admin",
+    "malam mas",
+    "malam mba",
+    "selamat pagi",
+    "selamat siang",
+    "selamat sore",
+    "selamat malam",
+    "met pagi",
+    "met siang",
+    "met sore",
+    "met malam",
+    "sugeng enjang",
+    "sugeng siang",
+    "sugeng sore",
+    "sugeng dalu",
     # Salam Keagamaan & Variasinya
-    "assalamualaikum", "assalamu'alaikum", "assalamu'alaikum wr wb", "assalamualaikum wr wb",
-    "assalamualaikum wr. wb.", "ass", "askum", "assalam", "syalom", "shalom",
-
+    "assalamualaikum",
+    "assalamu'alaikum",
+    "assalamu'alaikum wr wb",
+    "assalamualaikum wr wb",
+    "assalamualaikum wr. wb.",
+    "ass",
+    "askum",
+    "assalam",
+    "syalom",
+    "shalom",
     # Navigasi & Bantuan
-    "start", "menu", "bantuan", "posisi", "layanan", "info", "help", "bantu", "fitur", "menu utama",
+    "start",
+    "menu",
+    "bantuan",
+    "posisi",
+    "layanan",
+    "info",
+    "help",
+    "bantu",
+    "fitur",
+    "menu utama",
 }
 
 _RESET_COMMANDS = {
@@ -62,34 +161,14 @@ Konteks percakapan sebelumnya telah dibersihkan. Silakan ketik pertanyaan atau t
 
 
 def clear_session_history(session_id: str) -> bool:
-    """
-    Menghapus/mereset riwayat percakapan aktif (History-in-Prompt) untuk session_id tertentu.
-
-    Args:
-        session_id: ID sesi (misal: nomor WhatsApp pengguna).
-
-    Returns:
-        True jika sesi ada di memori histori dan berhasil dihapus, False jika tidak ada.
-    """
-    if session_id in _chat_history:
-        del _chat_history[session_id]
-        logger.info("[Session %s] Riwayat percakapan aktif berhasil direset.", session_id)
-        return True
-    logger.info("[Session %s] Tidak ada riwayat percakapan aktif di memori untuk direset.", session_id)
-    return False
+    return store.clear_session(session_id)
 
 
 def clear_all_session_histories() -> int:
-    """
-    Menghapus seluruh riwayat percakapan aktif di memori untuk semua sesi.
-
-    Returns:
-        Jumlah sesi yang direset.
-    """
-    count = len(_chat_history)
-    _chat_history.clear()
-    logger.info("Seluruh riwayat percakapan (%d sesi) telah dibersihkan.", count)
-    return count
+    sessions = {row["session_id"] for row in store.conversations(limit=10000)}
+    for session in sessions:
+        store.clear_session(session)
+    return len(sessions)
 
 
 # Peta angka menu ke file knowledge base & label kategorinya (Data-Driven)
@@ -109,102 +188,32 @@ _MENU_MAP = {
 # Referensi: Lewis et al. (2020) RAG; Shi et al. (2023) Context-in-Prompt.
 # ---------------------------------------------------------------------------
 
-# Kamus histori percakapan per session: { session_id: [(pertanyaan, jawaban), ...] }
-# Hanya menyimpan 2 giliran terakhir untuk menjaga efisiensi token.
-_chat_history: dict[str, list[tuple[str, str]]] = {}
-_MAX_HISTORY_TURNS = 2
-
 
 def _format_history_for_prompt(session_id: str) -> str:
-    """
-    Menyusun blok teks riwayat percakapan untuk disisipkan ke dalam prompt LLM.
-
-    Mengambil maksimal _MAX_HISTORY_TURNS giliran terakhir dari histori sesi
-    dan memformatnya menjadi teks dialog yang mudah dipahami LLM.
-
-    Args:
-        session_id: ID sesi (nomor WhatsApp) pengguna.
-
-    Returns:
-        String teks riwayat percakapan siap sisip ke prompt,
-        atau string kosong jika belum ada histori untuk sesi ini.
-    """
-    history = _chat_history.get(session_id, [])
-    if not history:
-        return ""
-    lines = []
-    for q, a in history:
-        lines.append(f"Pelanggan: {q}")
-        lines.append(f"Bot: {a[:300]}")
-    return "\n".join(lines)
-
-
-import json as _json
-import pathlib as _pathlib
-
-_HISTORY_FILE = (
-    _pathlib.Path(__file__).resolve().parent.parent.parent
-    / "dataset"
-    / "admin_chat_history.json"
-)
-
-
-def _load_persisted_chat_logs() -> list[dict]:
-    """Memuat riwayat chat yang tersimpan secara permanen di disk."""
-    try:
-        if _HISTORY_FILE.exists():
-            return _json.loads(_HISTORY_FILE.read_text(encoding="utf-8"))
-    except Exception as exc:
-        logger.warning("Gagal memuat persisted chat logs: %s", exc)
-    return []
-
-
-_global_chat_logs: list[dict] = _load_persisted_chat_logs()
+    return "\n".join(
+        f"Pelanggan: {q}\nBot: {a[:300]}" for q, a in store.prompt_turns(session_id)
+    )
 
 
 def get_all_chat_logs() -> list[dict]:
-    """Mengembalikan daftar log percakapan terbaru untuk Portal Admin."""
-    return _global_chat_logs
+    return store.conversations()
 
 
-def _update_history(session_id: str, question: str, answer: str) -> None:
-    """
-    Menyimpan satu giliran percakapan (pertanyaan + jawaban) ke histori sesi dan disk.
-
-    Hanya menyimpan maksimal _MAX_HISTORY_TURNS giliran terakhir agar
-    konsumsi token LLM tetap efisien dan tidak membengkak.
-
-    Args:
-        session_id: ID sesi (nomor WhatsApp) pengguna.
-        question  : Teks pertanyaan asli pengguna pada giliran ini.
-        answer    : Teks jawaban bot pada giliran ini.
-    """
-    history = _chat_history.setdefault(session_id, [])
-    history.append((question, answer))
-    if len(history) > _MAX_HISTORY_TURNS:
-        history.pop(0)
-
-    import datetime
-
-    new_entry = {
-        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "session_id": session_id,
-        "question": question,
-        "answer": answer,
+def _trace_inputs(inputs):
+    return {
+        key: inputs.get(key) for key in ("question", "channel", "namespace", "top_k")
     }
-    _global_chat_logs.insert(0, new_entry)
-    if len(_global_chat_logs) > 500:
-        _global_chat_logs.pop()
 
-    # Simpan secara permanen ke berkas json di disk
-    try:
-        _HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-        _HISTORY_FILE.write_text(
-            _json.dumps(_global_chat_logs, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-    except Exception as exc:
-        logger.warning("Gagal menyimpan riwayat chat ke disk: %s", exc)
+
+def _trace_outputs(output):
+    return {
+        "answer": output.answer,
+        "sources": output.sources,
+        "retrieval_context": output.retrieval_context,
+        "usage": output.usage,
+        "latency_seconds": output.latency_seconds,
+        "error": output.error,
+    }
 
 
 def _load_menu_from_file(category_number: str, label: str, kb_dir: str) -> str:
@@ -298,6 +307,11 @@ class RAGResponse:
     media_url: Optional[str] = None
     sources: Optional[list[str]] = None
     usage: Optional[dict] = None
+    retrieval_context: list[dict] = field(default_factory=list)
+    latency_seconds: float = 0
+    trace_id: Optional[str] = None
+    trace_url: Optional[str] = None
+    error: Optional[str] = None
 
 
 class RAGChain:
@@ -315,20 +329,61 @@ class RAGChain:
         """
         self.llm = get_llm()
         self.prompt = get_chat_prompt()
+        self.prompt_fingerprint = hashlib.sha256(
+            self.prompt.pretty_repr().encode()
+        ).hexdigest()
         self.settings = get_settings()
         logger.info("RAGChain initialized (Naive mode).")
 
+    @traceable(
+        name="rag-answer", process_inputs=_trace_inputs, process_outputs=_trace_outputs
+    )
     def run(
         self,
         question: str,
         session_id: str,
         intent_filter: Optional[str] = None,
+        namespace: Optional[str] = None,
+        channel: str = "api",
+        top_k: Optional[int] = None,
+        model: Optional[str] = None,
     ) -> RAGResponse:
         """
         Menjalankan pipeline RAG secara penuh untuk menjawab pertanyaan pengguna.
         """
         logger.info("[Session %s] Running Naive RAG for: %r", session_id, question)
         t_start = time.monotonic()
+        top_k = top_k or store.get_setting(
+            "semantic_top_k", self.settings.semantic_top_k
+        )
+        model = model or store.get_setting(
+            "openrouter_model", self.settings.openrouter_model
+        )
+        selected_version = None
+        if self.settings.vector_store == "pinecone":
+            selected_version = store.version_info(namespace=namespace)
+            from app.backend.vectorstore import require_compatible_version
+
+            require_compatible_version(selected_version)
+            if selected_version:
+                namespace = selected_version["namespace"]
+        tree = get_current_run_tree()
+        if tree:
+            tree.add_metadata(
+                {
+                    "channel": channel,
+                    "model": model,
+                    "top_k": top_k,
+                    "namespace": namespace,
+                    "knowledge_version": selected_version["id"]
+                    if selected_version
+                    else None,
+                    "backend": self.settings.vector_store,
+                    "embedding": selected_version["manifest"].get("embedding") if selected_version else None,
+                    "vector_index": selected_version["manifest"].get("vector_index") if selected_version else None,
+                    "prompt_sha256": self.prompt_fingerprint,
+                }
+            )
 
         cleaned_query = (
             question.strip()
@@ -352,7 +407,9 @@ class RAGChain:
         # Penanganan perintah reset percakapan → Hapus konteks & berikan balasan konfirmasi
         if cleaned_query in _RESET_COMMANDS:
             clear_session_history(session_id)
-            logger.info("[Session %s] Tombol/perintah reset dipicu pengguna.", session_id)
+            logger.info(
+                "[Session %s] Tombol/perintah reset dipicu pengguna.", session_id
+            )
             return RAGResponse(
                 answer=_RESET_RESPONSE_TEXT,
                 session_id=session_id,
@@ -364,10 +421,15 @@ class RAGChain:
         # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
         if cleaned_query in _MENU_MAP:
             _, label = _MENU_MAP[cleaned_query]
+            menu_dir = self.settings.structured_kb_dir
+            if self.settings.vector_store == "pinecone":
+                from app.admin.knowledge import path_for
+
+                menu_dir = str(path_for(selected_version).parent)
             menu_text = _load_menu_from_file(
                 category_number=cleaned_query,
                 label=label,
-                kb_dir=self.settings.structured_kb_dir,
+                kb_dir=menu_dir,
             )
             logger.info(
                 "[Session %s] Menu shortcut '%s' dipilih → KATEGORI_%s dari file 05",
@@ -396,7 +458,8 @@ class RAGChain:
 
         semantic_results = similarity_search_with_score(
             query=search_question,
-            k=self.settings.semantic_top_k,
+            k=top_k,
+            namespace=namespace,
             filter_dict=faq_filter,
         )
 
@@ -411,7 +474,8 @@ class RAGChain:
             )
             semantic_results = similarity_search_with_score(
                 query=search_question,
-                k=self.settings.semantic_top_k,
+                k=top_k,
+                namespace=namespace,
                 filter_dict=None,
             )
             for doc, distance in semantic_results:
@@ -436,6 +500,7 @@ class RAGChain:
         ]
 
         usage_dict = {"prompt_tokens": 0, "completion_tokens": 0}
+        generation_error = None
 
         try:
             # Ambil histori percakapan sesi ini untuk disisipkan ke prompt
@@ -446,8 +511,10 @@ class RAGChain:
                 history=history_text,
                 question=question,
             )
-            response = self.llm.invoke(prompt_value)
+            response = get_llm(model).invoke(prompt_value)
             answer = response.content if hasattr(response, "content") else str(response)
+            if not isinstance(answer, str) or not answer.strip():
+                raise ValueError("The answering provider returned no usable text.")
 
             # Ekstrak token usage dari response OpenRouter/LangChain jika ada
             if hasattr(response, "usage_metadata") and response.usage_metadata:
@@ -469,10 +536,30 @@ class RAGChain:
 
         except Exception as e:
             logger.error("[Session %s] Gagal memanggil LLM: %s", session_id, e)
+            generation_error = (
+                "The answering provider failed. Check model access and retry."
+            )
             answer = "Maaf kak, terjadi kesalahan teknis saat memproses pertanyaan. Silakan coba lagi atau hubungi admin langsung ya"
 
         # Simpan giliran percakapan ini ke histori sesi untuk konteks berikutnya
-        _update_history(session_id, question, answer)
+        total_elapsed = time.monotonic() - t_start
+        trace_id = str(tree.id) if tree else None
+        trace_url = None
+        if tree:
+            try:
+                trace_url = tree.get_url()
+            except Exception:
+                pass
+        if not generation_error:
+            store.record_conversation(
+                session_id,
+                channel,
+                question,
+                answer,
+                usage_dict,
+                total_elapsed,
+                trace_id,
+            )
 
         total_elapsed = time.monotonic() - t_start
         logger.info(
@@ -490,4 +577,17 @@ class RAGChain:
             media_url=media_url,
             sources=sources_list,
             usage=usage_dict,
+            retrieval_context=[
+                {
+                    "text": doc.page_content,
+                    "metadata": doc.metadata,
+                    "distance": distance,
+                    "similarity": 1 - distance,
+                }
+                for doc, distance in semantic_results
+            ],
+            latency_seconds=round(total_elapsed, 3),
+            trace_id=trace_id,
+            trace_url=trace_url,
+            error=generation_error,
         )

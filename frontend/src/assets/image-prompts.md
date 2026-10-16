@@ -1,0 +1,11 @@
+# Generated workspace assets
+
+Generated with Codex's built-in image generation tool at the user's request on 14 October 2026. The logo is a transparent PNG. The login photograph is an authored supporting image, not a photograph of the business premises. Original full-resolution outputs remain in the Codex generated-images library; the workspace copies are resized for delivery.
+
+## brand-mark.png
+
+Use case: logo-brand. Asset type: production app brand mark for Asia Visual Grafika, an Indonesian printing business chatbot administration workspace. Primary request: create one compact, distinctive logo symbol based on offset overlapping paper sheets and an abstract A formed by negative space. Flat crisp solid ink-blue #29577a, no gradient, no outline glow, no shadow, no lettering, no mockup, no other objects. Confident geometry, a simple memorable silhouette that remains readable at 24-40 pixels. Central single mark occupying about 80% of a square canvas with a modest safe margin. Truly transparent background. No rounded app icon tile behind it. It should evoke printed sheets and registration alignment, not generic AI, chat bubbles, stars, rockets, robots or sparkles. Export a clean transparent PNG logo mark.
+
+## printing-desk.jpg
+
+Use case: photorealistic-natural. Asset type: a supporting login-screen image for the Asia Visual Grafika printing business administration workspace, not an advertisement or evidence of actual shop facilities. Primary request: a quiet editorial photograph of a real-feeling printing workbench showing a few stacked uncoated cream paper sheets, dark ink-blue paper proof swatches, an offset printed blue geometric layout on a page, and a stainless steel straightedge. No people, no hands, no computers, no phones, no logos, no words or readable text. Horizontal 3:2 composition, close-up overhead at a slight angle, natural side window light, matte tactile paper grain, simple purposeful arrangement with some negative space. Color world warm off-white paper #f8f7f4, graphite #202927, restrained ink-blue #29577a. No gradients, no glossy 3D render, no neon, no generic AI orb. High-quality credible material photograph, crisp paper edges, minimal objects.

@@ -1,0 +1,15 @@
+======================================================================
+  LAPORAN HASIL EVALUASI RESMI SKRIPSI (BAB V) — CV. ASIA VISUAL GRAFIKA
+  Waktu Eksekusi : 12 October 2026, 13:04:00
+  Total Kueri    : 10 Pertanyaan Uji
+======================================================================
+
+TABEL HASIL PENGUJIAN AKURASI RETRIEVAL (TOP-3):
+----------------------------------------------------------------------
+  • Rata-rata Hit Rate@3    : 90.0%
+  • Rata-rata Precision@3   : 0.6000 (60.00%)
+----------------------------------------------------------------------
+
+File Output Terkait:
+  - Tabel Retrieval CSV : /Users/royanrosyad/Nayor/Nadhif-TA/testing/baselines/2026-10-12-chroma/retrieval.csv
+======================================================================

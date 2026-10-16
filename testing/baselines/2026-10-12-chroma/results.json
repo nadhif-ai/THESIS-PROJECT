@@ -1,0 +1,96 @@
+{
+  "rows": [
+    {
+      "no": 1,
+      "question": "Min bisa share lokasi toko? alamatnya dimana",
+      "kategori_variasi": "Fakta Langsung",
+      "expected_source": "01_sop_dan_kebijakan_toko.txt",
+      "retrieved_sources": "04_daftar_estimasi_harga.txt | 01_sop_dan_kebijakan_toko.txt | 02_spesifikasi_bahan_dan_finishing.txt",
+      "hit@3": 1,
+      "precision@3": 0.3333
+    },
+    {
+      "no": 2,
+      "question": "Kalo mau cetak bisa dibayar pas ambil apa harus DP?",
+      "kategori_variasi": "Fakta Langsung",
+      "expected_source": "01_sop_dan_kebijakan_toko.txt",
+      "retrieved_sources": "01_sop_dan_kebijakan_toko.txt | 03_panduan_berkas_siap_cetak.txt | 03_panduan_berkas_siap_cetak.txt",
+      "hit@3": 1,
+      "precision@3": 0.3333
+    },
+    {
+      "no": 3,
+      "question": "Berapa harga cetak stiker label makanan yang tahan air?",
+      "kategori_variasi": "Fakta Langsung",
+      "expected_source": "04_daftar_estimasi_harga.txt",
+      "retrieved_sources": "02_spesifikasi_bahan_dan_finishing.txt | 04_daftar_estimasi_harga.txt | 04_daftar_estimasi_harga.txt",
+      "hit@3": 1,
+      "precision@3": 0.6667
+    },
+    {
+      "no": 4,
+      "question": "File yang dikirim pakenya format apa? jpeg bisa?",
+      "kategori_variasi": "Fakta Langsung",
+      "expected_source": "03_panduan_berkas_siap_cetak.txt",
+      "retrieved_sources": "03_panduan_berkas_siap_cetak.txt | 03_panduan_berkas_siap_cetak.txt | 03_panduan_berkas_siap_cetak.txt",
+      "hit@3": 1,
+      "precision@3": 1.0
+    },
+    {
+      "no": 5,
+      "question": "klo banner 2x1 mtr pke flexi 280 dpt hrg brp min?",
+      "kategori_variasi": "Variasi Bahasa",
+      "expected_source": "04_daftar_estimasi_harga.txt",
+      "retrieved_sources": "02_spesifikasi_bahan_dan_finishing.txt | 02_spesifikasi_bahan_dan_finishing.txt | 06_estimasi_pcs_per_lembar_a3.txt",
+      "hit@3": 0,
+      "precision@3": 0.0
+    },
+    {
+      "no": 6,
+      "question": "klo hasil cetakan buram/salah dr toko bsa diretur nggak?",
+      "kategori_variasi": "Variasi Bahasa",
+      "expected_source": "01_sop_dan_kebijakan_toko.txt",
+      "retrieved_sources": "01_sop_dan_kebijakan_toko.txt | 02_spesifikasi_bahan_dan_finishing.txt | 02_spesifikasi_bahan_dan_finishing.txt",
+      "hit@3": 1,
+      "precision@3": 0.3333
+    },
+    {
+      "no": 7,
+      "question": "Berapa total harga cetak banner 2x1 meter sebanyak 3 lembar Flexi 280?",
+      "kategori_variasi": "Informasi Implisit",
+      "expected_source": "04_daftar_estimasi_harga.txt",
+      "retrieved_sources": "04_daftar_estimasi_harga.txt | 04_daftar_estimasi_harga.txt | 04_daftar_estimasi_harga.txt",
+      "hit@3": 1,
+      "precision@3": 1.0
+    },
+    {
+      "no": 8,
+      "question": "1 lembar A3+ muat berapa pcs stiker ukuran 5x5 cm?",
+      "kategori_variasi": "Informasi Implisit",
+      "expected_source": "06_estimasi_pcs_per_lembar_a3.txt",
+      "retrieved_sources": "03_panduan_berkas_siap_cetak.txt | 06_estimasi_pcs_per_lembar_a3.txt | 03_panduan_berkas_siap_cetak.txt",
+      "hit@3": 1,
+      "precision@3": 0.3333
+    },
+    {
+      "no": 9,
+      "question": "Kalau saya cetak Kartu Nama 2 box 1 sisi dan X-Banner Flexi 280 1 paket berapa total biayanya?",
+      "kategori_variasi": "Informasi Implisit",
+      "expected_source": "04_daftar_estimasi_harga.txt",
+      "retrieved_sources": "04_daftar_estimasi_harga.txt | 04_daftar_estimasi_harga.txt | 04_daftar_estimasi_harga.txt",
+      "hit@3": 1,
+      "precision@3": 1.0
+    },
+    {
+      "no": 10,
+      "question": "Stiker untuk dipasang di etalase kaca ruko outdoor bagusnya pakai bahan apa?",
+      "kategori_variasi": "Informasi Implisit",
+      "expected_source": "02_spesifikasi_bahan_dan_finishing.txt",
+      "retrieved_sources": "02_spesifikasi_bahan_dan_finishing.txt | 02_spesifikasi_bahan_dan_finishing.txt | 02_spesifikasi_bahan_dan_finishing.txt",
+      "hit@3": 1,
+      "precision@3": 1.0
+    }
+  ],
+  "avg_hit_rate": 90.0,
+  "avg_precision": 0.59999
+}

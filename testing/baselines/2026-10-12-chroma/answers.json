@@ -1,0 +1,656 @@
+{
+  "model": "anthropic/claude-haiku-5.5",
+  "runtime_top_k": 5,
+  "cases": [
+    {
+      "id": "1",
+      "input": "Min bisa share lokasi toko? alamatnya dimana",
+      "expected_output": "Cabang Utama (Ciputat Timur): Jl. Ir. H. Juanda No. 17, Cempaka Putih. Cabang Kedua (Pamulang): Jl. Pajajaran No. 38. Buka pukul 08.30 s.d. 02.30 dini hari.",
+      "answer": "Berikut lokasi kedua cabang Asia Visual Grafika di Tangerang Selatan:\n\n📌 <b>Cabang Utama (Ciputat Timur)</b>\n\nAlamat: Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.\n\nPatokan: Tepat di seberang SPBU (Pom Bensin) Ciputat.\n\nSharelock: https://maps.app.goo.gl/Z4MSgYVkeJ7MTHKdA\n\n📌 <b>Cabang Kedua (Pamulang)</b>\n\nAlamat: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417.\n\nPatokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.\n\nSharelock: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6",
+      "retrieval_context": [
+        {
+          "text": "Contoh pertanyaan kategori ini: \"cetak A3 berapa\", \"cetak poster A3\", \"harga poster art carton A3\", \"cetak brosur A3\", \"cetak sertifikat A3\", \"cetak map berkas folder\", \"cetak menu restoran A3\", \"tent card menu meja\", \"hang tag label baju A3\", \"digital print per lembar\", \"cetak art paper A3\", \"harga print foto A3\".\n\nArt Paper 150 GSM Cetak Satu Sisi (1S):\nPesan 1 hingga 10 lembar: Rp 5.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 2.500 per lembar.\nPesan lebih dari 100 lembar: Rp 2.250 per lembar.\n\nArt Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 5.000 per lembar.\nPesan lebih dari 100 lembar: Rp 4.500 per lembar.\n\nArt Carton 260 GSM Cetak Satu Sisi (1S):\nPesan 1 hingga 10 lembar: Rp 5.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 3.000 per lembar.\nPesan lebih dari 100 lembar: Rp 2.750 per lembar.\n\nArt Carton 260 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 6.000 per lembar.\nPesan lebih dari 100 lembar: Rp 5.500 per lembar.\n\nHVS 100 GSM Cetak Satu Sisi (1S):\nPesan 1 hingga 10 lembar: Rp 5.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 2.500 per lembar.\nPesan lebih dari 100 lembar: Rp 2.250 per lembar.\n\nHVS 100 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 5.000 per lembar.\nPesan lebih dari 100 lembar: Rp 4.500 per lembar.",
+          "metadata": {
+            "chunk_index": 15,
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "format": "txt"
+          },
+          "distance": 0.18211430311203003
+        },
+        {
+          "text": "# PANDUAN STANDAR OPERASIONAL PROSEDUR (SOP) DAN KEBIJAKAN LAYANAN\n# CV. ASIA VISUAL GRAFIKA\n\n## 1. PROFIL DAN LOKASI CABANG TOKO\nCV. Asia Visual Grafika merupakan unit usaha percetakan digital (digital printing) yang beroperasi di wilayah Tangerang Selatan dan melayani kebutuhan cetak luar ruangan (outdoor), dalam ruangan (indoor), cetak lembaran digital A3+ (DocuPrint), dan merchandise promosi.\n\nToko memiliki dua cabang layanan operasional:\n1. Cabang Utama (Ciputat Timur)\n   Alamat: Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.\n   Sharelock: https://maps.app.goo.gl/Z4MSgYVkeJ7MTHKdA\n   Patokan: Tepat di seberang SPBU (Pom Bensin) Ciputat.\n   Email Pengiriman Berkas: asiavisualgrafika@gmail.com\n2. Cabang Kedua (Pamulang):\n   Alamat: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417. \n   Sharelock: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6\n   Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.\n   Email Pengiriman Berkas: asiavisualgrafika2@gmail.com\n\nKontak Layanan Pelanggan:\n- WhatsApp Admin 1: 0896-3241-1115\n- WhatsApp Admin 2: 0897-3232-322\n- Telepon Kantor: (021) 741-4850\n- Akun Media Sosial & Marketplace:\n  - Instagram: @asiavisualgrafika\n  - Shopee: Asia Visual Grafika\n\n---",
+          "metadata": {
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "source": "01_sop_dan_kebijakan_toko.txt",
+            "chunk_index": 0
+          },
+          "distance": 0.1868574023246765
+        },
+        {
+          "text": "- Penggunaan: Kaca depan/samping ruko agar terlihat promosi dari luar tapi dari dalam toko masih bisa melihat ke jalan, partisi kaca kantor, dan kaca belakang mobil untuk promosi/iklan berjalan.",
+          "metadata": {
+            "chunk_index": 17,
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt"
+          },
+          "distance": 0.19149810075759888
+        },
+        {
+          "text": "- Penggunaan: Brosur promosi ukuran A4 atau A5 (dilipat 2 atau 3), flyer/selebaran, pamflet, lembaran isi buku menu makanan di restoran, dan selebaran katalog produk.\n   - Cocok untuk cetak produk turunan: poster promosi ringan/acara/film, brosur lipat tiga (tri-fold brochure), brosur lipat dua (bi-fold brochure), flyer & leaflet (A4, A5, A6), katalog menu restoran, voucher & kupon belanja, kertas kado custom, kertas bungkus (wrapping paper/tissue lining bermotif).\n3. Art Carton (AC) 260 GSM:\n   - Karakteristik: Versi tebal dan kaku dari Art Paper. Bahannya kokoh dan tidak mudah dilipat (perlu dilipat dengan bantuan garis tekuk). Kedua sisi permukaannya mengkilap (glossy) seperti Art Paper, namun jauh lebih tebal sehingga bisa berdiri sendiri tanpa penyangga. Rasanya mirip karton undangan tebal yang licin.\n   - Penggunaan: Kartu nama standar, cover/sampul buku jilid (soft cover), poster dinding, kalender meja, kartu ucapan terima kasih (thank you card), dan tiket masuk acara.",
+          "metadata": {
+            "chunk_index": 8,
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "format": "txt"
+          },
+          "distance": 0.19461274147033691
+        },
+        {
+          "text": "PRODUK INI ADALAH: Cetak dokumen, poster A3, brosur, map, sertifikat, dan aneka produk turunan digital print per lembar ukuran A3+ (area 32 x 48 cm).\nBUKAN Brosur cetak offset per rim, BUKAN Poster besar Albatros (A0/A1/A2), BUKAN stiker.\nTersedia berbagai pilihan bahan kertas dengan kecocokan produk turunan:\n- Art Paper 150 GSM: Cocok untuk poster A3 promosi, brosur lipat dua/tiga, flyer, leaflet, katalog menu restoran, voucher/kupon belanja, kertas kado custom, wrapping paper motif.\n- Art Carton 260 GSM: Cocok untuk poster dinding tebal/dekorasi, kartu nama, tent card menu meja restoran/resepsionis, map berkas (corporate folder), label gantung (hang tag), cover buku/agenda/notebook, dudukan kalender, giant card kartu ucapan besar, papan permainan (board game/playmat), kotak kemasan kecil (packaging box/snack box), pita kemasan (sleeve packaging rice box), tas kertas mini (mini paper bag).\n- HVS 100 GSM: Cocok untuk dokumen laporan, modul pelatihan, formulir pendaftaran, kuitansi, kertas kop surat, flip chart presentasi, alat peraga pendidikan/peta/anatomi, diagram teknis & cetak biru (blueprint).\n- BC (Board Cover) 230 GSM: Cocok untuk piagam & sertifikat penghargaan, kartu iuran/absen, cover jilid, voucher stempel manual.\n- Linen 230 GSM: Cocok untuk sertifikat kelulusan/ijazah resmi, piagam penghargaan eksklusif, kartu nama eksekutif/pejabat, undangan pernikahan resmi/VIP, cover laporan mewah.",
+          "metadata": {
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "chunk_index": 13
+          },
+          "distance": 0.1946800947189331
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 7114,
+        "completion_tokens": 479
+      },
+      "latency_seconds": 5.344,
+      "trace_id": "01a12ecc-dec8-7cc2-9a3e-2aa9eb56f3e0",
+      "generation_ok": true
+    },
+    {
+      "id": "2",
+      "input": "Kalo mau cetak bisa dibayar pas ambil apa harus DP?",
+      "expected_output": "Pesanan kustom wajib membayar uang muka minimal sebesar 50% hingga 60% dari total nilai transaksi sebelum berkas dinaikkan ke antrean cetak mesin.",
+      "answer": "Untuk pesanan kustom, Anda <b>wajib membayar DP minimal 60%</b> dari total biaya sebelum berkas masuk antrean cetak. Toko tidak melayani sistem bayar di belakang setelah pesanan selesai.\n\nSisa tagihan dilunasi saat pengambilan barang di gerai, atau sebelum pesanan diserahkan ke kurir.\n\n📌 <b>Metode pembayaran DP:</b>\n\n• Tunai di kasir gerai\n\n• Transfer Bank BCA No. Rekening 06-700-53-113 a.n. Dien Soufiany\n\n• QRIS (kode resmi diminta melalui admin)",
+      "retrieval_context": [
+        {
+          "text": "## 6. KEBIJAKAN PEMBATALAN, REFUND, DAN KLAIM SALAH CETAK\n1. Kebijakan Pembatalan Pesanan:\n   - Pembatalan pesanan hanya dapat dilakukan maksimal dalam kurun waktu kurang dari 2 jam setelah pembayaran disepakati dan sebelum berkas diproses oleh operator mesin cetak.\n   - Apabila berkas sudah diproses cetak oleh mesin, pesanan tidak dapat dibatalkan, diubah, maupun ditarik kembali.\n2. Kebijakan Pengembalian Dana (Refund):\n   - Refund dana akibat kelebihan transfer atau pembatalan sah diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja (tidak diperkenankan refund tunai).\n3. Kebijakan Garansi dan Cetak Ulang (Re-Print):\n   - Kesalahan dari Pihak Toko/Produksi: Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko.\n   - Kesalahan dari Pihak Pelanggan: Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan, salah pemilihan ukuran berkas dari pelanggan, atau resolusi gambar pecah akibat berkas asli yang dikirimkan buram.",
+          "metadata": {
+            "format": "txt",
+            "chunk_index": 5,
+            "answer_source": "knowledge_base",
+            "source": "01_sop_dan_kebijakan_toko.txt"
+          },
+          "distance": 0.15091466903686523
+        },
+        {
+          "text": "# PANDUAN TEKNIS BERKAS SIAP CETAK (PREPRESS GUIDELINES)\n# CV. ASIA VISUAL GRAFIKA\n\n## 1. PENGERTIAN BERKAS SIAP CETAK (PRINT-READY FILE)\nBerkas siap cetak adalah berkas desain digital yang telah memenuhi seluruh parameter teknis percetakan, sehingga dapat langsung dialirkan ke mesin cetak tanpa memerlukan proses penyuntingan (editing) ulang, perbaikan resolusi, atau penyesuaian tata letak oleh tim percetakan.\n\nPengiriman berkas yang belum siap cetak berisiko memicu keterlambatan antrean produksi, kesalahan posisi teks yang terpotong mesin, atau hasil cetak yang buram/pecah.\n\n---",
+          "metadata": {
+            "chunk_index": 0,
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "format": "txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.1534661054611206
+        },
+        {
+          "text": "## 5. FORMAT BERKAS YANG DITERIMA\nFormat berkas yang disarankan untuk menjaga keutuhan elemen desain:\n\n1. PDF (Portable Document Format) - SANGAT DIREKOMENDASIKAN:\n   - Standar emas percetakan modern (PDF/X-1a atau PDF High Quality Print).\n   - Format PDF secara sempurna mengunci jenis huruf (font), penempatan gambar, dan tata letak agar tidak berubah saat dibuka di berbagai perangkat komputer mesin.\n2. TIFF (Tagged Image File Format):\n   - Format bitmap uncompressed kualitas tinggi yang tidak mengalami degradasi kualitas gambar (lossless).\n3. CDR (CorelDRAW) dan AI (Adobe Illustrator):\n   - Berkas vektor mentah diterima, dengan syarat mutlak seluruh teks harus sudah diubah menjadi kurva (*convert to curves / outlines*).\n4. PSD (Adobe Photoshop):\n   - Pastikan teks sudah di-*rasterize* atau diekspor menjadi format TIFF/PDF.\n5. JPG / JPEG Kualitas Maksimal:\n   - Diterima jika disimpan dengan kualitas kompresi tertinggi (Quality: 10–12 / Maximum), resolusi minimal 300 DPI, dan mode CMYK.\n\nFormat yang TIDAK Disarankan:\n- Tangkapan layar (*screenshot* layar ponsel), berkas Microsoft Word (.docx), atau PowerPoint (.pptx) untuk cetak spanduk karena resolusinya rendah dan tata letaknya sering bergeser saat dibuka.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "format": "txt",
+            "chunk_index": 4
+          },
+          "distance": 0.15416836738586426
+        },
+        {
+          "text": "## 5. KETENTUAN PEMBAYARAN DAN UANG MUKA (DP)\n1. Metode Pembayaran yang Diterima:\n   - Tunai langsung di kasir gerai ruko.\n   - Transfer Bank ke rekening resmi toko: Bank BCA No. Rekening 06-700-53-113 atas nama Dien Soufiany.\n   - Pembayaran digital QRIS (meminta kode barcode resmi melalui admin).\n2. Kebijakan Uang Muka (Down Payment):\n   - Pesanan kustom wajib membayar uang muka minimal sebesar 60% dari total nilai transaksi sebelum berkas dinaikkan ke antrean cetak mesin.\n   - Toko tidak melayani sistem cetak bayar di belakang setelah pesanan selesai, demi menghindari pembatalan sepihak atas produk kustom.\n   - Pelunasan sisa tagihan wajib diselesaikan pada saat pengambilan barang fisik di gerai atau sebelum pesanan diserahkan kepada kurir pengiriman.\n\n---",
+          "metadata": {
+            "chunk_index": 4,
+            "format": "txt",
+            "source": "01_sop_dan_kebijakan_toko.txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.1577504277229309
+        },
+        {
+          "text": "## 3. ALUR PEMESANAN DAN PENGAMBILAN PRODUK\nAlur pemesanan secara daring (online) dilakukan melalui tahapan:\n1. Pelanggan berkonsultasi mengenai spesifikasi produk cetak (melalui admin/chatbot).\n2. Pelanggan mengirimkan berkas desain siap cetak melalui WhatsApp (menggunakan opsi Kirim Dokumen) atau via email toko dengan melampirkan keterangan ukuran, jenis bahan, jumlah, dan pilihan finishing pada nomor whatsapp admin.\n3. Admin mengecek kelayakan berkas desain dan memberikan total rincian biaya kepada pelanggan.\n4. Pelanggan melakukan pembayaran awal (DP minimal 60% atau pembayaran lunas) dan mengirimkan bukti transfer ke admin.\n5. Admin menerbitkan Surat Perintah Kerja (SPK) serta nota kepada pelanggan.\n6. Setelah proses produksi dan finishing selesai, admin mengirimkan notifikasi konfirmasi bahwa pesanan siap diambil.\n7. Pelanggan dapat mengambil langsung di gerai ruko toko atau memesan penjemputan menggunakan jasa kurir ojek online (GoSend/GrabExpress) dengan syarat pesanan telah dilunasi 100%.\n8. Belum menyediakan jasa kirim seperti jne dan sejenisnya.\n\n---",
+          "metadata": {
+            "chunk_index": 2,
+            "source": "01_sop_dan_kebijakan_toko.txt",
+            "answer_source": "knowledge_base",
+            "format": "txt"
+          },
+          "distance": 0.16220438480377197
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 6714,
+        "completion_tokens": 629
+      },
+      "latency_seconds": 3.798,
+      "trace_id": "01a12ecc-f3a9-74f1-8aa6-2a7d10482533",
+      "generation_ok": true
+    },
+    {
+      "id": "3",
+      "input": "Berapa harga cetak stiker label makanan yang tahan air?",
+      "expected_output": "Stiker tahan air menggunakan bahan Stiker Vinyl Ritrama 250 GSM dengan harga Rp 65.000 per m² atau Stiker Vinyl A3+ tanpa kiss cut Rp 12.500 per lembar.",
+      "answer": "Untuk stiker label makanan yang <b>tahan air</b>, pilihan yang tepat adalah <b>Stiker Vinyl</b>. Stiker Cromo berbahan kertas sehingga tidak tahan air dan lebih cocok untuk label makanan kering.\n\n📌 <b>Harga Stiker Vinyl per lembar A3+:</b>\n\n• Tanpa kiss cut: <b>Rp 12.500</b> per lembar (1–10 lembar), <b>Rp 10.000</b> per lembar (lebih dari 10 lembar)\n\n• Dengan kiss cut (sudah termasuk potong): <b>Rp 17.500</b> per lembar (1–10 lembar), <b>Rp 15.000</b> per lembar (lebih dari 10 lembar)\n\nAgar kami bisa menghitung estimasi biayanya, mohon informasikan:\n\n1. Ukuran label yang diinginkan (misalnya 5 × 5 cm)\n2. Jumlah label/pcs yang dipesan\n3. Apakah memerlukan kiss cut (potong per label) atau tanpa kiss cut",
+      "retrieval_context": [
+        {
+          "text": "1. Stiker Cromo / Chromo (180 GSM - Lembaran A3+):\n   - Karakteristik: Stiker yang bahannya terbuat dari kertas (bukan plastik), dengan permukaan licin dan mengkilap. Perekatnya cukup kuat untuk menempel di permukaan kering. Namun, karena berbahan kertas, stiker ini tidak tahan air — jika terkena air akan merusak cetakan dan mengendurkan lem tempelnya. Harganya paling murah di antara semua jenis stiker. Kelebihan tambahannya, permukaan stiker ini bisa ditulis dengan pulpen biasa.\n   - Penggunaan: Label kemasan makanan kering atau stoples, stiker segel penutup kardus katering, stiker promosi kampanye/pilkada, dan stiker alamat pengiriman paket.\n   - Cocok untuk cetak produk turunan: lembaran stiker label (sticker sheet), stiker label toples/botol kering, stiker segel kemasan box, label harga/barcode, stiker suvenir acara, stiker kampanye murah.\n2. Stiker Vinyl Meteran China (200 GSM):\n   - Karakteristik: Stiker berbahan plastik vinyl yang lentur dan bisa ditarik sedikit tanpa langsung robek. Tahan air hujan dan tidak mudah sobek, sehingga cocok untuk penggunaan di luar ruangan. Dijual dalam satuan meteran (panjang x lebar) sehingga bisa mencetak ukuran besar sesuai kebutuhan. Harganya termasuk ekonomis untuk kelas stiker vinyl tahan air.\n   - Penggunaan: Cetak stiker ukuran besar untuk promosi tempel di dinding ruko, papan neon box, atau media promosi outdoor berukuran besar.",
+          "metadata": {
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 14
+          },
+          "distance": 0.11505776643753052
+        },
+        {
+          "text": "## STIKER CETAK A3+ SATUAN / KISS CUT (Harga per lembar A3+)\n\nPRODUK INI ADALAH: Stiker satuan cetak per lembar A3+, digunakan untuk label produk, stiker custom kecil-kecil dalam satu lembar besar.\nBUKAN stiker meteran gulungan, BUKAN cutting stiker vinyl dinding, BUKAN banner.\nArea cetak efektif per lembar A3+: 31 cm x 47 cm. Bisa dengan atau tanpa kiss cut (potong).\nContoh pertanyaan kategori ini: \"harga stiker per lembar\", \"stiker cromo A3\", \"stiker label 5x5 berapa lembar\", \"kiss cut stiker\".\n\nStiker Cromo tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 7.000 per lembar.\nPesan lebih dari 10 lembar: Rp 5.500 per lembar.\n\nStiker Vinyl tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Transparan tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Cromo dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.500 per lembar.\n\nStiker Vinyl dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 17.500 per lembar.\nPesan lebih dari 10 lembar: Rp 15.000 per lembar.\n\n---",
+          "metadata": {
+            "source": "04_daftar_estimasi_harga.txt",
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 11
+          },
+          "distance": 0.1312718391418457
+        },
+        {
+          "text": "## STIKER CETAK A3+ SATUAN (Harga per lembar A3, ukuran A3+)\n\nStiker Cromo tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 7.000 per lembar.\nPesan lebih dari 10 lembar: Rp 5.500 per lembar.\n\nStiker Vinyl tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Transparan tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Cromo dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.500 per lembar.\n\nStiker Vinyl dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 17.500 per lembar.\nPesan lebih dari 10 lembar: Rp 15.000 per lembar.\n\n---",
+          "metadata": {
+            "chunk_index": 30,
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.1319233775138855
+        },
+        {
+          "text": "### B. RUMUS PERHITUNGAN PRODUK PER LEMBAR A3+ (Cetak Kertas Dokumen & Stiker A3+)\n\nBerlaku untuk: cetak dokumen digital print A3+ (Art Paper, Art Carton, HVS, BC/BW, Linen, Concord, Photo Paper) dan stiker A3+ (Cromo, Vinyl, Transparan, dengan atau tanpa Kiss Cut).\n\nTerdapat dua skenario perhitungan:\n\n#### B1. Pelanggan memesan dalam SATUAN LEMBAR A3+ (tanpa menyebut ukuran desain per pcs)\n\nLangkah Perhitungan:\n1. Tentukan jumlah lembar yang dipesan.\n2. Tentukan harga per lembar sesuai bahan, cetak 1S/2S, dan tier kuantitas.\n3. Hitung harga cetak: Harga Cetak = Jumlah Lembar × Harga per lembar.\n4. Tambahkan biaya finishing jika ada (laminating, potong karter, dll).\n5. Bulatkan ke atas ke kelipatan Rp 500 terdekat: Total = ceiling((Harga Cetak + Biaya Finishing) ÷ 500) × 500.\n\nContoh CoT: Pelanggan memesan 15 lembar Art Carton 260 GSM cetak 1 sisi.\n• Tier harga 11–100 lembar Art Carton 1S = Rp 3.000 per lembar.\n• Harga cetak = 15 × Rp 3.000 = Rp 45.000.\n• Tanpa finishing tambahan → Total = Rp 45.000.\n\n#### B2. Pelanggan memesan stiker/kertas A3+ dengan UKURAN DESAIN PER PCS (misal stiker 5×5 cm, 100 pcs)\n\nPada skenario ini, bot WAJIB menghitung berapa pcs desain yang muat dalam 1 lembar A3+, lalu menghitung jumlah lembar yang dibutuhkan.",
+          "metadata": {
+            "chunk_index": 40,
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "format": "txt"
+          },
+          "distance": 0.13386309146881104
+        },
+        {
+          "text": "Contoh pertanyaan kategori ini: \"cetak A3 berapa\", \"cetak poster A3\", \"harga poster art carton A3\", \"cetak brosur A3\", \"cetak sertifikat A3\", \"cetak map berkas folder\", \"cetak menu restoran A3\", \"tent card menu meja\", \"hang tag label baju A3\", \"digital print per lembar\", \"cetak art paper A3\", \"harga print foto A3\".\n\nArt Paper 150 GSM Cetak Satu Sisi (1S):\nPesan 1 hingga 10 lembar: Rp 5.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 2.500 per lembar.\nPesan lebih dari 100 lembar: Rp 2.250 per lembar.\n\nArt Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 5.000 per lembar.\nPesan lebih dari 100 lembar: Rp 4.500 per lembar.\n\nArt Carton 260 GSM Cetak Satu Sisi (1S):\nPesan 1 hingga 10 lembar: Rp 5.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 3.000 per lembar.\nPesan lebih dari 100 lembar: Rp 2.750 per lembar.\n\nArt Carton 260 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 6.000 per lembar.\nPesan lebih dari 100 lembar: Rp 5.500 per lembar.\n\nHVS 100 GSM Cetak Satu Sisi (1S):\nPesan 1 hingga 10 lembar: Rp 5.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 2.500 per lembar.\nPesan lebih dari 100 lembar: Rp 2.250 per lembar.\n\nHVS 100 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 5.000 per lembar.\nPesan lebih dari 100 lembar: Rp 4.500 per lembar.",
+          "metadata": {
+            "chunk_index": 15,
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt"
+          },
+          "distance": 0.14242851734161377
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 7625,
+        "completion_tokens": 923
+      },
+      "latency_seconds": 5.264,
+      "trace_id": "01a12ecd-0280-73c2-ba3d-5a4dfdd0ac4d",
+      "generation_ok": true
+    },
+    {
+      "id": "4",
+      "input": "File yang dikirim pakenya format apa? jpeg bisa?",
+      "expected_output": "Format file yang disarankan adalah PDF Print, CDR (CorelDRAW), AI, atau JPEG High Quality resolusi minimal 300 DPI dengan mode warna CMYK. Kirim sebagai Dokumen agar tidak dikompresi.",
+      "answer": "Ya, JPEG bisa diterima dengan syarat kualitas maksimal (Quality 10–12 / Maximum), resolusi minimal <b>300 DPI</b>, dan mode warna <b>CMYK</b>.\n\n📌 <b>Format berkas yang diterima:</b>\n\n• <b>PDF</b> (sangat direkomendasikan, khususnya PDF/X-1a atau PDF High Quality Print)\n\n• <b>TIFF</b> (kualitas tinggi, tanpa kompresi)\n\n• <b>CDR</b> (CorelDRAW) dan <b>AI</b> (Adobe Illustrator), dengan semua teks sudah diubah menjadi kurva (convert to curves)\n\n• <b>PSD</b> (Adobe Photoshop), dengan teks sudah di-rasterize atau diekspor ke TIFF/PDF\n\n• <b>JPG / JPEG</b>, dengan syarat di atas\n\n📌 <b>Format yang tidak disarankan:</b>\n\n• Tangkapan layar (screenshot)\n\n• File Word (.docx) dan PowerPoint (.pptx), terutama untuk cetak spanduk, karena resolusinya rendah dan tata letaknya sering bergeser\n\n💡 Jika mendesain di Canva, pilih <b>Cetak PDF (PDF Print)</b> dan centang <b>Ratakan PDF (Flatten PDF)</b>.",
+      "retrieval_context": [
+        {
+          "text": "## 5. FORMAT BERKAS YANG DITERIMA\nFormat berkas yang disarankan untuk menjaga keutuhan elemen desain:\n\n1. PDF (Portable Document Format) - SANGAT DIREKOMENDASIKAN:\n   - Standar emas percetakan modern (PDF/X-1a atau PDF High Quality Print).\n   - Format PDF secara sempurna mengunci jenis huruf (font), penempatan gambar, dan tata letak agar tidak berubah saat dibuka di berbagai perangkat komputer mesin.\n2. TIFF (Tagged Image File Format):\n   - Format bitmap uncompressed kualitas tinggi yang tidak mengalami degradasi kualitas gambar (lossless).\n3. CDR (CorelDRAW) dan AI (Adobe Illustrator):\n   - Berkas vektor mentah diterima, dengan syarat mutlak seluruh teks harus sudah diubah menjadi kurva (*convert to curves / outlines*).\n4. PSD (Adobe Photoshop):\n   - Pastikan teks sudah di-*rasterize* atau diekspor menjadi format TIFF/PDF.\n5. JPG / JPEG Kualitas Maksimal:\n   - Diterima jika disimpan dengan kualitas kompresi tertinggi (Quality: 10–12 / Maximum), resolusi minimal 300 DPI, dan mode CMYK.\n\nFormat yang TIDAK Disarankan:\n- Tangkapan layar (*screenshot* layar ponsel), berkas Microsoft Word (.docx), atau PowerPoint (.pptx) untuk cetak spanduk karena resolusinya rendah dan tata letaknya sering bergeser saat dibuka.\n\n---",
+          "metadata": {
+            "chunk_index": 4,
+            "answer_source": "knowledge_base",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "format": "txt"
+          },
+          "distance": 0.15225529670715332
+        },
+        {
+          "text": "## 8. KETENTUAN PENGIRIMAN BERKAS KE TOKO\n1. Pengiriman Berkas Melalui Email:\n   - Kirim ke alamat email cabang:\n     * Cabang Ciputat: asiavisualgrafika@gmail.com\n     * Cabang Pamulang: asiavisualgrafika2@gmail.com\n   - Batas lampiran email langsung adalah 25 MB.\n   - Jika berkas berukuran di atas 25 MB, unggah berkas ke Google Drive, lalu lampirkan tautan (link) di badan email. Pastikan hak akses tautan Google Drive telah diatur ke **\"Siapa saja yang memiliki tautan dapat melihat (Anyone with the link can view)\"** agar admin dapat mengunduh berkas tanpa kendala perizinan.\n   - Sertakan subjek email yang jelas: [Nama Pemesan] - [Jenis Pesanan & Ukuran] - [Nomor WhatsApp].\n2. Pengiriman Berkas Melalui WhatsApp:\n   - JANGAN mengirimkan berkas desain menggunakan fitur \"Kirim Galeri / Foto\", karena server WhatsApp otomatis mengompresi dan menurunkan resolusi foto hingga 70% sehingga hasil cetak akan pecah.\n   - Gunakan fitur **\"Kirim Dokumen (Send Document)\"** pada menu lampiran WhatsApp agar file dikirim dalam ukuran berkas aslinya tanpa penurunan kualitas.\n\n---",
+          "metadata": {
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 7,
+            "format": "txt"
+          },
+          "distance": 0.17186832427978516
+        },
+        {
+          "text": "# PANDUAN TEKNIS BERKAS SIAP CETAK (PREPRESS GUIDELINES)\n# CV. ASIA VISUAL GRAFIKA\n\n## 1. PENGERTIAN BERKAS SIAP CETAK (PRINT-READY FILE)\nBerkas siap cetak adalah berkas desain digital yang telah memenuhi seluruh parameter teknis percetakan, sehingga dapat langsung dialirkan ke mesin cetak tanpa memerlukan proses penyuntingan (editing) ulang, perbaikan resolusi, atau penyesuaian tata letak oleh tim percetakan.\n\nPengiriman berkas yang belum siap cetak berisiko memicu keterlambatan antrean produksi, kesalahan posisi teks yang terpotong mesin, atau hasil cetak yang buram/pecah.\n\n---",
+          "metadata": {
+            "format": "txt",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "chunk_index": 0,
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.18149352073669434
+        },
+        {
+          "text": "## 7. PANDUAN EKSPOR BERKAS DARI APLIKASI CANVA AGAR TIDAK PECAH\nBagi pelanggan yang mendesain menggunakan aplikasi Canva, ikuti langkah berikut agar hasil cetak tajam:\n1. Saat mengunduh berkas di Canva, klik tombol \"Bagikan / Share\", lalu pilih \"Unduh / Download\".\n2. Pada menu Jenis File (File Type), JANGAN memilih PNG atau JPG. Pilihlah opsi **\"Cetak PDF (PDF Print)\"**.\n3. Centang opsi **\"Ratakan PDF (Flatten PDF)\"** untuk menyatukan seluruh lapisan elemen dan stiker agar tidak terpotong.\n4. Pada pilihan Profil Warna (Color Profile), pilih **CMYK** (tersedia pada Canva Pro). Jika menggunakan Canva gratis yang hanya mendukung RGB, perhatikan bahwa warna hasil cetakan fisik akan sedikit lebih gelap dari layar ponsel.\n5. Menentukan Dimensi Pixel untuk Spanduk di Canva:\n   - Jika membuat kanvas custom ukuran meteran, gunakan perbandingan pixel yang memadai.\n   - Contoh rumus spanduk ukuran 3 x 1 meter (300 x 100 cm): Buat ukuran kanvas minimal 3543 x 1181 pixel, atau idealnya 7087 x 2362 pixel agar ketajaman gambar tetap terjaga saat ditarik ke ukuran nyata.\n\n---",
+          "metadata": {
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "chunk_index": 6
+          },
+          "distance": 0.18374550342559814
+        },
+        {
+          "text": "## 3. SISTEM RUANG WARNA: WAJIB MENGGUNAKAN CMYK\n1. Perbedaan Mendasar RGB vs CMYK:\n   - RGB (Red, Green, Blue): Merupakan sistem warna cahaya berbasis layar digital (monitor komputer, layar ponsel, televisi). Warna RGB memiliki spektrum warna yang sangat terang dan berpendar.\n   - CMYK (Cyan, Magenta, Yellow, Key/Black): Merupakan sistem warna pigmen tinta fisik pada mesin percetakan.\n2. Konsekuensi Mengirim Berkas dalam Mode RGB:\n   - Mesin cetak industri tidak mengenal tinta warna RGB dan secara otomatis akan mengonversi warna berkas menjadi CMYK pada saat proses ripping cetak.\n   - Akibatnya, warna-warna cerah neon atau warna pendar pada layar monitor akan mengalami penurunan saturasi (*color shift*), tampak lebih kusam, gelap, atau berubah nuansa (misalnya: warna hijau stabilo berubah menjadi hijau daun gelap, biru elektrik berubah menjadi ungu kusam).\n3. Aturan Toko:\n   - Pelanggan wajib mengatur profil warna dokumen sejak awal ke mode CMYK (Color Mode: CMYK 8-bit).\n   - Toko tidak melayani komplain perbedaan warna cetak apabila berkas asli yang dikirimkan oleh pelanggan masih berformat RGB.\n\n---",
+          "metadata": {
+            "chunk_index": 2,
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "source": "03_panduan_berkas_siap_cetak.txt"
+          },
+          "distance": 0.18620944023132324
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 6842,
+        "completion_tokens": 683
+      },
+      "latency_seconds": 4.442,
+      "trace_id": "01a12ecd-1712-7af1-8f6a-3036bade692b",
+      "generation_ok": true
+    },
+    {
+      "id": "5",
+      "input": "klo banner 2x1 mtr pke flexi 280 dpt hrg brp min?",
+      "expected_output": "Harga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m². Total biaya 2m x 1m x Rp 16.500 = Rp 33.000.",
+      "answer": "Mohon maaf, informasi harga <b>spanduk Flexi 280 GSM ukuran 2 × 1 meter</b> belum tersedia di sistem kami, sehingga saya belum dapat memastikan harga maupun minimum pemesanannya.\n\nSistem kami saat ini hanya mencatat harga <b>Roll Up Banner</b> (ukuran 60 × 160 cm dan 85 × 200 cm), yang tidak sesuai dengan ukuran 2 × 1 meter.\n\nUntuk penawaran harga dan minimum pemesanan spanduk 2 × 1 meter, silakan hubungi admin toko secara langsung.",
+      "retrieval_context": [
+        {
+          "text": "---",
+          "metadata": {
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "chunk_index": 12
+          },
+          "distance": 0.13767772912979126
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "chunk_index": 18,
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.13767772912979126
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "format": "txt",
+            "chunk_index": 22,
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.13767772912979126
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "source": "06_estimasi_pcs_per_lembar_a3.txt",
+            "chunk_index": 4
+          },
+          "distance": 0.13767772912979126
+        },
+        {
+          "text": "## ROLL UP BANNER (Harga per Paket, sudah termasuk rangka / tiang gulung otomatis)\n\nPRODUK INI ADALAH: Roll Up Banner, yaitu banner tegak berdiri dengan mekanisme gulung otomatis (pull up / retractable banner).\nBUKAN X-Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nTersedia ukuran 60x160 cm dan 85x200 cm. Harga sudah termasuk cetak + rangka gulung.\nContoh pertanyaan kategori ini: \"harga roll up banner\", \"pull up banner berapa\", \"rollup 60x160\".\n\nUkuran 60 x 160 cm:\nHarga Roll Up Banner Flexi China 280 GSM ukuran 60x160: Rp 195.000 per paket.\nHarga Roll Up Banner Flexi China 340 GSM ukuran 60x160: Rp 210.000 per paket.\nHarga Roll Up Banner Flexi Korea 440 GSM ukuran 60x160: Rp 240.000 per paket.\nHarga Roll Up Banner Albatros ukuran 60x160: Rp 250.000 per paket.\nHarga rangka Roll Up Banner 60x160 saja tanpa cetak: Rp 175.000 per pcs.\n\nUkuran 85 x 200 cm:\nHarga Roll Up Banner Flexi China 280 GSM ukuran 85x200: Rp 245.000 per paket.\nHarga Roll Up Banner Flexi China 340 GSM ukuran 85x200: Rp 260.000 per paket.\nHarga Roll Up Banner Flexi Korea 440 GSM High Resolution ukuran 85x200: Rp 325.000 per paket.\nHarga Roll Up Banner Albatros ukuran 85x200: Rp 335.000 per paket.\nHarga rangka Roll Up Banner 85x200 saja tanpa cetak: Rp 195.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "chunk_index": 3,
+            "format": "txt"
+          },
+          "distance": 0.14288264513015747
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4967,
+        "completion_tokens": 670
+      },
+      "latency_seconds": 4.15,
+      "trace_id": "01a12ecd-286e-79f3-9ba6-86256a4ffeef",
+      "generation_ok": true
+    },
+    {
+      "id": "6",
+      "input": "klo hasil cetakan buram/salah dr toko bsa diretur nggak?",
+      "expected_output": "Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan.",
+      "answer": "Jika hasil cetak cacat akibat kesalahan dari pihak toko atau produksi, seperti salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah, CV. Asia Visual Grafika bertanggung jawab penuh untuk melakukan <b>cetak ulang (re-print) tanpa biaya tambahan</b>.\n\n📌 <b>Syarat klaim:</b>\n\n• Pelanggan wajib menyerahkan bukti fisik produk yang salah ke toko.\n\nNamun, untuk hasil buram yang disebabkan oleh berkas asli yang dikirim buram atau resolusi gambar pelanggan yang rendah, kesalahan desain, salah ketik teks, atau salah pilihan ukuran berkas dari pelanggan, toko tidak memberikan cetak ulang gratis.\n\n💡 Ketik <b>reset</b> untuk menanyakan produk lainnya atau memulai percakapan baru.",
+      "retrieval_context": [
+        {
+          "text": "## 6. KEBIJAKAN PEMBATALAN, REFUND, DAN KLAIM SALAH CETAK\n1. Kebijakan Pembatalan Pesanan:\n   - Pembatalan pesanan hanya dapat dilakukan maksimal dalam kurun waktu kurang dari 2 jam setelah pembayaran disepakati dan sebelum berkas diproses oleh operator mesin cetak.\n   - Apabila berkas sudah diproses cetak oleh mesin, pesanan tidak dapat dibatalkan, diubah, maupun ditarik kembali.\n2. Kebijakan Pengembalian Dana (Refund):\n   - Refund dana akibat kelebihan transfer atau pembatalan sah diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja (tidak diperkenankan refund tunai).\n3. Kebijakan Garansi dan Cetak Ulang (Re-Print):\n   - Kesalahan dari Pihak Toko/Produksi: Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko.\n   - Kesalahan dari Pihak Pelanggan: Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan, salah pemilihan ukuran berkas dari pelanggan, atau resolusi gambar pecah akibat berkas asli yang dikirimkan buram.",
+          "metadata": {
+            "format": "txt",
+            "source": "01_sop_dan_kebijakan_toko.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 5
+          },
+          "distance": 0.1395207643508911
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 12,
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "format": "txt"
+          },
+          "distance": 0.1515873670578003
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 18
+          },
+          "distance": 0.1515873670578003
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "format": "txt",
+            "chunk_index": 22,
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.1515873670578003
+        },
+        {
+          "text": "---",
+          "metadata": {
+            "format": "txt",
+            "source": "06_estimasi_pcs_per_lembar_a3.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 4
+          },
+          "distance": 0.1515873670578003
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4907,
+        "completion_tokens": 340
+      },
+      "latency_seconds": 2.426,
+      "trace_id": "01a12ecd-38a6-7521-88ee-a5d79c954d02",
+      "generation_ok": true
+    },
+    {
+      "id": "7",
+      "input": "Berapa total harga cetak banner 2x1 meter sebanyak 3 lembar Flexi 280?",
+      "expected_output": "Harga per m2 Flexi 280 standar = Rp 16.500. Perhitungan: 2m x 1m x Rp 16.500 x 3 lembar = Rp 99.000.",
+      "answer": "Untuk menghitung total harganya, mohon konfirmasi <b>kualitas cetak</b> yang diinginkan untuk Flexi China 280 GSM:\n\n📌 <b>Pilihan kualitas:</b>\n\n• Standar: Rp 16.500 per m²\n\n• High Resolution: Rp 25.000 per m²\n\nSetelah kualitasnya dipilih, saya akan hitungkan total untuk banner 2 × 1 meter sebanyak 3 lembar.",
+      "retrieval_context": [
+        {
+          "text": "# DAFTAR ESTIMASI HARGA PRODUK CETAK — CV. ASIA VISUAL GRAFIKA\n# Berlaku untuk kedua cabang: Ciputat & Pamulang\n# Harga dalam satuan Rupiah (IDR). Dapat berubah sewaktu-waktu.\n# Untuk konfirmasi harga terkini, silakan hubungi admin toko.\n# -----------------------------------------------------------------------\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\".\n\n---",
+          "metadata": {
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "source": "04_daftar_estimasi_harga.txt"
+          },
+          "distance": 0.1161501407623291
+        },
+        {
+          "text": "## PANDUAN RUMUS PERHITUNGAN HARGA (CHAIN-OF-THOUGHT)\n\nPanduan ini berisi seluruh rumus dan langkah perhitungan yang WAJIB digunakan LLM saat pelanggan menanyakan estimasi harga total pesanan. Ikuti langkah demi langkah (step-by-step) secara urut dan tuliskan rincian perhitungan pada jawaban.\n\n### A. RUMUS PERHITUNGAN PRODUK LARGE FORMAT / METERAN (Banner, Spanduk, Stiker Meteran)\n\nBerlaku untuk: cetak spanduk, banner, baliho, backdrop, stiker vinyl meteran, stiker one way vision, poster Albatros meteran, dan laminating meteran.\n\nLangkah Perhitungan:\n1. Hitung luas 1 cetakan: Luas = Panjang (meter) × Lebar (meter).\n2. Hitung total luas seluruh pesanan: Total Luas = Luas × Jumlah pcs.\n3. Tentukan harga per m² sesuai jenis bahan yang dipilih pelanggan (lihat tabel harga di atas).\n4. Hitung harga mentah: Harga Mentah = Total Luas × Harga per m².\n5. Bulatkan ke atas ke kelipatan Rp 500 terdekat: Total Harga = ceiling(Harga Mentah ÷ 500) × 500.\n\nContoh CoT: Pelanggan memesan 2 spanduk Flexi 280 GSM Standar ukuran 3 × 1 meter.\n• Luas per spanduk = 3 × 1 = 3 m².\n• Total luas = 3 × 2 = 6 m².\n• Harga per m² Flexi 280 Standar = Rp 16.500.\n• Harga mentah = 6 × Rp 16.500 = Rp 99.000.\n• Pembulatan ke kelipatan 500 → Rp 99.000 (sudah kelipatan 500).\n• Total estimasi = Rp 99.000.\n\n---",
+          "metadata": {
+            "source": "04_daftar_estimasi_harga.txt",
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "chunk_index": 39
+          },
+          "distance": 0.11826235055923462
+        },
+        {
+          "text": "## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: Y-Banner, yaitu banner tegak berdiri berbentuk huruf Y yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN X-Banner, BUKAN spanduk meteran.\nUkuran standar Y-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga y banner\", \"y-banner berapa\", \"banner stand y\".\n\nHarga cetak Y-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak Y-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak Y-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak Y-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "format": "txt",
+            "chunk_index": 2
+          },
+          "distance": 0.12190818786621094
+        },
+        {
+          "text": "## ROLL UP BANNER (Harga per Paket, sudah termasuk rangka / tiang gulung otomatis)\n\nPRODUK INI ADALAH: Roll Up Banner, yaitu banner tegak berdiri dengan mekanisme gulung otomatis (pull up / retractable banner).\nBUKAN X-Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nTersedia ukuran 60x160 cm dan 85x200 cm. Harga sudah termasuk cetak + rangka gulung.\nContoh pertanyaan kategori ini: \"harga roll up banner\", \"pull up banner berapa\", \"rollup 60x160\".\n\nUkuran 60 x 160 cm:\nHarga Roll Up Banner Flexi China 280 GSM ukuran 60x160: Rp 195.000 per paket.\nHarga Roll Up Banner Flexi China 340 GSM ukuran 60x160: Rp 210.000 per paket.\nHarga Roll Up Banner Flexi Korea 440 GSM ukuran 60x160: Rp 240.000 per paket.\nHarga Roll Up Banner Albatros ukuran 60x160: Rp 250.000 per paket.\nHarga rangka Roll Up Banner 60x160 saja tanpa cetak: Rp 175.000 per pcs.\n\nUkuran 85 x 200 cm:\nHarga Roll Up Banner Flexi China 280 GSM ukuran 85x200: Rp 245.000 per paket.\nHarga Roll Up Banner Flexi China 340 GSM ukuran 85x200: Rp 260.000 per paket.\nHarga Roll Up Banner Flexi Korea 440 GSM High Resolution ukuran 85x200: Rp 325.000 per paket.\nHarga Roll Up Banner Albatros ukuran 85x200: Rp 335.000 per paket.\nHarga rangka Roll Up Banner 85x200 saja tanpa cetak: Rp 195.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "chunk_index": 3
+          },
+          "distance": 0.13571065664291382
+        },
+        {
+          "text": "2. Flexi Medium (China 340 GSM):\n   - Karakteristik: Bahan spanduk dengan ketebalan sedang, terasa lebih padat dan kaku saat dipegang dibandingkan Flexi 280 GSM. Seratnya lebih rapat sehingga bahan ini lebih kokoh dan tidak gampang melar atau bergelombang. Kalau dipasang di tiang, bentuknya lebih tegak dan tidak mudah melipat sendiri karena angin.\n   - Ketahanan: Mampu bertahan sekitar 6–12 bulan di luar ruangan. Lebih tahan terhadap terpaan angin dan hujan deras. Jika disambung (untuk ukuran lebar di atas 3,2 meter), sambungan lemnya juga lebih kuat karena serat bahan yang lebih padat mencengkeram lem dengan baik.\n   - Penggunaan Ideal: Spanduk nama toko yang dipajang dalam hitungan bulan, T-banner promosi di pinggir jalan, spanduk proyek konstruksi/pembangunan, dan baliho promosi di depan ruko.",
+          "metadata": {
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 3
+          },
+          "distance": 0.13689357042312622
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 7675,
+        "completion_tokens": 512
+      },
+      "latency_seconds": 4.268,
+      "trace_id": "01a12ecd-4222-7653-ba12-0c0e591b8835",
+      "generation_ok": true
+    },
+    {
+      "id": "8",
+      "input": "1 lembar A3+ muat berapa pcs stiker ukuran 5x5 cm?",
+      "expected_output": "Ukuran 5 cm x 5 cm: Kiss Cut Mesin (area 29x42 cm) = 40 pcs per lembar. Potong Manual Karter (area 31x47 cm) = 54 pcs per lembar.",
+      "answer": "Berdasarkan acuan resmi toko, stiker ukuran <b>5 × 5 cm</b> dapat memuat <b>35 pcs per lembar A3+</b>.",
+      "retrieval_context": [
+        {
+          "text": "## 9. TABEL ACUAN RESMI JUMLAH STIKER DAPAT BERAPA PCS PER LEMBAR A3+ (KISS CUTTING)\n\nApabila pemesan menanyakan estimasi jumlah stiker yang didapat dalam 1 lembar A3+, berikut adalah acuan resmi toko CV. Asia Visual Grafika:\n\nUkuran Persegi / Sama Sisi:\n• 2 cm x 2 cm: 234 pcs per lembar A3+\n• 2,5 cm x 2,5 cm: 150 pcs per lembar A3+\n• 3 cm x 3 cm: 108 pcs per lembar A3+\n• 3,5 cm x 3,5 cm: 77 pcs per lembar A3+\n• 4 cm x 4 cm: 54 pcs per lembar A3+\n• 4,5 cm x 4,5 cm: 48 pcs per lembar A3+\n• 5 cm x 5 cm: 35 pcs per lembar A3+\n• 5,5 cm x 5,5 cm: 35 pcs per lembar A3+\n• 6 cm x 6 cm: 24 pcs per lembar A3+\n• 6,5 cm x 6,5 cm: 24 pcs per lembar A3+\n• 7 cm x 7 cm: 20 pcs per lembar A3+\n• 7,5 cm x 7,5 cm: 15 pcs per lembar A3+\n• 8 cm x 8 cm: 15 pcs per lembar A3+\n• 8,5 cm x 8,5 cm: 12 pcs per lembar A3+\n• 9 cm x 9 cm: 12 pcs per lembar A3+\n• 10 cm x 10 cm: 8 pcs per lembar A3+",
+          "metadata": {
+            "chunk_index": 8,
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "source": "03_panduan_berkas_siap_cetak.txt"
+          },
+          "distance": 0.09172344207763672
+        },
+        {
+          "text": "# ESTIMASI JUMLAH PCS STIKER PER LEMBAR A3+\n# CV. Asia Visual Grafika — Panduan Lengkap & Resmi Hasil Cetak Stiker A3+\n# -----------------------------------------------------------------------\n\n## PANDUAN ESTIMASI JUMLAH STIKER PER LEMBAR A3+\n\nPRODUK INI ADALAH: Panduan resmi menghitung estimasi jumlah pcs stiker yang dapat dicetak dalam 1 lembar A3+.\nBerlaku untuk semua jenis cetakan lembaran A3+: Stiker Cromo, Stiker Vinyl, Stiker Transparan.\nBUKAN untuk stiker meteran gulungan per m².\n\nTerdapat dua metode pemotongan stiker yang menentukan luas bidang cetak efektif:\n\n1. Metode Kiss Cut (Mesin Cutting Otomatis Plotter):\n   - Area Efektif: 29 cm × 42 cm (disisakan ruang 1–2 cm untuk tanda registrasi sensor mesin).\n   - Pemotongan setengah putus (kertas backing tetap utuh). Cocok untuk stiker bentuk bulat, oval, atau custom shape.\n\n2. Metode Potong Manual (Karter / Cutter):\n   - Area Efektif: 31 cm × 47 cm (area maksimal kertas A3+ fisik).\n   - Pemotongan lurus putus tembus. Cocok untuk stiker bentuk persegi atau persegi panjang.\n\nRumus perhitungan jumlah pcs per lembar:\n• Jumlah Kolom = floor(Lebar Area ÷ Lebar Stiker)\n• Jumlah Baris = floor(Tinggi Area ÷ Tinggi Stiker)\n• Total Pcs per Lembar = Jumlah Kolom × Jumlah Baris\n\nContoh pertanyaan kategori ini: \"stiker 5x5 dapat berapa pcs\", \"1 lembar A3 muat berapa stiker 3x3\", \"estimasi stiker per lembar\", \"stiker 2.5x2.5 dapat berapa\", \"stiker 4x6 dapat berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "source": "06_estimasi_pcs_per_lembar_a3.txt",
+            "format": "txt"
+          },
+          "distance": 0.0963776707649231
+        },
+        {
+          "text": "Ukuran Persegi Panjang / Kustom:\n• 2 cm x 3 cm: 162 pcs per lembar A3+\n• 2 cm x 4 cm: 117 pcs per lembar A3+\n• 2 cm x 5 cm: 101 pcs per lembar A3+\n• 3 cm x 4 cm: 71 pcs per lembar A3+\n• 3 cm x 5 cm: 60 pcs per lembar A3+\n• 3 cm x 6 cm: 58 pcs per lembar A3+\n• 4 cm x 5 cm: 45 pcs per lembar A3+\n• 4 cm x 6 cm: 36 pcs per lembar A3+\n• 4 cm x 7 cm: 36 pcs per lembar A3+\n• 5 cm x 6 cm: 30 pcs per lembar A3+\n• 5 cm x 7 cm: 28 pcs per lembar A3+\n• 5 cm x 8 cm: 25 pcs per lembar A3+\n• 5 cm x 9 cm: 20 pcs per lembar A3+\n• 5 cm x 10 cm: 20 pcs per lembar A3+\n• 6 cm x 7 cm: 20 pcs per lembar A3+\n• 6 cm x 8 cm: 20 pcs per lembar A3+",
+          "metadata": {
+            "format": "txt",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "chunk_index": 9,
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.10738891363143921
+        },
+        {
+          "text": "## STIKER CETAK A3+ SATUAN / KISS CUT (Harga per lembar A3+)\n\nPRODUK INI ADALAH: Stiker satuan cetak per lembar A3+, digunakan untuk label produk, stiker custom kecil-kecil dalam satu lembar besar.\nBUKAN stiker meteran gulungan, BUKAN cutting stiker vinyl dinding, BUKAN banner.\nArea cetak efektif per lembar A3+: 31 cm x 47 cm. Bisa dengan atau tanpa kiss cut (potong).\nContoh pertanyaan kategori ini: \"harga stiker per lembar\", \"stiker cromo A3\", \"stiker label 5x5 berapa lembar\", \"kiss cut stiker\".\n\nStiker Cromo tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 7.000 per lembar.\nPesan lebih dari 10 lembar: Rp 5.500 per lembar.\n\nStiker Vinyl tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Transparan tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Cromo dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.500 per lembar.\n\nStiker Vinyl dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 17.500 per lembar.\nPesan lebih dari 10 lembar: Rp 15.000 per lembar.\n\n---",
+          "metadata": {
+            "source": "04_daftar_estimasi_harga.txt",
+            "chunk_index": 11,
+            "format": "txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.1083417534828186
+        },
+        {
+          "text": "### B. RUMUS PERHITUNGAN PRODUK PER LEMBAR A3+ (Cetak Kertas Dokumen & Stiker A3+)\n\nBerlaku untuk: cetak dokumen digital print A3+ (Art Paper, Art Carton, HVS, BC/BW, Linen, Concord, Photo Paper) dan stiker A3+ (Cromo, Vinyl, Transparan, dengan atau tanpa Kiss Cut).\n\nTerdapat dua skenario perhitungan:\n\n#### B1. Pelanggan memesan dalam SATUAN LEMBAR A3+ (tanpa menyebut ukuran desain per pcs)\n\nLangkah Perhitungan:\n1. Tentukan jumlah lembar yang dipesan.\n2. Tentukan harga per lembar sesuai bahan, cetak 1S/2S, dan tier kuantitas.\n3. Hitung harga cetak: Harga Cetak = Jumlah Lembar × Harga per lembar.\n4. Tambahkan biaya finishing jika ada (laminating, potong karter, dll).\n5. Bulatkan ke atas ke kelipatan Rp 500 terdekat: Total = ceiling((Harga Cetak + Biaya Finishing) ÷ 500) × 500.\n\nContoh CoT: Pelanggan memesan 15 lembar Art Carton 260 GSM cetak 1 sisi.\n• Tier harga 11–100 lembar Art Carton 1S = Rp 3.000 per lembar.\n• Harga cetak = 15 × Rp 3.000 = Rp 45.000.\n• Tanpa finishing tambahan → Total = Rp 45.000.\n\n#### B2. Pelanggan memesan stiker/kertas A3+ dengan UKURAN DESAIN PER PCS (misal stiker 5×5 cm, 100 pcs)\n\nPada skenario ini, bot WAJIB menghitung berapa pcs desain yang muat dalam 1 lembar A3+, lalu menghitung jumlah lembar yang dibutuhkan.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "chunk_index": 40
+          },
+          "distance": 0.11112672090530396
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 7509,
+        "completion_tokens": 744
+      },
+      "latency_seconds": 4.686,
+      "trace_id": "01a12ecd-52d0-7793-8cd2-df5b9ec56326",
+      "generation_ok": true
+    },
+    {
+      "id": "9",
+      "input": "Kalau saya cetak Kartu Nama 2 box 1 sisi dan X-Banner Flexi 280 1 paket berapa total biayanya?",
+      "expected_output": "Kartu Nama Art Carton 1S (2 box) = 2 x Rp 25.000 = Rp 50.000. X-Banner Flexi 280 (1 paket) = Rp 50.000. Total biaya keseluruhan = Rp 100.000.",
+      "answer": "Total estimasi biaya untuk kedua produk adalah <b>Rp 100.000</b>.\n\n📌 <b>Rincian Pesanan:</b>\n\n• Kartu Nama 1 sisi (1S): 2 box × Rp 25.000 = <b>Rp 50.000</b>\n(Harga ini sama untuk bahan Art Carton maupun BC, jadi pilihan bahannya tidak mengubah total.)\n\n• X-Banner Flexi China 280 GSM: 1 paket × Rp 50.000 = <b>Rp 50.000</b>\n(Sudah termasuk cetak dan rangka, ukuran 60 × 160 cm.)\n\n💡 Ketik <b>reset</b> untuk menanyakan produk lainnya atau memulai percakapan baru.",
+      "retrieval_context": [
+        {
+          "text": "Kartu Nama BC / Board Cover Cetak Dua Sisi (2S):\nPesan 1 hingga 10 box: Rp 70.000 per box.\nPesan 11 hingga 20 box: Rp 65.000 per box.\nPesan 21 hingga 30 box: Rp 60.000 per box.\nPesan 31 hingga 40 box: Rp 55.000 per box.\n\n---",
+          "metadata": {
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "chunk_index": 10,
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.11974185705184937
+        },
+        {
+          "text": "## KARTU NAMA (Harga per box, 1 box = 100 lembar kartu nama)\n\nKartu Nama Art Carton Cetak Satu Sisi (1S):\nPesan 1 hingga 10 box: Rp 25.000 per box.\nPesan 11 hingga 20 box: Rp 22.500 per box.\nPesan 21 hingga 30 box: Rp 20.000 per box.\nPesan 31 hingga 40 box: Rp 17.500 per box.\n\nKartu Nama Art Carton Cetak Dua Sisi (2S):\nPesan 1 hingga 10 box: Rp 50.000 per box.\nPesan 11 hingga 20 box: Rp 45.000 per box.\nPesan 21 hingga 30 box: Rp 40.000 per box.\nPesan 31 hingga 40 box: Rp 35.000 per box.\n\nKartu Nama Art Carton Satu Sisi dengan Laminasi Glossy/Doff: Rp 40.000 per box (harga flat, semua jumlah).\nKartu Nama Art Carton Dua Sisi dengan Laminasi Glossy/Doff: Rp 78.000 per box (harga flat, semua jumlah).\n\nKartu Nama BC / Board Cover Cetak Satu Sisi (1S):\nPesan 1 hingga 10 box: Rp 25.000 per box.\nPesan 11 hingga 20 box: Rp 22.500 per box.\nPesan 21 hingga 30 box: Rp 20.000 per box.\nPesan 31 hingga 40 box: Rp 17.500 per box.\n\nKartu Nama BC / Board Cover Cetak Dua Sisi (2S):\nPesan 1 hingga 10 box: Rp 70.000 per box.\nPesan 11 hingga 20 box: Rp 65.000 per box.\nPesan 21 hingga 30 box: Rp 60.000 per box.\nPesan 31 hingga 40 box: Rp 55.000 per box.\n\n---",
+          "metadata": {
+            "source": "04_daftar_estimasi_harga.txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 29,
+            "format": "txt"
+          },
+          "distance": 0.12072885036468506
+        },
+        {
+          "text": "## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: Y-Banner, yaitu banner tegak berdiri berbentuk huruf Y yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN X-Banner, BUKAN spanduk meteran.\nUkuran standar Y-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga y banner\", \"y-banner berapa\", \"banner stand y\".\n\nHarga cetak Y-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak Y-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak Y-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak Y-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "format": "txt",
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "source": "04_daftar_estimasi_harga.txt"
+          },
+          "distance": 0.12302005290985107
+        },
+        {
+          "text": "## KARTU NAMA (Harga per box, 1 box = 100 lembar kartu nama)\n\nPRODUK INI ADALAH: Kartu Nama bisnis, yaitu kartu kecil berisi identitas profesional seseorang atau perusahaan.\nBUKAN ID Card PVC, BUKAN kartu E-Money, BUKAN kartu undangan.\nTersedia bahan Art Carton dan BC (Board Cover), cetak 1 sisi (1S) dan 2 sisi (2S), bisa dengan laminasi Glossy/Doff.\nSatuan harga: per box (1 box = 100 lembar kartu nama).\nContoh pertanyaan kategori ini: \"harga kartu nama\", \"cetak business card\", \"kartu nama art carton berapa\".\n\nKartu Nama Art Carton Cetak Satu Sisi (1S):\nPesan 1 hingga 10 box: Rp 25.000 per box.\nPesan 11 hingga 20 box: Rp 22.500 per box.\nPesan 21 hingga 30 box: Rp 20.000 per box.\nPesan 31 hingga 40 box: Rp 17.500 per box.\n\nKartu Nama Art Carton Cetak Dua Sisi (2S):\nPesan 1 hingga 10 box: Rp 50.000 per box.\nPesan 11 hingga 20 box: Rp 45.000 per box.\nPesan 21 hingga 30 box: Rp 40.000 per box.\nPesan 31 hingga 40 box: Rp 35.000 per box.\n\nKartu Nama Art Carton Satu Sisi dengan Laminasi Glossy/Doff: Rp 40.000 per box (harga flat, semua jumlah).\nKartu Nama Art Carton Dua Sisi dengan Laminasi Glossy/Doff: Rp 78.000 per box (harga flat, semua jumlah).\n\nKartu Nama BC / Board Cover Cetak Satu Sisi (1S):\nPesan 1 hingga 10 box: Rp 25.000 per box.\nPesan 11 hingga 20 box: Rp 22.500 per box.\nPesan 21 hingga 30 box: Rp 20.000 per box.\nPesan 31 hingga 40 box: Rp 17.500 per box.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "format": "txt",
+            "chunk_index": 9
+          },
+          "distance": 0.1250658631324768
+        },
+        {
+          "text": "## LANYARD (Harga per pcs, minimal order 25 pcs)\n\nPRODUK INI ADALAH: Lanyard atau tali gantung ID Card custom dengan sablon nama atau logo.\nBUKAN ID Card, BUKAN Pin, BUKAN Korek Api.\nMinimal order 25 pcs.\nContoh pertanyaan kategori ini: \"harga lanyard\", \"tali id card custom berapa\", \"lanyard sablon logo\".\n\nLanyard Polos: Rp 8.000 per pcs (minimal 25 pcs).\nLanyard Sablon 1 Warna: Rp 10.000 per pcs (minimal 25 pcs).\nLanyard Full Color: Rp 12.500 per pcs (minimal 25 pcs).\n\n---\n\n## KOREK API CUSTOM (Harga per pcs, minimal order 50 pcs)\n\nPRODUK INI ADALAH: Korek api custom cetak logo atau desain perusahaan untuk souvenir atau promosi.\nBUKAN Tumblr, BUKAN Pin, BUKAN Lanyard.\nMinimal order 50 pcs.\nContoh pertanyaan kategori ini: \"harga korek api custom\", \"cetak korek souvenir\", \"korek api sablon berapa\".\n\nKorek Api Custom Cetak Satu Sisi (1S):\nPesan 50 hingga 100 pcs: Rp 10.000 per pcs.\nPesan lebih dari 100 pcs: Rp 8.000 per pcs.\n\nKorek Api Custom Cetak Dua Sisi (2S):\nPesan 50 hingga 100 pcs: Rp 12.000 per pcs.\nPesan lebih dari 100 pcs: Rp 10.000 per pcs.\n\n---\n\n\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nY-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nY-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nY-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nY-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nRangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "source": "04_daftar_estimasi_harga.txt",
+            "format": "txt",
+            "chunk_index": 24
+          },
+          "distance": 0.12698906660079956
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 7580,
+        "completion_tokens": 1003
+      },
+      "latency_seconds": 6.212,
+      "trace_id": "01a12ecd-6520-7513-85fb-616ff3773f85",
+      "generation_ok": true
+    },
+    {
+      "id": "10",
+      "input": "Stiker untuk dipasang di etalase kaca ruko outdoor bagusnya pakai bahan apa?",
+      "expected_output": "Untuk etalase kaca ruko disarankan menggunakan Stiker Vinyl Ritrama (tahan air & lem tidak berbekas saat dikupas) atau Stiker One Way Vision (tampak gambar penuh dari luar, tembus pandang dari dalam).",
+      "answer": "Untuk etalase kaca ruko outdoor, pilihan terbaik adalah <b>Stiker Vinyl Meteran Ritrama (250 GSM)</b>.\n\n📌 <b>Alasan:</b>\n• Perekatnya sangat kuat dan tahan lama untuk penggunaan di luar ruangan\n• Saat dilepas tidak meninggalkan noda lem di permukaan kaca\n• Bahannya lebih elastis dan tebal, sehingga rapi saat ditempel\n\n📌 <b>Alternatif:</b>\n• <b>Stiker Vinyl Meteran China (200 GSM)</b>: tahan air hujan, tidak mudah sobek, dan harganya lebih ekonomis\n• <b>Stiker Transparan (Vinyl Bening)</b>: cocok jika ingin tampilan kaca tetap bening dengan hanya desain yang tercetak\n\n📌 <b>Hindari:</b>\n• <b>Stiker Cromo</b>: berbahan kertas sehingga tidak tahan air dan kurang cocok untuk area outdoor",
+      "retrieval_context": [
+        {
+          "text": "- Penggunaan: Cetak stiker ukuran besar untuk promosi tempel di dinding ruko, papan neon box, atau media promosi outdoor berukuran besar.\n   - Cocok untuk cetak produk turunan: stiker dinding promosi outdoor, stiker papan nama usaha/plang ruko, stiker etalase kaca luar, stiker decal besar.\n3. Stiker Vinyl Meteran Ritrama (250 GSM):\n   - Karakteristik: Stiker vinyl kelas premium buatan Eropa dengan kualitas perekat terbaik — daya rekatnya sangat kuat dan tahan lama, tapi saat dikupas/dilepas tidak meninggalkan bekas noda lem di permukaan tempelan (baik di body kendaraan, kaca, maupun dinding). Bahannya lebih elastis dan lebih tebal dibanding vinyl China, sehingga lebih mudah ditempelkan pada permukaan melengkung seperti badan mobil.\n   - Penggunaan: Branding kendaraan operasional perusahaan (car branding/wrapping mobil), dekorasi kaca etalase toko, dan label stiker luar ruangan yang butuh ketahanan jangka panjang.\n   - Cocok untuk cetak produk turunan: branding mobil/motor (car wrapping/decal), stiker kaca etalase toko premium, stiker label luar ruangan tahan cuaca bertahun-tahun.\n4. Stiker Transparan (Vinyl Bening):",
+          "metadata": {
+            "chunk_index": 15,
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "format": "txt"
+          },
+          "distance": 0.10355013608932495
+        },
+        {
+          "text": "## 4. BAHAN STIKER (METERAN DAN LEMBARAN A3+)\nStiker digunakan untuk berbagai keperluan seperti label kemasan produk, dekorasi dinding, tempelan kaca ruko, hingga branding kendaraan:",
+          "metadata": {
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "answer_source": "knowledge_base",
+            "format": "txt",
+            "chunk_index": 13
+          },
+          "distance": 0.129483163356781
+        },
+        {
+          "text": "4. Stiker Transparan (Vinyl Bening):\n   - Karakteristik: Stiker berbahan plastik vinyl yang bening dan tembus pandang — tidak memiliki warna latar putih seperti stiker biasa. Artinya, hanya bagian gambar/desain yang tercetak saja yang terlihat, sedangkan area kosong di sekitar desain akan terlihat transparan/bening. Cocok untuk ditempel di permukaan berwarna atau di kaca agar tampilan tetap bersih dan estetik.\n   - Penggunaan: Dekorasi kaca etalase toko, label botol minuman bening/transparan, dan stiker logo brand yang tampil estetik tanpa latar belakang putih mengganggu.\n   - Cocok untuk cetak produk turunan: label botol minuman (jus, kopi, boba), stiker kemasan kosmetik transparan, stiker logo kaca minimalis, stiker kemasan stoples kaca estetik.\n5. Stiker One Way Vision:\n   - Karakteristik: Stiker vinyl khusus yang unik karena memiliki lubang-lubang kecil berlubang (perforasi) di seluruh permukaannya. Efeknya: jika dilihat dari sisi luar (depan), gambar terlihat utuh dan penuh seperti stiker biasa karena mata manusia secara alami menggabungkan gambar di antara lubang-lubang kecil tersebut. Namun dari sisi dalam (belakang), orang yang berada di dalam ruangan tetap bisa melihat tembus ke luar melalui lubang-lubang tersebut. Jadi fungsinya seperti kaca satu arah — dari luar terlihat gambar, dari dalam tetap bisa melihat keluar.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 16,
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "format": "txt"
+          },
+          "distance": 0.1326225996017456
+        },
+        {
+          "text": "1. Stiker Cromo / Chromo (180 GSM - Lembaran A3+):\n   - Karakteristik: Stiker yang bahannya terbuat dari kertas (bukan plastik), dengan permukaan licin dan mengkilap. Perekatnya cukup kuat untuk menempel di permukaan kering. Namun, karena berbahan kertas, stiker ini tidak tahan air — jika terkena air akan merusak cetakan dan mengendurkan lem tempelnya. Harganya paling murah di antara semua jenis stiker. Kelebihan tambahannya, permukaan stiker ini bisa ditulis dengan pulpen biasa.\n   - Penggunaan: Label kemasan makanan kering atau stoples, stiker segel penutup kardus katering, stiker promosi kampanye/pilkada, dan stiker alamat pengiriman paket.\n   - Cocok untuk cetak produk turunan: lembaran stiker label (sticker sheet), stiker label toples/botol kering, stiker segel kemasan box, label harga/barcode, stiker suvenir acara, stiker kampanye murah.\n2. Stiker Vinyl Meteran China (200 GSM):\n   - Karakteristik: Stiker berbahan plastik vinyl yang lentur dan bisa ditarik sedikit tanpa langsung robek. Tahan air hujan dan tidak mudah sobek, sehingga cocok untuk penggunaan di luar ruangan. Dijual dalam satuan meteran (panjang x lebar) sehingga bisa mencetak ukuran besar sesuai kebutuhan. Harganya termasuk ekonomis untuk kelas stiker vinyl tahan air.\n   - Penggunaan: Cetak stiker ukuran besar untuk promosi tempel di dinding ruko, papan neon box, atau media promosi outdoor berukuran besar.",
+          "metadata": {
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "format": "txt",
+            "chunk_index": 14,
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.1389515995979309
+        },
+        {
+          "text": "Pilihan Bahan Spanduk Outdoor:\n1. Flexi Standar (China 280 GSM):\n   - Karakteristik: Ini adalah bahan spanduk paling tipis dan paling ringan yang kami sediakan. Permukaannya sedikit mengkilap seperti plastik licin. Kalau dilihat dari belakang saat terkena sinar matahari atau lampu terang, bahan ini agak tembus cahaya (terlihat bayangan terang dari baliknya). Bobotnya ringan sehingga mudah digulung dan dibawa, namun karena tipis, bahan ini tidak sekuat jenis flexi lainnya. Angka 280 GSM menunjukkan berat bahan per meter persegi — semakin besar angkanya, semakin tebal dan berat bahannya.\n   - Ketahanan: Sekitar 3–6 bulan jika dipasang di luar ruangan. Warnanya akan lebih cepat memudar dibanding bahan yang lebih tebal, dan bahannya bisa robek jika terus-menerus tertiup angin kencang dalam waktu lama.\n   - Penggunaan Ideal: Cocok untuk keperluan jangka pendek seperti acara hajatan, spanduk selamat datang, spanduk ulang tahun, latar belakang (backdrop) panggung wisuda, atau promosi mingguan toko dengan anggaran yang terjangkau dan ekonomis.\n   - Pilihan Kualitas Warna: Tersedia dua pilihan hasil cetak. Cetak Standar menghasilkan warna yang sudah bagus untuk kebutuhan sehari-hari dengan harga lebih hemat. Cetak Hires menghasilkan warna yang lebih tajam, lebih pekat, dan lebih detail — cocok jika desainnya banyak foto atau gradasi warna halus.",
+          "metadata": {
+            "chunk_index": 2,
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "format": "txt",
+            "answer_source": "knowledge_base"
+          },
+          "distance": 0.15946412086486816
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 6813,
+        "completion_tokens": 813
+      },
+      "latency_seconds": 5.349,
+      "trace_id": "01a12ecd-7d67-7e70-9479-22ef6dd617ac",
+      "generation_ok": true
+    }
+  ]
+}

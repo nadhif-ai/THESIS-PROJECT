@@ -119,7 +119,6 @@ Ukuran Persegi / Sama Sisi:
 • 3,5 cm x 3,5 cm: 77 pcs per lembar A3+
 • 4 cm x 4 cm: 54 pcs per lembar A3+
 • 4,5 cm x 4,5 cm: 48 pcs per lembar A3+
-• 5 cm x 5 cm: 35 pcs per lembar A3+
 • 5,5 cm x 5,5 cm: 35 pcs per lembar A3+
 • 6 cm x 6 cm: 24 pcs per lembar A3+
 • 6,5 cm x 6,5 cm: 24 pcs per lembar A3+
@@ -147,3 +146,10 @@ Ukuran Persegi Panjang / Kustom:
 • 5 cm x 10 cm: 20 pcs per lembar A3+
 • 6 cm x 7 cm: 20 pcs per lembar A3+
 • 6 cm x 8 cm: 20 pcs per lembar A3+
+
+
+## 10. JUMLAH STIKER 5×5 CM KISS CUT PER LEMBAR A3+
+
+Pertanyaan: 1 lembar A3+ muat berapa pcs stiker ukuran 5x5 cm?
+Jawaban: Untuk stiker ukuran 5 cm × 5 cm dengan metode Kiss Cut, acuan resmi toko adalah 35 pcs per lembar A3+.
+Acuan ini telah dikonfirmasi oleh pihak bisnis. Gunakan angka acuan ini untuk Kiss Cut, bukan estimasi grid teoritis atau kapasitas potong manual.

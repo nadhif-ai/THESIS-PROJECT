@@ -4,13 +4,13 @@ from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-logger       = logging.getLogger(__name__)
-chat_router   = APIRouter(prefix="/chat")
+logger = logging.getLogger(__name__)
+chat_router = APIRouter(prefix="/chat")
 
-_ROOT      = Path(__file__).parent.parent
-_DATA_DIR  = _ROOT / "dataset"
+_ROOT = Path(__file__).parent.parent
+_DATA_DIR = _ROOT / "dataset"
 
 
 class ChatFaqRequest(BaseModel):
@@ -22,8 +22,9 @@ class ChatFaqRequest(BaseModel):
         question        : teks pertanyaan yang dikirimkan pengguna.
         product_context : konteks produk opsional untuk memperkaya pertanyaan.
     """
-    session_id:      str
-    question:        str
+
+    session_id: str = Field(min_length=1, max_length=128)
+    question: str = Field(min_length=1, max_length=6000)
     product_context: Optional[str] = None
 
 
@@ -31,7 +32,8 @@ class ResetChatRequest(BaseModel):
     """
     Skema data request untuk mereset riwayat percakapan sesi.
     """
-    session_id: str
+
+    session_id: str = Field(min_length=1, max_length=128)
 
 
 class ChatFaqResponse(BaseModel):
@@ -45,11 +47,12 @@ class ChatFaqResponse(BaseModel):
         sources   : daftar nama file berkas pengetahuan yang dirujuk ChromaDB.
         usage     : dictionary penggunaan token LLM (prompt_tokens, completion_tokens).
     """
-    answer:    str
-    source:    str = "chat_router"
+
+    answer: str
+    source: str = "chat_router"
     media_url: Optional[str] = None
-    sources:   Optional[list[str]] = None
-    usage:     Optional[dict] = None
+    sources: Optional[list[str]] = None
+    usage: Optional[dict] = None
 
 
 _rag_chain = None
@@ -68,6 +71,7 @@ def _get_rag_chain():
     global _rag_chain
     if _rag_chain is None:
         from app.dependencies import get_rag_chain
+
         _rag_chain = get_rag_chain()
         logger.info("[ChatRouter] RAGChain initialized.")
     return _rag_chain
@@ -83,13 +87,19 @@ async def reset_chat_history(req: ResetChatRequest):
     Endpoint untuk mereset/membersihkan riwayat percakapan aktif dari memori.
     """
     from app.backend.chain import clear_session_history
-    was_active = clear_session_history(req.session_id)
-    return JSONResponse({
-        "status": "success",
-        "session_id": req.session_id,
-        "message": f"Riwayat percakapan untuk sesi '{req.session_id}' berhasil dibersihkan.",
-        "was_active": was_active,
-    })
+
+    from app.admin import store
+
+    store.require_live()
+    was_active = clear_session_history("api_" + req.session_id)
+    return JSONResponse(
+        {
+            "status": "success",
+            "session_id": req.session_id,
+            "message": f"Riwayat percakapan untuk sesi '{req.session_id}' berhasil dibersihkan.",
+            "was_active": was_active,
+        }
+    )
 
 
 @chat_router.post(
@@ -98,7 +108,7 @@ async def reset_chat_history(req: ResetChatRequest):
     tags=["1. Chatbot RAG"],
     summary="Tanya Jawab FAQ & Hitung Harga RAG",
 )
-async def chat_faq(req: ChatFaqRequest) -> ChatFaqResponse:
+def chat_faq(req: ChatFaqRequest) -> ChatFaqResponse:
     """
     Endpoint utama untuk menerima pertanyaan dan mengembalikan jawaban dari pipeline RAG.
 
@@ -119,6 +129,9 @@ async def chat_faq(req: ChatFaqRequest) -> ChatFaqResponse:
         "[ChatRouter/faq] session=%s question=%r", req.session_id, req.question[:60]
     )
 
+    from app.admin import store
+
+    store.require_live()
     question = req.question
     if req.product_context:
         question = f"{req.question} [konteks produk: {req.product_context}]"
@@ -133,12 +146,11 @@ async def chat_faq(req: ChatFaqRequest) -> ChatFaqResponse:
     ]
 
     try:
-        chain    = _get_rag_chain()
+        chain = _get_rag_chain()
         response = chain.run(
             question=question,
-            session_id=req.session_id,
+            session_id="api_" + req.session_id,
             intent_filter=None,
-            
         )
         answer = response.answer
 
@@ -156,6 +168,8 @@ async def chat_faq(req: ChatFaqRequest) -> ChatFaqResponse:
             usage=response.usage,
         )
 
+    except store.StateUnavailable:
+        raise
     except Exception as e:
         logger.error("[ChatRouter/faq] Error: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -228,16 +242,21 @@ import re as _re
 import requests as _requests
 from fastapi import Form, BackgroundTasks
 
-_FONNTE_TOKEN   = _os.getenv("FONNTE_TOKEN", "")
+_FONNTE_TOKEN = _os.getenv("FONNTE_TOKEN", "")
 _FONNTE_API_URL = "https://api.fonnte.com/send"
 
 
-def _send_whatsapp_reply(to: str, message: str, media_url: Optional[str] = None) -> None:
+def _send_whatsapp_reply(
+    to: str, message: str, media_url: Optional[str] = None
+) -> None:
     """Mengirim balasan ke WhatsApp via Fonnte API."""
     from app.config.settings import get_settings
+
     token = get_settings().fonnte_token.strip()
     if not token:
-        logger.warning("[Fonnte] FONNTE_TOKEN tidak ada di .env — balasan tidak terkirim.")
+        logger.warning(
+            "[Fonnte] FONNTE_TOKEN tidak ada di .env — balasan tidak terkirim."
+        )
         return
 
     payload = {"target": to, "message": message}
@@ -254,7 +273,6 @@ def _send_whatsapp_reply(to: str, message: str, media_url: Optional[str] = None)
         logger.error("[Fonnte] Gagal mengirim balasan ke %s: %s", to, e)
 
 
-
 @chat_router.get("/media/gdrive/{file_id}.jpg", include_in_schema=False)
 async def get_gdrive_media_proxy(file_id: str):
     """
@@ -263,6 +281,7 @@ async def get_gdrive_media_proxy(file_id: str):
     """
     import requests
     from fastapi.responses import Response
+
     url = f"https://lh3.googleusercontent.com/d/{file_id}"
     try:
         r = requests.get(url, allow_redirects=True, timeout=10)
@@ -271,7 +290,6 @@ async def get_gdrive_media_proxy(file_id: str):
     except Exception as e:
         logger.error("Failed to proxy gdrive media: %s", e)
     raise HTTPException(status_code=404, detail="Media tidak ditemukan")
-
 
 
 @chat_router.api_route(
@@ -287,26 +305,37 @@ async def fonnte_whatsapp_webhook(
     """
     Endpoint Webhook WhatsApp via Fonnte (Fleksibel JSON & Form Data + Support Foto/Media).
     """
-    sender  = None
+    from app.config.settings import get_settings
+
+    if get_settings().whatsapp_provider != "fonnte":
+        return {"status": "ignored", "reason": "fonnte_disabled"}
+    from app.admin import store
+
+    store.require_live()
+    sender = None
     message = None
-    name    = ""
+    name = ""
 
     if request.method == "POST":
         try:
             body_json = await request.json()
             if isinstance(body_json, dict):
-                sender  = str(body_json.get("sender")  or body_json.get("from") or "").strip()
-                message = str(body_json.get("message") or body_json.get("text") or "").strip()
-                name    = str(body_json.get("name", "")).strip()
+                sender = str(
+                    body_json.get("sender") or body_json.get("from") or ""
+                ).strip()
+                message = str(
+                    body_json.get("message") or body_json.get("text") or ""
+                ).strip()
+                name = str(body_json.get("name", "")).strip()
         except Exception:
             pass
 
         if not sender or not message:
             try:
                 form = await request.form()
-                sender  = str(form.get("sender")  or form.get("from") or "").strip()
+                sender = str(form.get("sender") or form.get("from") or "").strip()
                 message = str(form.get("message") or form.get("text") or "").strip()
-                name    = str(form.get("name", "")).strip()
+                name = str(form.get("name", "")).strip()
             except Exception:
                 pass
 
@@ -318,155 +347,31 @@ async def fonnte_whatsapp_webhook(
     if not question:
         return {"status": "ignored", "reason": "empty message"}
 
-    logger.info("[Fonnte/WA] Pesan dari %s (%s): %r", sender, name or "unknown", question[:80])
+    logger.info(
+        "[Fonnte/WA] Pesan dari %s (%s): %r", sender, name or "unknown", question[:80]
+    )
     session_id = f"wa_{sender}"
 
     def _process_and_reply():
         try:
-            chain        = _get_rag_chain()
-            response     = chain.run(question=question, session_id=session_id)
+            chain = _get_rag_chain()
+            response = chain.run(
+                question=question, session_id=session_id, channel="whatsapp"
+            )
             answer_plain = _re.sub(r"<[^>]+>", "", response.answer).strip()
 
             # Kirim balasan teks beserta foto/media_url jika tersedia dari dokumen RAG
-            _send_whatsapp_reply(to=sender, message=answer_plain, media_url=response.media_url)
+            _send_whatsapp_reply(
+                to=sender, message=answer_plain, media_url=response.media_url
+            )
         except Exception as e:
             logger.error("[Fonnte/WA] Error dari %s: %s", sender, e)
-            _send_whatsapp_reply(to=sender, message="Maaf kak, gangguan teknis. Coba lagi ya 🙏")
+            _send_whatsapp_reply(
+                to=sender, message="Maaf kak, gangguan teknis. Coba lagi ya 🙏"
+            )
 
     background_tasks.add_task(_process_and_reply)
     return {"status": "processing", "sender": sender}
 
 
-# ===========================================================================
-# ADMIN PORTAL ROUTER — Pengelolaan Knowledge Base Karyawan Toko
-# ===========================================================================
-from fastapi import UploadFile, File
-
-admin_router = APIRouter(prefix="/admin", tags=["3. Kelola Knowledge Base"])
-
-
-@admin_router.get("", response_class=HTMLResponse, include_in_schema=False)
-@admin_router.get("/", response_class=HTMLResponse, include_in_schema=False)
-async def admin_page():
-    admin_path = _ROOT / "app" / "frontend" / "admin.html"
-    if not admin_path.exists():
-        return HTMLResponse("<h1>admin.html not found</h1>", status_code=404)
-    return HTMLResponse(admin_path.read_text(encoding="utf-8"))
-
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-
-_ADMIN_TOKEN = "asiavisual_admin_secret_token_2026"
-
-
-@admin_router.post("/api/login", summary="Autentikasi Login Admin Toko")
-async def admin_login(req: LoginRequest):
-    user = req.username.strip().lower()
-    pwd  = req.password.strip()
-    # Validasi kredensial resmi admin toko
-    if user == "admin" and pwd in ("asiavisual123", "admin123"):
-        return JSONResponse({"status": "success", "token": _ADMIN_TOKEN})
-    return JSONResponse({"status": "error", "message": "Username atau password salah!"}, status_code=401)
-
-
-
-@admin_router.get("/api/chat-logs", summary="Lihat Seluruh Riwayat Chat Log Pelanggan")
-async def get_chat_logs():
-    from app.backend.chain import get_all_chat_logs
-    logs = get_all_chat_logs()
-    return JSONResponse({"logs": logs})
-
-
-@admin_router.get("/api/files", summary="Daftar Berkas Knowledge Base (.txt)")
-async def list_kb_files():
-    kb_dir = _DATA_DIR / "knowledge_base"
-    if not kb_dir.exists():
-        return JSONResponse({"files": []})
-    files = sorted([f.name for f in kb_dir.glob("*.txt")])
-    return JSONResponse({"files": files})
-
-
-@admin_router.get("/api/file/{filename}", include_in_schema=False)
-async def get_kb_file(filename: str):
-    kb_dir = _DATA_DIR / "knowledge_base"
-    file_path = (kb_dir / filename).resolve()
-    if not file_path.exists() or not str(file_path).startswith(str(kb_dir.resolve())):
-        raise HTTPException(status_code=404, detail="File tidak ditemukan")
-    content = file_path.read_text(encoding="utf-8")
-    return JSONResponse({"filename": filename, "content": content})
-
-
-class SaveFileRequest(BaseModel):
-    filename: str
-    content: str
-
-
-@admin_router.post("/api/save", include_in_schema=False)
-async def save_kb_file(req: SaveFileRequest):
-    kb_dir = _DATA_DIR / "knowledge_base"
-    file_path = (kb_dir / req.filename).resolve()
-    if not str(file_path).startswith(str(kb_dir.resolve())):
-        raise HTTPException(status_code=400, detail="Nama berkas tidak valid")
-    file_path.write_text(req.content, encoding="utf-8")
-    logger.info("[Admin] Berkas %s berhasil diperbarui via Admin Portal.", req.filename)
-    return JSONResponse({"status": "success", "filename": req.filename})
-
-
-@admin_router.post("/api/upload", include_in_schema=False)
-async def upload_kb_file(file: UploadFile = File(...)):
-    if not file.filename.endswith(".txt"):
-        raise HTTPException(status_code=400, detail="Hanya berkas .txt yang didukung")
-    kb_dir = _DATA_DIR / "knowledge_base"
-    kb_dir.mkdir(parents=True, exist_ok=True)
-    file_path = kb_dir / file.filename
-    content = await file.read()
-    file_path.write_bytes(content)
-    logger.info("[Admin] Berkas baru %s diupload via Admin Portal.", file.filename)
-    return JSONResponse({"status": "success", "filename": file.filename})
-
-
-class CreateFileRequest(BaseModel):
-    filename: str
-    content: str = ""
-
-
-@admin_router.post("/api/create", include_in_schema=False)
-async def create_kb_file(req: CreateFileRequest):
-    kb_dir = _DATA_DIR / "knowledge_base"
-    kb_dir.mkdir(parents=True, exist_ok=True)
-    fname = req.filename.strip()
-    if not fname.lower().endswith(".txt"):
-        fname += ".txt"
-    file_path = (kb_dir / fname).resolve()
-    if not str(file_path).startswith(str(kb_dir.resolve())):
-        raise HTTPException(status_code=400, detail="Nama berkas tidak valid")
-    if file_path.exists():
-        raise HTTPException(status_code=400, detail=f"Berkas '{fname}' sudah ada")
-    file_path.write_text(req.content, encoding="utf-8")
-    logger.info("[Admin] Berkas baru '%s' dibuat via Admin Portal.", fname)
-    return JSONResponse({"status": "success", "filename": fname})
-
-
-@admin_router.post("/api/delete/{filename}", include_in_schema=False)
-async def delete_kb_file(filename: str):
-    kb_dir = _DATA_DIR / "knowledge_base"
-    file_path = (kb_dir / filename).resolve()
-    if not file_path.exists() or not str(file_path).startswith(str(kb_dir.resolve())):
-        raise HTTPException(status_code=404, detail="Berkas tidak ditemukan")
-    try:
-        file_path.unlink()
-        logger.info("[Admin] Berkas %s berhasil dihapus via Admin Portal.", filename)
-        return JSONResponse({"status": "success", "filename": filename})
-    except Exception as e:
-        logger.error("[Admin] Gagal menghapus berkas %s: %s", filename, e)
-        raise HTTPException(status_code=500, detail=f"Gagal menghapus berkas: {e}")
-
-
-
-
-
-
-
+from app.admin.routes import admin_router
