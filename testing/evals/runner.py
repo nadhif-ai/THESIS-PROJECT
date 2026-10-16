@@ -131,6 +131,8 @@ def generate_candidates(version_id):
             "A candidate dataset already exists. Review it before generating a replacement."
         )
     item = store.version(version_id)
+    from app.backend.vectorstore import require_compatible_version
+    require_compatible_version(item)
     records = item["records"]
     if not records:
         raise ValueError("Index knowledge before generating scenarios.")
@@ -294,7 +296,7 @@ def _sync_dataset(client, name, rows, kind):
     return dataset, examples
 
 
-def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
+def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configuration=None):
     from app.dependencies import get_rag_chain
     from app.admin.jobs import update_progress
 
@@ -302,9 +304,16 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
         update_progress(job_id, **fields)
 
     item = store.version(version_id)
+    from app.backend.vectorstore import require_compatible_version
+    require_compatible_version(item)
     rows = load_cases(dataset, limit)
     progress(phase="preparing", completed=0, total=len(rows), errors=0)
     s = get_settings()
+    configuration = configuration or store.get_settings_values({
+        "openrouter_model": s.openrouter_model,
+        "eval_model": s.eval_model,
+        "semantic_top_k": s.semantic_top_k,
+    })
     folder = store.data_path() / "evaluations" / job_id
     folder.mkdir(parents=True, exist_ok=True)
     result = {
@@ -313,16 +322,18 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
         "knowledge_version": item["id"],
         "namespace": item["namespace"],
         "started_at": store.now(),
-        "model": store.get_setting("openrouter_model", s.openrouter_model),
-        "judge": store.get_setting("eval_model", s.eval_model),
-        "runtime_top_k": store.get_setting("semantic_top_k", s.semantic_top_k),
+        "model": configuration["openrouter_model"],
+        "judge": configuration["eval_model"],
+        "runtime_top_k": configuration["semantic_top_k"],
         "chunking": item["manifest"].get(
             "chunking",
             {"chunk_size": 1500, "chunk_overlap": 200, "preprocessing": "legacy"},
         ),
         "corpus_sha256": item["manifest"].get("corpus_sha256"),
         "evaluation_recipe": "retrieval-precision-recall-v1",
-        "embedding_model": s.embedding_model,
+        "embedding_model": item["manifest"]["embedding"]["model"],
+        "embedding": item["manifest"]["embedding"],
+        "vector_index": item["manifest"]["vector_index"],
         "deepeval_version": package_version("deepeval"),
         "cases": [],
         "experiment_name": f"avg-{dataset}-{job_id[:12]}",
@@ -344,6 +355,8 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10):
                 "top_k": result["runtime_top_k"],
                 "chunking": result["chunking"],
                 "evaluation_recipe": result["evaluation_recipe"],
+                "embedding": result["embedding"],
+                "vector_index": result["vector_index"],
             },
         )
         result["project_id"] = str(project.id)

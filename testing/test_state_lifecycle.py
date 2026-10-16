@@ -4,7 +4,9 @@ from app.admin import store, knowledge
 
 
 def seed_published():
-    store.save_version({'id':'published','namespace':'retained','status':'ready','created_at':store.now(),'manifest':{},'records':[],'error':None})
+    from app.backend.models import embedding_identity
+    from app.config.settings import get_settings
+    store.save_version({'id':'published','namespace':'retained','status':'ready','created_at':store.now(),'manifest':{'embedding':embedding_identity(),'vector_index':get_settings().pinecone_index_name},'records':[],'error':None})
     store.publish('published')
 
 
@@ -14,9 +16,41 @@ def test_startup_is_read_only(pg_live, monkeypatch):
     store.create_job_row('active','evaluate',{})
     store.set_job_state('active','running')
     monkeypatch.setattr(dependencies,'RAGChain',lambda: object())
+    from app.backend import vectorstore
+    monkeypatch.setattr(vectorstore, 'get_vectorstore', lambda: object())
     monkeypatch.setattr(knowledge,'bootstrap',lambda: pytest.fail('startup bootstrap'))
     dependencies.initialize_rag_system()
     assert store.list_job_rows()[0]['status']=='running'
+
+
+def test_startup_rejects_an_incompatible_pinecone_index(monkeypatch):
+    from app import dependencies
+    from app.backend import vectorstore
+
+    monkeypatch.setattr(dependencies, '_rag_chain', None)
+    monkeypatch.setattr(store, 'check_ready', lambda: None)
+    monkeypatch.setattr(dependencies, 'RAGChain', lambda: object())
+    def incompatible():
+        raise ValueError('The current E5 model requires a 384-dimensional cosine index.')
+    monkeypatch.setattr(vectorstore, 'get_vectorstore', incompatible)
+    with pytest.raises(ValueError, match='384-dimensional'):
+        dependencies.initialize_rag_system()
+    with pytest.raises(RuntimeError, match='not initialized'):
+        dependencies.get_rag_chain()
+
+
+def test_startup_rejects_published_vectors_from_another_model(pg_live, monkeypatch):
+    import json
+    from app import dependencies
+    from app.backend import vectorstore
+    seed_published()
+    with pg_live.admin_connection() as db:
+        db.execute("UPDATE chatbot.versions SET manifest=%s WHERE id='published'",
+                   (json.dumps({"embedding": {"model": "intfloat/multilingual-e5-small"}, "vector_index": "chatbot-avg"}),))
+    monkeypatch.setattr(vectorstore, 'get_vectorstore', lambda: object())
+    monkeypatch.setattr(dependencies, 'RAGChain', lambda: pytest.fail('Do not initialize an incompatible runtime'))
+    with pytest.raises(ValueError, match='different embedding'):
+        dependencies.initialize_rag_system()
 
 
 def test_modes_and_first_write(pg_workspace):
@@ -87,6 +121,8 @@ def test_synthetic_cutover_lifespan_and_reconciliation(source_snapshot,pg_worksp
     import_snapshot(backup,pg_workspace.admin_dsn,'local-rehearsal')
     assert verify_snapshot(backup,pg_workspace.admin_dsn)['verified']
     monkeypatch.setattr(dependencies,'RAGChain',lambda:object())
+    from app.backend import vectorstore
+    monkeypatch.setattr(vectorstore, 'get_vectorstore', lambda: object())
     monkeypatch.setattr(waha,'start',lambda:None)
     monkeypatch.setattr(waha,'stop',lambda:None)
     monkeypatch.setattr(waha,'api',lambda *a,**k:pytest.fail('No provider calls in rehearsal'))

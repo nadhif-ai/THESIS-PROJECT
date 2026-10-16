@@ -12,6 +12,8 @@ chroma_db/
 .claude
 graphify-out/
 skills-lock.json
+.impeccable
+.codex
 
 # Byte-compiled / cache files
 __pycache__/
@@ -34,3 +36,6 @@ AGENTS.md
 .deepeval/
 node_modules/
 dist/
+
+# Testing screenshots
+testing/*.png

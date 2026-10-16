@@ -35,6 +35,9 @@ def pg_workspace(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", runtime_dsn)
     monkeypatch.setenv("DATABASE_MIGRATION_URL", admin_dsn)
     monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("EMBEDDING_MODEL", "nvidia/nemotron-3-embed-1b:free")
+    monkeypatch.setenv("EMBEDDING_DIMENSIONS", "2048")
+    monkeypatch.setenv("PINECONE_INDEX_NAME", "chatbot-nadhif")
     monkeypatch.setenv("ADMIN_PASSWORD", "local-test-password")
     from app.config.settings import get_settings
 

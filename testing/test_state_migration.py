@@ -6,8 +6,10 @@ from scripts.migrate_state import snapshot, import_snapshot, verify_snapshot, ro
 
 
 @pytest.fixture
-def source_snapshot(tmp_path):
+def source_snapshot(tmp_path, pg_workspace):
     from scripts.migrate_state import COLUMNS, KEYS, REAL, INTEGER
+    from app.backend.models import embedding_identity
+    from app.config.settings import get_settings
     path=tmp_path/'source.sqlite3'
     with sqlite3.connect(path) as db:
         for table, columns in COLUMNS.items():
@@ -17,7 +19,8 @@ def source_snapshot(tmp_path):
         db.execute("INSERT INTO settings VALUES ('published_version','\"version-1\"')")
         db.execute("INSERT INTO users VALUES ('admin','00000000000000000000000000000000','copied-hash')")
         db.execute("INSERT INTO sessions VALUES ('expired',1.0,'csrf')")
-        db.execute("INSERT INTO versions VALUES ('version-1','retained','published','time','{}','[]',NULL)")
+        db.execute("INSERT INTO versions VALUES ('version-1','retained','published','time',?,'[]',NULL)",
+                   (json.dumps({"embedding": embedding_identity(), "vector_index": get_settings().pinecone_index_name}),))
         db.execute("INSERT INTO jobs VALUES ('job-1','evaluate','completed','{}','{}',NULL,'time','time','{}')")
         db.execute("INSERT INTO conversations VALUES (41,'s','playground','question','answer','{}',1.5,NULL,'time')")
         db.execute("INSERT INTO whatsapp_inbox VALUES ('asia-chatbot','old','123@lid','old body','sent','answer',NULL,'[\"reply-old\"]',NULL,'time','time')")

@@ -1,4 +1,6 @@
 from app.admin import store
+from app.backend.models import embedding_identity
+from app.config.settings import get_settings
 import pytest
 
 
@@ -43,7 +45,7 @@ def test_failed_publish_preserves_selection(pg_live):
         namespace="original",
         status="ready",
         created_at=store.now(),
-        manifest={},
+        manifest={"embedding": embedding_identity(), "vector_index": get_settings().pinecone_index_name},
         records=[],
         error=None,
     )
@@ -72,7 +74,7 @@ def test_concurrent_publish_has_one_consistent_selection(pg_live):
                 namespace=name,
                 status="ready",
                 created_at=store.now(),
-                manifest={},
+                manifest={"embedding": embedding_identity(), "vector_index": get_settings().pinecone_index_name},
                 records=[],
                 error=None,
             )

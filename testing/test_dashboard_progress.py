@@ -9,6 +9,7 @@ import pytest
 
 from app.admin import jobs, store
 from app.config.settings import get_settings
+from app.backend.models import embedding_identity
 
 
 @pytest.fixture
@@ -39,7 +40,7 @@ def test_evaluation_reports_actual_cases_and_metric_errors(workspace, monkeypatc
         "namespace": "offline",
         "status": "ready",
         "created_at": store.now(),
-        "manifest": {},
+        "manifest": {"embedding": embedding_identity(), "vector_index": get_settings().pinecone_index_name},
         "records": [],
         "error": None,
     }
