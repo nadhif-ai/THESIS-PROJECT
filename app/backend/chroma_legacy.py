@@ -7,7 +7,7 @@ except ImportError:
     from langchain_community.vectorstores import Chroma
 
 from langchain_core.documents import Document
-from app.backend.models import get_embedding_model
+from app.backend.legacy_embeddings import get_embedding_model
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)

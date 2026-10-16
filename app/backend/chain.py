@@ -361,11 +361,10 @@ class RAGChain:
         )
         selected_version = None
         if self.settings.vector_store == "pinecone":
-            selected_version = (
-                next((v for v in store.versions() if v["namespace"] == namespace), None)
-                if namespace
-                else store.version()
-            )
+            selected_version = store.version_info(namespace=namespace)
+            from app.backend.vectorstore import require_compatible_version
+
+            require_compatible_version(selected_version)
             if selected_version:
                 namespace = selected_version["namespace"]
         tree = get_current_run_tree()
@@ -380,6 +379,8 @@ class RAGChain:
                     if selected_version
                     else None,
                     "backend": self.settings.vector_store,
+                    "embedding": selected_version["manifest"].get("embedding") if selected_version else None,
+                    "vector_index": selected_version["manifest"].get("vector_index") if selected_version else None,
                     "prompt_sha256": self.prompt_fingerprint,
                 }
             )
@@ -424,16 +425,7 @@ class RAGChain:
             if self.settings.vector_store == "pinecone":
                 from app.admin.knowledge import path_for
 
-                selected = (
-                    next(
-                        (v for v in store.versions() if v["namespace"] == namespace),
-                        None,
-                    )
-                    if namespace
-                    else store.version()
-                )
-                if selected:
-                    menu_dir = str(path_for(selected).parent)
+                menu_dir = str(path_for(selected_version).parent)
             menu_text = _load_menu_from_file(
                 category_number=cleaned_query,
                 label=label,
@@ -521,6 +513,8 @@ class RAGChain:
             )
             response = get_llm(model).invoke(prompt_value)
             answer = response.content if hasattr(response, "content") else str(response)
+            if not isinstance(answer, str) or not answer.strip():
+                raise ValueError("The answering provider returned no usable text.")
 
             # Ekstrak token usage dari response OpenRouter/LangChain jika ada
             if hasattr(response, "usage_metadata") and response.usage_metadata:

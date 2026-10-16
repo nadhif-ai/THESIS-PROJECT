@@ -5,7 +5,13 @@ import time
 from langchain_core.documents import Document
 from langsmith import traceable
 from app.config.settings import get_settings
-from app.backend.models import get_embedding_model
+from app.backend.models import get_embedding_model, embedding_identity
+
+
+def require_compatible_version(item):
+    if (item["manifest"].get("embedding") != embedding_identity() or
+            item["manifest"].get("vector_index") != get_settings().pinecone_index_name):
+        raise ValueError("This knowledge version belongs to a different embedding model/index. Use its migrated Nemotron version; historical E5 versions are read-only archives.")
 
 
 @lru_cache(maxsize=1)
@@ -19,15 +25,14 @@ def get_vectorstore():
         raise ValueError("PINECONE_API_KEY is required.")
     from pinecone import Pinecone
 
-    if settings.embedding_model != "intfloat/multilingual-e5-small":
-        raise ValueError(
-            "This migration preserves multilingual-e5-small; changing embeddings requires a new compatible index and reindexing."
-        )
+    identity = embedding_identity()
     pc = Pinecone(api_key=settings.pinecone_api_key)
     description = pc.describe_index(settings.pinecone_index_name)
-    if description.dimension != 384 or description.metric != "cosine":
+    if description.dimension != identity["dimensions"] or description.metric != "cosine":
         raise ValueError(
-            "The current E5 model requires a 384-dimensional cosine index."
+            f"Pinecone index {settings.pinecone_index_name!r} has dimension={description.dimension}, "
+            f"metric={description.metric}; Nemotron requires a 2048-dimensional cosine index. "
+            "Correct PINECONE_INDEX_NAME and restart the backend."
         )
     if not description.status["ready"]:
         raise ValueError("Pinecone index is not ready.")
@@ -38,10 +43,10 @@ def ingest_records(records, namespace):
     if not records:
         raise ValueError("Knowledge version contains no searchable chunks.")
     index = get_vectorstore()
-    for offset in range(0, len(records), 100):
+    for offset in range(0, len(records), 32):
         vectors = []
-        for record in records[offset : offset + 100]:
-            if len(record["embedding"]) != 384:
+        for record in records[offset : offset + 32]:
+            if len(record["embedding"]) != embedding_identity()["dimensions"]:
                 raise ValueError("An embedding has the wrong dimension.")
             metadata = {
                 k: v
@@ -56,23 +61,17 @@ def ingest_records(records, namespace):
                     "metadata": metadata,
                 }
             )
-        index.upsert(vectors=vectors, namespace=namespace)
+        index.upsert(vectors=vectors, namespace=namespace, _request_timeout=30)
     deadline = time.monotonic() + 60
     while time.monotonic() < deadline:
-        found = set()
-        for offset in range(0, len(records), 100):
-            found.update(
-                index.fetch(
-                    ids=[r["id"] for r in records[offset : offset + 100]],
-                    namespace=namespace,
-                ).vectors
-            )
-        if len(found) == len(records):
+        found = {identifier for page in index.list(namespace=namespace, _request_timeout=15) for identifier in page}
+        if {r["id"] for r in records} <= found:
             probe = index.query(
                 vector=records[0]["embedding"],
                 namespace=namespace,
                 top_k=1,
                 include_metadata=True,
+                _request_timeout=15,
             )
             if probe.matches:
                 return len(records)
@@ -88,10 +87,10 @@ def similarity_search_with_score(query, k=10, filter_dict=None, namespace=None):
         from app.backend.chroma_legacy import similarity_search_with_score as legacy
 
         return legacy(query=query, k=k, filter_dict=filter_dict)
-    if not namespace:
-        from app.admin.store import version
-
-        namespace = version()["namespace"]
+    from app.admin.store import version_info
+    item = version_info(namespace=namespace)
+    require_compatible_version(item)
+    namespace = item["namespace"]
     conditions = [{key: {"$eq": value}} for key, value in (filter_dict or {}).items()]
     where = (
         conditions[0]
@@ -106,6 +105,7 @@ def similarity_search_with_score(query, k=10, filter_dict=None, namespace=None):
         namespace=namespace,
         filter=where,
         include_metadata=True,
+        _request_timeout=30,
     )
     result = []
     for match in response.matches:
