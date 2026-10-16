@@ -34,11 +34,37 @@ def check_origin(request):
         raise HTTPException(403, "This request origin is not allowed.")
 
 
-def require_admin(request: Request):
+def require_admin(request: Request, response: Response):
     token = request.cookies.get("avg_admin", "")
-    row = store.get_session(hashlib.sha256(token.encode()).hexdigest(), time.time())
+    if not token:
+        raise HTTPException(401, "Sign in to continue.")
+    view = {
+        "/admin/api/me": "me",
+        "/admin/api/overview": "overview",
+        "/admin/api/versions": "versions",
+        "/admin/api/settings": "settings",
+        "/admin/api/conversations": "conversations",
+        "/admin/api/jobs": "jobs",
+        "/admin/api/whatsapp/status": "whatsapp",
+    }.get(request.url.path) if request.method == "GET" else None
+    if request.method == "GET" and getattr(request.scope.get("route"), "path", None) == "/admin/api/jobs/{job_id}":
+        view = "job"
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    if view:
+        row = store.admin_snapshot(
+            token_hash, time.time(), view,
+            channel=request.query_params.get("channel") or None,
+            job_id=request.path_params.get("job_id"),
+            session=get_settings().waha_session,
+        )
+        request.state.admin_data = row["data"] if row else None
+    else:
+        row = store.get_session(token_hash, time.time())
     if not row:
         raise HTTPException(401, "Sign in to continue.")
+    response.headers["Server-Timing"] = ", ".join(
+        f"{name};dur={duration:.1f}" for name, duration in row["timing"].items()
+    )
     if request.method not in ("GET", "HEAD", "OPTIONS"):
         check_origin(request)
         if not secrets.compare_digest(
@@ -62,19 +88,28 @@ def login(body: Login, request: Request, response: Response):
     check_origin(request)
     ip = request.client.host if request.client else "local"
     client_hash = hashlib.sha256(ip.encode()).hexdigest()
-    if not store.login_allowed(client_hash, time.time()):
+    started = time.perf_counter()
+    allowed, user = store.login_candidate(client_hash, time.time(), body.username.strip())
+    candidate_at = time.perf_counter()
+    if not allowed:
         raise HTTPException(429, "Too many attempts. Try again in five minutes.")
-    user = store.get_user(body.username.strip())
     salt = user["salt"] if user else "00" * 16
     digest = store.hash_password(body.password, salt)
     if not user or not secrets.compare_digest(digest, user["password_hash"]):
         store.record_login_failure(client_hash, time.time())
         raise HTTPException(401, "Username or password is incorrect.")
-    store.clear_login_failures(client_hash)
+    verified_at = time.perf_counter()
     token = secrets.token_urlsafe(32)
     csrf = secrets.token_urlsafe(24)
     store.create_session(
-        hashlib.sha256(token.encode()).hexdigest(), time.time() + 28800, csrf
+        hashlib.sha256(token.encode()).hexdigest(), time.time() + 28800, csrf, client_hash
+    )
+    response.headers["Server-Timing"] = ", ".join(
+        f"{name};dur={duration * 1000:.1f}" for name, duration in {
+            "db_login": candidate_at - started,
+            "password": verified_at - candidate_at,
+            "db_session": time.perf_counter() - verified_at,
+        }.items()
     )
     response.set_cookie(
         "avg_admin",
@@ -103,38 +138,39 @@ def logout(request: Request, response: Response):
 
 
 def summary(item):
+    from app.backend.models import embedding_identity
+
     return {k: v for k, v in item.items() if k != "records"} | {
-        "chunk_count": len(item["records"]),
+        "compatible": item["manifest"].get("embedding") == embedding_identity() and
+            item["manifest"].get("vector_index") == get_settings().pinecone_index_name,
+        "chunk_count": len(item["records"]) if "records" in item else item["chunk_count"],
         "chunking": item["manifest"].get("chunking", LEGACY),
     }
 
 
 @protected.get("/overview")
-def overview():
-    rows = store.conversations(limit=10000)
-    published = store.version()
+def overview(request: Request):
+    data = request.state.admin_data
+    if data["published"] is None:
+        raise HTTPException(503, "Published knowledge version is unavailable.")
     baseline = json.loads((knowledge.BASELINE / "results.json").read_text())
-    latency = [r["latency"] for r in rows if r["latency"]]
     return {
-        "conversations": len(rows),
-        "whatsapp_messages": sum(r["channel"] == "whatsapp" for r in rows),
-        "average_latency": round(sum(latency) / len(latency), 2) if latency else None,
-        "published": summary(published),
+        **data,
+        "published": summary(data["published"]),
         "baseline": {
             "cases": len(baseline["rows"]),
             "hit_rate": baseline["avg_hit_rate"],
             "precision": baseline["avg_precision"],
         },
-        "recent": rows[:8],
-        "jobs": jobs.list_jobs()[:8],
     }
 
 
 @protected.get("/versions")
-def versions():
+def versions(request: Request):
+    catalog = request.state.admin_data
     return {
-        "versions": [summary(v) for v in store.versions()],
-        "published": store.get_setting("published_version"),
+        "versions": [summary(v) for v in catalog["versions"]],
+        "published": catalog["published"],
     }
 
 
@@ -163,7 +199,7 @@ def file_content(version_id: str, name: str):
         return {
             "name": name,
             "content": path.read_text(encoding="utf-8-sig"),
-            "editable": item["status"] in ("draft", "failed"),
+            "editable": not item["manifest"].get("archived") and item["status"] in ("draft", "failed"),
         }
     except (ValueError, UnicodeDecodeError, FileNotFoundError) as e:
         raise HTTPException(400, str(e))
@@ -255,7 +291,9 @@ def playground(body: Playground):
     from app.dependencies import get_rag_chain
 
     try:
-        version = store.version(body.version_id)
+        version = store.version_info(body.version_id)
+        from app.backend.vectorstore import require_compatible_version
+        require_compatible_version(version)
         if version["status"] not in ("ready", "published"):
             raise ValueError("Index this knowledge version before testing it.")
     except ValueError as e:
@@ -273,19 +311,24 @@ def playground(body: Playground):
 
 
 @protected.get("/conversations")
-def conversations(channel: str | None = None):
-    return store.conversations(channel)
+def conversations(request: Request, channel: str | None = None):
+    return request.state.admin_data
 
 
 @protected.get("/settings")
-def settings():
+def settings(request: Request):
+    return provider_settings(request.state.admin_data)
+
+
+def provider_settings(values):
     s = get_settings()
     return {
-        "openrouter_model": store.get_setting("openrouter_model", s.openrouter_model),
-        "eval_model": store.get_setting("eval_model", s.eval_model),
-        "semantic_top_k": store.get_setting("semantic_top_k", s.semantic_top_k),
+        "openrouter_model": s.openrouter_model,
+        "eval_model": s.eval_model,
+        "semantic_top_k": s.semantic_top_k,
+        **values,
         "embedding_model": s.embedding_model,
-        "dimension": 384,
+        "dimension": s.embedding_dimensions,
         "pinecone_index": s.pinecone_index_name,
         "whatsapp_provider": s.whatsapp_provider,
         "waha_session": s.waha_session if s.whatsapp_provider == "waha" else None,
@@ -302,10 +345,10 @@ def settings():
 
 
 @protected.get("/whatsapp/status")
-def whatsapp_status():
+def whatsapp_status(request: Request):
     from app.integrations.waha import status
 
-    return status()
+    return status(request.state.admin_data)
 
 
 class ProviderSettings(BaseModel):
@@ -320,14 +363,30 @@ class ProviderSettings(BaseModel):
 
 @protected.put("/settings")
 def save_settings(body: ProviderSettings):
-    for key, value in body.model_dump().items():
-        store.set_setting(key, value)
-    return settings()
+    store.set_settings(body.model_dump())
+    return provider_settings(body.model_dump())
 
 
 @protected.get("/jobs")
-def job_list():
-    return jobs.list_jobs()
+def job_list(request: Request):
+    return request.state.admin_data
+
+
+@protected.get("/jobs/{job_id}")
+def job_detail(job_id: str, request: Request):
+    item = request.state.admin_data
+    if not item:
+        raise HTTPException(404, "Job not found.")
+    result = item.get("result")
+    evaluation_id = result.get("id") if isinstance(result, dict) else None
+    if isinstance(evaluation_id, str) and evaluation_id.isalnum():
+        path = store.data_path() / "evaluations" / evaluation_id / "results.json"
+        if path.is_file():
+            try:
+                item["result"] = json.loads(path.read_text())
+            except (OSError, ValueError):
+                raise HTTPException(503, "Saved evaluation results could not be read.") from None
+    return item
 
 
 class Evaluation(BaseModel):
@@ -340,6 +399,8 @@ class Evaluation(BaseModel):
 def evaluate(body: Evaluation):
     try:
         item = store.version(body.version_id)
+        from app.backend.vectorstore import require_compatible_version
+        require_compatible_version(item)
         if item["status"] not in ("ready", "published"):
             raise ValueError("Select indexed knowledge.")
         if body.dataset not in ("legacy", "audited", "conversations", "heldout"):

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 import threading
 import time
 from contextlib import contextmanager
@@ -17,6 +18,33 @@ from app.config.settings import get_settings
 
 _pool = None
 _pool_lock = threading.RLock()
+_IO_TIMEOUT = 35.0
+_TRANSACTION_SETUP = """SET LOCAL statement_timeout='30s'; SET LOCAL lock_timeout='5s';
+SET LOCAL idle_in_transaction_session_timeout='35s'"""
+
+
+class _DatabaseConnection(psycopg.Connection):
+    def wait(self, gen, interval=.1, timeout=None):
+        # Server statement_timeout cannot release a socket whose response never arrives.
+        timeout = _IO_TIMEOUT if timeout is None else min(timeout, _IO_TIMEOUT)
+        try:
+            return super().wait(gen, interval=interval, timeout=timeout)
+        except psycopg.OperationalError:
+            self.close()
+            raise
+
+
+def _check_connection(db):
+    # A health query on every checkout adds a network round trip to every read.
+    if db.closed or db.broken or time.monotonic() - getattr(db, "_admin_last_used", 0) >= 30:
+        ConnectionPool.check_connection(db)
+
+
+def _reconnect_failed(pool):
+    if not pool.closed:
+        logging.getLogger(__name__).warning("Database reconnect window exhausted; restarting connection recovery.")
+        # Expired waiters can fill max_waiting and prevent new requests from growing an empty pool.
+        pool.check()
 
 
 class StateUnavailable(RuntimeError):
@@ -52,18 +80,25 @@ def open_pool():
             options = conninfo_to_dict(dsn)
             local = options.get("host") in ("127.0.0.1", "localhost", "::1")
             kwargs = dict(
-                row_factory=dict_row, prepare_threshold=None, connect_timeout=5
+                row_factory=dict_row, prepare_threshold=None, connect_timeout=5,
+                autocommit=True, cursor_factory=psycopg.ClientCursor,
+                keepalives=1, keepalives_idle=10, keepalives_interval=5,
+                keepalives_count=3, tcp_user_timeout=20_000,
+                application_name="chatbot-rag",
             )
             kwargs["sslmode"] = "disable" if local else "require"
             pool = ConnectionPool(
                 dsn,
+                connection_class=_DatabaseConnection,
                 min_size=0,
                 max_size=2,
-                timeout=5,
+                timeout=15,
+                reconnect_timeout=15,
                 max_waiting=20,
                 open=False,
                 kwargs=kwargs,
-                check=ConnectionPool.check_connection,
+                check=_check_connection,
+                reconnect_failed=_reconnect_failed,
             )
             pool.open()
             _pool = pool
@@ -84,14 +119,17 @@ def close_pool():
 @contextmanager
 def _connection(purpose=None):
     open_pool()
+    started = time.perf_counter()
+    phase = "acquire"
     try:
         with _pool.connection() as db:
-            db.execute("SET LOCAL statement_timeout='30s'")
-            db.execute("SET LOCAL lock_timeout='5s'")
+            phase = "transaction_setup"
+            setup = "BEGIN; " + _TRANSACTION_SETUP
             if purpose:
-                control = db.execute(
-                    "SELECT * FROM chatbot.runtime_control WHERE id=1 FOR UPDATE"
-                ).fetchone()
+                cursor = db.execute(setup + "; SELECT * FROM chatbot.runtime_control WHERE id=1 FOR UPDATE")
+                for _ in range(4):
+                    cursor.nextset()
+                control = cursor.fetchone()
                 allowed = (("intake",) if purpose == "reconciliation" else
                            ("intake", "live") if purpose == "intake" else ("live",))
                 if not control or control["mode"] not in allowed:
@@ -103,8 +141,18 @@ def _connection(purpose=None):
                         "UPDATE chatbot.runtime_control SET first_live_write_at=%s WHERE id=1",
                         (now(),),
                     )
+            else:
+                db.execute(setup)
+            phase = "operation"
             yield db
-    except (psycopg.Error, PoolTimeout):
+            phase = "commit"
+        db._admin_last_used = time.monotonic()
+    except (psycopg.Error, PoolTimeout) as error:
+        logging.getLogger(__name__).warning(
+            "Database failure phase=%s error=%s sqlstate=%s elapsed_ms=%.1f pool=%s",
+            phase, type(error).__name__, error.sqlstate,
+            (time.perf_counter() - started) * 1000, pool_stats(),
+        )
         raise StateUnavailable(
             "Administration database is unavailable; inspect the private backend log."
         ) from None
@@ -172,18 +220,16 @@ def get_user(name):
 
 
 def get_session(token_hash, at):
-    with _connection() as db:
-        return db.execute(
-            "SELECT * FROM chatbot.sessions WHERE token_hash=%s AND expires>%s",
-            (token_hash, at),
-        ).fetchone()
+    return admin_snapshot(token_hash, at, "me")
 
 
-def create_session(token_hash, expires, csrf):
+def create_session(token_hash, expires, csrf, client_hash=None):
     with _connection("administration") as db:
-        db.execute("DELETE FROM chatbot.sessions WHERE expires<%s", (time.time(),))
         db.execute(
-            "INSERT INTO chatbot.sessions VALUES(%s,%s,%s)", (token_hash, expires, csrf)
+            """DELETE FROM chatbot.login_attempts WHERE client_hash=%s;
+            DELETE FROM chatbot.sessions WHERE expires<%s;
+            INSERT INTO chatbot.sessions VALUES(%s,%s,%s)""",
+            (client_hash, time.time(), token_hash, expires, csrf),
         )
 
 
@@ -193,21 +239,23 @@ def delete_session(token_hash):
 
 
 def login_allowed(client_hash, at):
+    return login_candidate(client_hash, at)[0]
+
+
+def login_candidate(client_hash, at, name=None):
     with _connection("administration") as db:
-        db.execute(
-            "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))", (client_hash,)
+        cursor = db.execute(
+            """SELECT pg_advisory_xact_lock(hashtextextended(%s,0));
+            DELETE FROM chatbot.login_attempts WHERE client_hash=%s AND attempted_at<=%s;
+            SELECT count(*) AS n FROM chatbot.login_attempts WHERE client_hash=%s;
+            SELECT * FROM chatbot.users WHERE name=%s""",
+            (client_hash, client_hash, at - 300, client_hash, name),
         )
-        db.execute(
-            "DELETE FROM chatbot.login_attempts WHERE client_hash=%s AND attempted_at<=%s",
-            (client_hash, at - 300),
-        )
-        return (
-            db.execute(
-                "SELECT count(*) AS n FROM chatbot.login_attempts WHERE client_hash=%s",
-                (client_hash,),
-            ).fetchone()["n"]
-            < 10
-        )
+        cursor.nextset()
+        cursor.nextset()
+        allowed = cursor.fetchone()["n"] < 10
+        cursor.nextset()
+        return allowed, cursor.fetchone()
 
 
 def record_login_failure(client_hash, at):
@@ -220,13 +268,6 @@ def record_login_failure(client_hash, at):
         )
 
 
-def clear_login_failures(client_hash):
-    with _connection("administration") as db:
-        db.execute(
-            "DELETE FROM chatbot.login_attempts WHERE client_hash=%s", (client_hash,)
-        )
-
-
 def get_setting(key, default=None):
     with _connection() as db:
         row = db.execute(
@@ -236,10 +277,24 @@ def get_setting(key, default=None):
 
 
 def set_setting(key, value):
+    set_settings({key: value})
+
+
+def get_settings_values(defaults):
+    with _connection() as db:
+        rows = db.execute(
+            "SELECT key,value FROM chatbot.settings WHERE key=ANY(%s)", (list(defaults),)
+        ).fetchall()
+    return defaults | {row["key"]: json.loads(row["value"]) for row in rows}
+
+
+def set_settings(values):
     with _connection("administration") as db:
         db.execute(
-            "INSERT INTO chatbot.settings VALUES(%s,%s) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-            (key, json.dumps(value)),
+            """INSERT INTO chatbot.settings(key,value)
+            SELECT key,value FROM jsonb_each_text(%s::jsonb)
+            ON CONFLICT(key) DO UPDATE SET value=excluded.value""",
+            (json.dumps({key: json.dumps(value) for key, value in values.items()}),),
         )
 
 
@@ -258,6 +313,112 @@ def versions():
     return [decode_version(r) for r in rows]
 
 
+_VERSION_SUMMARY = """SELECT id,namespace,status,created_at,manifest,error,
+    COALESCE((manifest::json->>'chunk_count')::integer,
+             json_array_length(records::json)) AS chunk_count FROM chatbot.versions"""
+
+_JOB_SUMMARY = """SELECT id,kind,status,payload,progress,error,created_at,updated_at,
+    result IS NOT NULL AS has_result,
+    CASE WHEN json_typeof(result::json->'cases')='array'
+         THEN json_array_length(result::json->'cases') END AS result_case_count
+    FROM chatbot.jobs"""
+
+
+_VERSION_JSON = "to_jsonb(item) || jsonb_build_object('manifest',item.manifest::jsonb)"
+_JOB_JSON = """to_jsonb(item) || jsonb_build_object(
+    'payload',item.payload::jsonb,'progress',item.progress::jsonb)"""
+_CONVERSATION_JSON = """to_jsonb(item) || jsonb_build_object(
+    'usage',COALESCE(NULLIF(item.usage,'')::jsonb,'{}'::jsonb))"""
+_PUBLISHED = "(SELECT value::jsonb FROM chatbot.settings WHERE key='published_version')"
+_WHATSAPP_JSON = """jsonb_build_object(
+    'queue',(SELECT COALESCE(jsonb_object_agg(status,n),'{}'::jsonb) FROM (
+        SELECT status,count(*) AS n FROM chatbot.whatsapp_inbox
+        WHERE session=%(session)s GROUP BY status) counts),
+    'last_received_at',(SELECT MAX(created_at) FROM chatbot.whatsapp_inbox WHERE session=%(session)s),
+    'last_sent_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_inbox WHERE session=%(session)s AND status='sent'),
+    'last_ack_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_receipts))"""
+
+_ADMIN_READS = {
+    "me": "'{}'::jsonb",
+    "whatsapp": _WHATSAPP_JSON,
+    "versions": f"""jsonb_build_object('published',{_PUBLISHED},'versions',
+        (SELECT COALESCE(jsonb_agg({_VERSION_JSON}),'[]'::jsonb)
+         FROM ({_VERSION_SUMMARY} ORDER BY created_at DESC) item))""",
+    "settings": """(SELECT COALESCE(jsonb_object_agg(key,value::jsonb),'{}'::jsonb)
+        FROM chatbot.settings WHERE key IN ('openrouter_model','eval_model','semantic_top_k'))""",
+    "conversations": f"""(SELECT COALESCE(jsonb_agg({_CONVERSATION_JSON}),'[]'::jsonb)
+        FROM (SELECT * FROM chatbot.conversations
+              WHERE (%(channel)s::text IS NULL OR channel=%(channel)s)
+              ORDER BY id DESC LIMIT 200) item)""",
+    "jobs": f"""(SELECT COALESCE(jsonb_agg({_JOB_JSON}),'[]'::jsonb)
+        FROM ({_JOB_SUMMARY} ORDER BY created_at DESC LIMIT 100) item)""",
+    "job": f"""(SELECT {_JOB_JSON} || jsonb_build_object('result',item.result::jsonb)
+        FROM chatbot.jobs item WHERE id=%(job_id)s)""",
+    "overview": f"""jsonb_build_object(
+        'conversations',(SELECT count(*) FROM chatbot.conversations),
+        'whatsapp_messages',(SELECT count(*) FROM chatbot.conversations WHERE channel='whatsapp'),
+        'average_latency',(SELECT round(avg(NULLIF(latency,0))::numeric,2) FROM chatbot.conversations),
+        'recent',(SELECT COALESCE(jsonb_agg({_CONVERSATION_JSON}),'[]'::jsonb)
+            FROM (SELECT * FROM chatbot.conversations ORDER BY id DESC LIMIT 8) item),
+        'published',(SELECT {_VERSION_JSON} FROM ({_VERSION_SUMMARY}
+            WHERE id=({_PUBLISHED} #>> '{{}}')) item),
+        'jobs',(SELECT COALESCE(jsonb_agg({_JOB_JSON}),'[]'::jsonb)
+            FROM ({_JOB_SUMMARY} ORDER BY created_at DESC LIMIT 8) item))""",
+}
+
+
+def admin_snapshot(token_hash, at, view, channel=None, job_id=None, session=None):
+    """Authenticate and read one snapshot using the pooler's simple query protocol."""
+    expression = _ADMIN_READS[view]
+    open_pool()
+    started = time.perf_counter()
+    phase = "acquire"
+    try:
+        with _pool.connection() as db:
+            acquired = time.perf_counter()
+            phase = "snapshot"
+            cursor = db.execute(
+                "BEGIN READ ONLY; " + _TRANSACTION_SETUP + ";"
+                "WITH valid_session AS MATERIALIZED (SELECT csrf FROM chatbot.sessions "
+                "WHERE token_hash=%(token_hash)s AND expires>%(at)s) "
+                "SELECT csrf," + expression + " AS data FROM valid_session; COMMIT",
+                {"token_hash": token_hash, "at": at, "channel": channel, "job_id": job_id, "session": session},
+            )
+            for _ in range(4):
+                cursor.nextset()
+            row = cursor.fetchone()
+        db._admin_last_used = time.monotonic()
+    except (psycopg.Error, PoolTimeout) as error:
+        logging.getLogger(__name__).warning(
+            "Database failure phase=%s error=%s sqlstate=%s elapsed_ms=%.1f pool=%s",
+            phase, type(error).__name__, error.sqlstate,
+            (time.perf_counter() - started) * 1000, pool_stats(),
+        )
+        raise StateUnavailable(
+            "Administration database is unavailable; inspect the private backend log."
+        ) from None
+    if row is not None:
+        row["timing"] = {
+            "db_acquire": (acquired - started) * 1000,
+            "db_read": (time.perf_counter() - acquired) * 1000,
+        }
+    return row
+
+
+def pool_stats():
+    return _pool.get_stats() if _pool is not None else {}
+
+
+def backfill_version_counts():
+    with _connection("administration") as db:
+        return db.execute(
+            """UPDATE chatbot.versions SET manifest=jsonb_set(manifest::jsonb,
+            '{chunk_count}',to_jsonb(json_array_length(records::json)))::text
+            WHERE manifest::jsonb->'chunk_count' IS DISTINCT FROM
+                to_jsonb(json_array_length(records::json))"""
+        ).rowcount
+
+
 def version(version_id=None):
     version_id = version_id or get_setting("published_version")
     with _connection() as db:
@@ -269,7 +430,22 @@ def version(version_id=None):
     return decode_version(row)
 
 
+def version_info(version_id=None, *, namespace=None):
+    column, value = ("namespace", namespace) if namespace else (
+        "id", version_id or get_setting("published_version")
+    )
+    with _connection() as db:
+        row = db.execute(_VERSION_SUMMARY + f" WHERE {column}=%s", (value,)).fetchone()
+    if not row:
+        raise ValueError("Knowledge version not found.")
+    return dict(row, manifest=json.loads(row["manifest"]))
+
+
 def save_version(item):
+    records = item["records"]
+    if (item["manifest"].get("embedding") or {}).get("provider") == "openrouter":
+        # Remote vectors belong in Pinecone; duplicating them makes state transfers enormous.
+        records = [{key: value for key, value in record.items() if key != "embedding"} for record in records]
     with _connection("administration") as db:
         db.execute(
             """INSERT INTO chatbot.versions(id,namespace,status,created_at,manifest,records,error)
@@ -281,8 +457,8 @@ def save_version(item):
                 item["namespace"],
                 item["status"],
                 item["created_at"],
-                json.dumps(item["manifest"]),
-                json.dumps(item["records"]),
+                json.dumps(dict(item["manifest"], chunk_count=len(item["records"]))),
+                json.dumps(records),
                 item.get("error"),
             ),
         )
@@ -291,10 +467,12 @@ def save_version(item):
 def publish(version_id):
     with _connection("administration") as db:
         row = db.execute(
-            "SELECT status FROM chatbot.versions WHERE id=%s FOR UPDATE", (version_id,)
+            "SELECT status,manifest FROM chatbot.versions WHERE id=%s FOR UPDATE", (version_id,)
         ).fetchone()
         if not row or row["status"] not in ("ready", "published"):
             raise ValueError("Only fully indexed, ready versions can be published.")
+        from app.backend.vectorstore import require_compatible_version
+        require_compatible_version({"manifest": json.loads(row["manifest"])})
         db.execute(
             "UPDATE chatbot.versions SET status='ready' WHERE status='published'"
         )
@@ -369,15 +547,24 @@ def list_job_rows(limit=100):
         rows = db.execute(
             "SELECT * FROM chatbot.jobs ORDER BY created_at DESC LIMIT %s", (limit,)
         ).fetchall()
-    return [
-        dict(
-            r,
-            payload=json.loads(r["payload"]),
-            result=json.loads(r["result"]) if r["result"] else None,
-            progress=json.loads(r["progress"]),
-        )
-        for r in rows
-    ]
+    return [_decode_job(row) for row in rows]
+
+
+def _decode_job(row):
+    item = dict(
+        row, payload=json.loads(row["payload"]), progress=json.loads(row["progress"])
+    )
+    if "result" in item:
+        item["result"] = json.loads(item["result"]) if item["result"] else None
+    return item
+
+
+def job(identifier):
+    with _connection() as db:
+        row = db.execute(
+            "SELECT * FROM chatbot.jobs WHERE id=%s", (identifier,)
+        ).fetchone()
+    return _decode_job(row) if row else None
 
 
 def create_job_row(identifier, kind, payload):
@@ -525,21 +712,5 @@ def record_ack(message_id, ack):
 
 def whatsapp_observations(session):
     with _connection() as db:
-        counts = db.execute(
-            "SELECT status,count(*) AS n FROM chatbot.whatsapp_inbox WHERE session=%s GROUP BY status",
-            (session,),
-        ).fetchall()
-        times = db.execute(
-            "SELECT MAX(created_at) AS received,MAX(updated_at) FILTER(WHERE status='sent') AS sent FROM chatbot.whatsapp_inbox WHERE session=%s",
-            (session,),
-        ).fetchone()
-        ack = db.execute(
-            "SELECT MAX(updated_at) AS latest FROM chatbot.whatsapp_receipts"
-        ).fetchone()["latest"]
-    return dict(
-        queue={r["status"]: r["n"] for r in counts},
-        last_received_at=times["received"],
-        last_sent_at=times["sent"],
-        last_ack_at=ack,
-        checked_at=now(),
-    )
+        data = db.execute("SELECT " + _WHATSAPP_JSON + " AS data", {"session": session}).fetchone()["data"]
+    return dict(data, checked_at=now())

@@ -1,7 +1,6 @@
 """Versioned character chunking for draft knowledge; historical vectors stay intact."""
 
 import re
-from functools import lru_cache
 
 from langchain_core.documents import Document
 from langchain_text_splitters import (
@@ -9,7 +8,6 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 from pydantic import BaseModel, Field, model_validator
-from transformers import AutoTokenizer
 
 
 class Chunking(BaseModel):
@@ -25,13 +23,6 @@ class Chunking(BaseModel):
 
 LEGACY = {"chunk_size": 1500, "chunk_overlap": 200, "preprocessing": "legacy"}
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
-
-
-@lru_cache(maxsize=1)
-def tokenizer():
-    return AutoTokenizer.from_pretrained(
-        "intfloat/multilingual-e5-small", local_files_only=True
-    )
 
 
 def split_document(document, config):
@@ -78,12 +69,11 @@ def split_document(document, config):
 
 
 def token_statistics(documents):
-    lengths = [
-        len(tokenizer().encode("passage: " + doc.page_content, truncation=False))
-        for doc in documents
-    ]
+    # A conservative UTF-8 bound avoids shipping a local inference/tokenizer stack.
+    lengths = [len(doc.page_content.encode("utf-8")) + 64 for doc in documents]
     return {
-        "embedding_token_limit": 512,
+        "embedding_token_limit": 32768,
         "max_tokens": max(lengths, default=0),
-        "over_limit": sum(length > 512 for length in lengths),
+        "over_limit": sum(length > 32768 for length in lengths),
+        "token_count_method": "utf8_upper_bound",
     }

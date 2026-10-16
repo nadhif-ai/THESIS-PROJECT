@@ -10,7 +10,8 @@ from langchain_core.documents import Document
 from app.admin import store
 from app.admin.chunking import Chunking, LEGACY, split_document, token_statistics
 from app.backend.loader import _load_csv_file
-from app.backend.models import get_embedding_model
+from app.backend.models import get_embedding_model, embedding_identity
+from app.config.settings import get_settings
 from app.backend.vectorstore import ingest_records
 
 _lock = threading.RLock()
@@ -93,6 +94,8 @@ def new_draft(base_id=None):
             "manifest": {
                 "files": list(source["manifest"]["files"]),
                 "base": source["id"],
+                "embedding": source["manifest"].get("embedding"),
+                "vector_index": source["manifest"].get("vector_index"),
                 "chunking": dict(
                     Chunking(
                         **(
@@ -117,6 +120,8 @@ def new_draft(base_id=None):
 
 def editable(version_id):
     item = store.version(version_id)
+    if item["manifest"].get("archived"):
+        raise ValueError("Historical versions are read-only. Create a new draft to edit this knowledge.")
     if item["status"] not in ("draft", "failed"):
         raise ValueError("Create a new draft to edit an indexed or published version.")
     return item
@@ -196,9 +201,11 @@ def index_version(version_id):
     try:
         previous = {r["id"]: r for r in item["records"]}
         # Fingerprints allow reuse of frozen vectors even when Chroma used random IDs.
+        compatible = (item["manifest"].get("embedding") == embedding_identity() and
+                      item["manifest"].get("vector_index") == get_settings().pinecone_index_name)
         reusable = {
-            (r["metadata"].get("source"), r["document"]): r["embedding"]
-            for r in previous.values()
+            (r["metadata"].get("source"), r["document"]): r.get("embedding")
+            for r in previous.values() if compatible
         }
         config = Chunking(**item["manifest"].get("chunking", {}))
         item["manifest"]["chunking"] = dict(
@@ -238,7 +245,7 @@ def index_version(version_id):
         statistics = token_statistics(documents)
         if statistics["over_limit"]:
             raise ValueError(
-                f"{statistics['over_limit']} passages exceed the 512-token embedding limit. Reduce chunk size before indexing."
+                f"{statistics['over_limit']} passages exceed the conservative embedding input bound. Reduce chunk size before indexing."
             )
         item["manifest"]["index_statistics"] = statistics
         item["manifest"]["file_sha256"] = hashes
@@ -249,9 +256,13 @@ def index_version(version_id):
             vectors = get_embedding_model().embed_documents(
                 [r["document"] for r in pending]
             )
+            if len(vectors) != len(pending):
+                raise ValueError("Embedding provider returned an incomplete batch.")
             for record, vector in zip(pending, vectors):
                 record["embedding"] = vector
         ingest_records(records, item["namespace"])
+        item["manifest"]["embedding"] = embedding_identity()
+        item["manifest"]["vector_index"] = get_settings().pinecone_index_name
         item["records"] = records
         item["status"] = "ready"
         item["error"] = None
