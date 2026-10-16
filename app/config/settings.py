@@ -16,7 +16,7 @@ class Settings(BaseSettings):
         openrouter_api_key     : API Key rahasia untuk mengakses layanan OpenRouter.
         openrouter_model       : nama model LLM yang digunakan melalui OpenRouter.
         openrouter_base_url    : URL endpoint API OpenRouter.
-        embedding_model        : nama model embedding HuggingFace yang digunakan.
+        embedding_model        : nama model embedding OpenRouter yang digunakan.
         chroma_persist_dir     : path folder penyimpanan database vektor ChromaDB.
         chroma_collection_name : nama koleksi di dalam ChromaDB.
         api_host               : alamat IP tempat server FastAPI berjalan.
@@ -30,7 +30,8 @@ class Settings(BaseSettings):
     openrouter_model: str = Field(default="google/gemini-2.5-flash")
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
-    embedding_model: str = Field(default="intfloat/multilingual-e5-small")
+    embedding_model: str = "nvidia/nemotron-3-embed-1b:free"
+    embedding_dimensions: int = Field(default=2048, ge=1)
 
     chroma_persist_dir: str = Field(default="./chroma_db")
     chroma_collection_name: str = "printing_knowledge_base"
@@ -51,7 +52,7 @@ class Settings(BaseSettings):
     waha_webhook_url: str = ""
     vector_store: Literal["pinecone", "chroma"] = "pinecone"
     pinecone_api_key: str = ""
-    pinecone_index_name: str = "chatbot-avg"
+    pinecone_index_name: str = "chatbot-nadhif"
     data_dir: str = "./data"
     database_url: str = Field(default="", repr=False)
     database_migration_url: str = Field(default="", repr=False)

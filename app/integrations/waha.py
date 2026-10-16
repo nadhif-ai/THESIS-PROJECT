@@ -262,7 +262,7 @@ async def webhook(request: Request):
     return {"status": "queued" if inserted else "duplicate"}
 
 
-def status():
+def status(observations=None):
     settings = get_settings()
     result = {
         "provider": settings.whatsapp_provider,
@@ -285,5 +285,6 @@ def status():
             )
         except (requests.RequestException, ValueError):
             result["session_status"] = "unreachable"
-        result.update(store.whatsapp_observations(settings.waha_session))
+        result.update(observations if observations is not None else store.whatsapp_observations(settings.waha_session))
+        result["checked_at"] = store.now()
     return result
