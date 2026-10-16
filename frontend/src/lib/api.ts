@@ -64,6 +64,19 @@ export async function api<T>(
       void invalidateAdmin("/evaluations/dataset");
     else if (path.startsWith("/evaluations"))
       void invalidateAdmin("/jobs", "/overview");
+    else if (path.startsWith("/whatsapp/")) {
+      await queryClient.cancelQueries({ queryKey: resourceKey("/whatsapp/status") });
+      if (requestCsrf && requestCsrf === csrf) {
+        if (path === "/whatsapp/replies") {
+          queryClient.setQueryData<WhatsAppStatus>(resourceKey("/whatsapp/status"),
+            (current) => current ? { ...current, bot_replies_enabled: data.bot_replies_enabled } : current);
+        } else if (path === "/whatsapp/attention/ignore") {
+          queryClient.setQueryData<WhatsAppStatus>(resourceKey("/whatsapp/status"),
+            (current) => current ? { ...current, ...data } : current);
+        }
+        void invalidateAdmin("/whatsapp/status", "/overview", "/conversations");
+      }
+    }
   }
   return data as T;
 }
@@ -177,6 +190,12 @@ export type WhatsAppStatus = {
   session_status?: string;
   engine?: string;
   worker_running: boolean;
+  bot_replies_enabled?: boolean;
+  attention?: {
+    failed: number;
+    uncertain: number;
+    items: { message_id: string; updated_at: string }[];
+  };
   credentials_configured?: boolean;
   webhook_configured?: boolean;
   webhook_url?: string | null;

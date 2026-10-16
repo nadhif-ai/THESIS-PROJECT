@@ -127,6 +127,11 @@ button,
   min-width: 44px;
   min-height: 44px;
 }
+[data-slot="switch"] {
+  /* The switch expands its hit area without enlarging its visible track. */
+  min-width: 0;
+  min-height: 0;
+}
 button,
 input,
 textarea,
@@ -922,7 +927,7 @@ select {
 }
 .queue-ledger {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 16px;
   padding: 20px 0;
   border-block: 1px solid var(--border);

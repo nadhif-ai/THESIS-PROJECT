@@ -119,9 +119,9 @@ export default function LandingPage() {
         <div className="landing-header-inner">
           <a className="landing-brand" href="/" aria-label="Asia Visual Grafika home"><img src={brandMark} width={40} height={40} alt="" /><span><strong>Asia Visual Grafika</strong><small>Chatbot workspace</small></span></a>
           <nav className="landing-desktop-nav" aria-label="Page sections">{navLinks}</nav>
-          <div className="landing-header-actions"><ThemeToggle /><a className="landing-sign-in" href="/admin/login">Sign in</a><Button asChild className="landing-header-cta"><a href="/admin/">Open dashboard</a></Button><Button ref={menuButton} variant="outline" className="landing-menu-toggle" aria-expanded={menuOpen} aria-controls="landing-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</Button></div>
+          <div className="landing-header-actions"><ThemeToggle /><a className="landing-sign-in" href="/admin/login">Sign in</a><Button asChild className="landing-header-cta"><a href="/admin/dashboard">Open dashboard</a></Button><Button ref={menuButton} variant="outline" className="landing-menu-toggle" aria-expanded={menuOpen} aria-controls="landing-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</Button></div>
         </div>
-        <nav className="landing-mobile-nav" id="landing-mobile-nav" aria-label="Mobile page navigation" hidden={!menuOpen}>{navLinks}<a href="/admin/login">Sign in</a><a href="/admin/">Open dashboard</a></nav>
+        <nav className="landing-mobile-nav" id="landing-mobile-nav" aria-label="Mobile page navigation" hidden={!menuOpen}>{navLinks}<a href="/admin/login">Sign in</a><a href="/admin/dashboard">Open dashboard</a></nav>
       </header>
 
       <main id="landing-main" tabIndex={-1}>
@@ -129,7 +129,7 @@ export default function LandingPage() {
           <div className="landing-hero-copy">
             <h1 id="hero-title">Good answers begin with <span>your knowledge.</span></h1>
             <p>The workspace behind Asia Visual Grafika’s WhatsApp support. Prepare printing guidance, check the evidence behind an answer, and review what customers receive.</p>
-            <div className="landing-actions"><Button asChild><a href="/admin/">Open your workspace</a></Button><a className="landing-text-link" href="#workflow">See the workflow</a></div>
+            <div className="landing-actions"><Button asChild><a href="/admin/dashboard">Open your workspace</a></Button><a className="landing-text-link" href="#workflow">See the workflow</a></div>
             <p className="landing-access-note">Built for administrators. Customers stay on WhatsApp.</p>
           </div>
           <div className="landing-hero-preview" id="workspace">
@@ -216,7 +216,7 @@ export default function LandingPage() {
           </ol>
         </section>
 
-        <section className="landing-workspace-cta landing-container" aria-labelledby="workspace-cta-title"><h2 id="workspace-cta-title">Give the next answer<br /><span>a good place to start.</span></h2><div><p>Prepare a knowledge version, test a customer question, or pick up a reply that needs review.</p><div className="landing-actions"><Button asChild><a href="/admin/">Enter the workspace</a></Button><a className="landing-text-link" href="/admin/login">Sign in to your account</a></div><p className="landing-access-note">Administrator access. Orders and payments stay with the shop team.</p></div></section>
+        <section className="landing-workspace-cta landing-container" aria-labelledby="workspace-cta-title"><h2 id="workspace-cta-title">Give the next answer<br /><span>a good place to start.</span></h2><div><p>Prepare a knowledge version, test a customer question, or pick up a reply that needs review.</p><div className="landing-actions"><Button asChild><a href="/admin/dashboard">Enter the workspace</a></Button><a className="landing-text-link" href="/admin/login">Sign in to your account</a></div><p className="landing-access-note">Administrator access. Orders and payments stay with the shop team.</p></div></section>
       </main>
 
       <footer className="landing-footer landing-container"><div><strong>Asia Visual Grafika</strong><span>Printing guidance, ready for review.</span></div><a href="#top">Back to top</a></footer>

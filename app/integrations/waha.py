@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import threading
+from contextlib import contextmanager
 
 import requests
 from fastapi import APIRouter, HTTPException, Request
@@ -46,7 +47,7 @@ def api(method, path, payload=None, timeout=30):
                 f"WAHA returned HTTP {response.status_code}; delivery may be uncertain."
             )
         raise ValueError(f"WAHA returned HTTP {response.status_code}.")
-    return response.json()
+    return response.json() if response.content else {}
 
 
 def initialize():
@@ -132,29 +133,52 @@ def send_reply(row):
     update(row, status="uncertain" if media_uncertain else "sent", reply_ids=json.dumps(replies), error=media_error)
 
 
+def _typing(row, action):
+    try:
+        api("POST", "/api/" + action,
+            {"session": row["session"], "chatId": row["sender"]}, timeout=3)
+    except (requests.RequestException, ValueError) as error:
+        logger.warning("WAHA presence action=%s failed error=%s; message processing continues.",
+                       action, type(error).__name__)
+
+
+@contextmanager
+def typing_indicator(row):
+    enabled = get_settings().waha_typing_enabled
+    if enabled:
+        _typing(row, "startTyping")
+    try:
+        yield
+    finally:
+        if enabled:
+            _typing(row, "stopTyping")
+
+
 def process(row):
     from app.dependencies import get_rag_chain
 
     try:
-        if not row["answer"]:
-            update(row, status="generating")
-            # Keep previous Fonnte customer history when WAHA supplies a phone JID.
-            session_id = "wa_" + row["sender"].removesuffix("@c.us")
-            response = get_rag_chain().run(
-                question=row["body"],
-                session_id=session_id,
-                channel="whatsapp",
-            )
-            answer = plain_text(response.answer)
-            if response.error:
-                answer = "Maaf Kak, sedang ada gangguan teknis. Silakan coba lagi sebentar ya."
-            row = dict(
-                row,
-                answer=answer,
-                media_url=response.media_url if not response.error else None,
-            )
-            update(row, answer=row["answer"], media_url=row["media_url"])
-        update(row, status="sending")
+        with typing_indicator(row):
+            if not row["answer"]:
+                update(row, status="generating")
+                # Keep previous Fonnte customer history when WAHA supplies a phone JID.
+                session_id = "wa_" + row["sender"].removesuffix("@c.us")
+                response = get_rag_chain().run(
+                    question=row["body"],
+                    session_id=session_id,
+                    channel="whatsapp",
+                )
+                answer = plain_text(response.answer)
+                if response.error:
+                    answer = "Maaf Kak, sedang ada gangguan teknis. Silakan coba lagi sebentar ya."
+                row = dict(
+                    row,
+                    answer=answer,
+                    media_url=response.media_url if not response.error else None,
+                )
+                update(row, answer=row["answer"], media_url=row["media_url"])
+            if not store.begin_inbox_send(row["session"], row["message_id"]):
+                return
         send_reply(row)
     except requests.RequestException as error:
         update(
