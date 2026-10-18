@@ -170,6 +170,33 @@ def test_cleanup_rechecks_a_blob_registered_after_candidate_selection(pg_live):
     assert kb_store.blob(identifier)["removed_at"] is None
 
 
+@pytest.mark.parametrize("message", ["Namespace not found", "Index not found"])
+def test_cleanup_only_accepts_an_already_missing_namespace(monkeypatch, message):
+    from pinecone.exceptions import NotFoundException
+
+    error = NotFoundException(status=404, reason="Not Found")
+    error.body = json.dumps({"code": 5, "message": message})
+
+    def missing(**kwargs):
+        raise error
+
+    finished = []
+    monkeypatch.setattr(kb, "get_vectorstore", lambda: SimpleNamespace(delete=missing))
+    monkeypatch.setattr(
+        kb_store,
+        "garbage_candidates",
+        lambda _: ([{"id": "old-empty", "namespace": "kb-old-empty"}], []),
+    )
+    monkeypatch.setattr(kb_store, "finish_deletion", lambda **kw: finished.append(kw))
+    if message == "Namespace not found":
+        assert kb.cleanup()
+        assert finished == [{"snapshot_id": "old-empty"}]
+    else:
+        with pytest.raises(NotFoundException):
+            kb.cleanup()
+        assert not finished
+
+
 def test_failed_sync_keeps_active_and_can_resume_without_reembedding(
     pg_live, providers, monkeypatch
 ):

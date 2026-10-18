@@ -323,12 +323,19 @@ def sync_step(identifier, checkpoint, token):
 
 
 def cleanup():
+    from pinecone.exceptions import NotFoundException
+
     # The grace period exceeds request execution; unfinished evaluations pin snapshots.
     snapshots, blobs = kb_store.garbage_candidates(get_settings().pinecone_index_name)
     for row in snapshots:
-        get_vectorstore().delete(
-            delete_all=True, namespace=row["namespace"], _request_timeout=30
-        )
+        try:
+            get_vectorstore().delete(
+                delete_all=True, namespace=row["namespace"], _request_timeout=30
+            )
+        except NotFoundException as error:
+            # Empty syncs never create a namespace; redelivery can also find it gone.
+            if "namespace not found" not in str(error.body).lower():
+                raise
         kb_store.finish_deletion(snapshot_id=row["id"])
     for row in blobs:
         if kb_store.claim_blob_deletion(row["id"]):
