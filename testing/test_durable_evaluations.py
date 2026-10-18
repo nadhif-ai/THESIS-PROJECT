@@ -136,6 +136,43 @@ def test_submission_captures_reference_rows_and_latest_active(pg_live, monkeypat
     checkpoint = kb_store.work(identifier)["checkpoint"]
     assert checkpoint["rows"][0]["question"] == "Captured"
     assert checkpoint["snapshot"]["id"] == "active"
+    assert checkpoint["evaluation_recipe"] == "chunking-fact-coverage-v1"
+
+
+def test_new_recipe_saves_four_measures_with_no_paid_judge(pg_live, monkeypatch):
+    from testing.evals.calculations import RECIPE, passage_key, question_key, retrieval_manifest
+
+    seed()
+    module, calls = setup_runtime(monkeypatch)
+    context = {"text": "Synthetic evidence", "metadata": {}}
+    manifest = retrieval_manifest([context])
+    row = {"id": "q1", "question": "Synthetic question", "ground_truth": "Synthetic reference",
+           "retrieval_annotations": {
+               "snapshot_sha256": manifest["snapshot_sha256"],
+               "question_sha256": question_key("Synthetic question"),
+               "facts": [{"id": "fact", "text": "Synthetic reference fact"}],
+               "passages": {passage_key(context): {"relevant": True, "fact_ids": ["fact"]}},
+           }}
+    monkeypatch.setattr(module, "load_cases", lambda *args: [row])
+    monkeypatch.setattr(module.durable_jobs, "dispatch", lambda identifier: None)
+
+    class Metric:
+        threshold = 0.7
+
+        def __init__(self, name): self.__name__ = name
+        def measure(self, case): self.score, self.reason = 0.8, "Offline judge score"
+        def is_successful(self): return True
+
+    monkeypatch.setattr(module, "single_turn_metrics", lambda *args: [Metric("Faithfulness"), Metric("Answer Relevancy")])
+    identifier = module.submit("audited", 1)["job_id"]
+    for sequence in range(5): durable_jobs.consume(identifier, sequence)
+    result = store.evaluation_result(identifier)
+    assert len(calls) == 1
+    assert result["evaluation_recipe"] == RECIPE
+    assert result["averages"]["Precision@k"] == 1 / get_settings().semantic_top_k
+    assert result["averages"]["Fact Coverage@k"] == 1
+    assert set(result["averages"]) == {"Faithfulness", "Answer Relevancy", "Precision@k", "Fact Coverage@k"}
+    assert result["cases"][0]["metrics"][3]["calculation"]["numerator"] == 1
 
 
 def test_prompt_snapshot_survives_save_restart_and_multiple_answer_steps(pg_live, monkeypatch):

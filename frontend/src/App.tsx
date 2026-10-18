@@ -38,6 +38,7 @@ import {
 } from "@/lib/query-client";
 import { prefetchResource, useResource } from "@/hooks/use-resource";
 import { KnowledgePage } from "@/components/knowledge-page";
+import { EvaluationMath, EvaluationMethodGuide, MetricMath } from "@/components/evaluation-math";
 import type { KnowledgeCatalog } from "@/components/knowledge-page";
 import type {
   AdminSession,
@@ -1841,7 +1842,7 @@ function Evaluations() {
     (kind === "audited" ? qa.data?.reviewed : dataset.data?.reviewed);
   const needsAttention = (row: EvaluationResult["cases"][number]) =>
     !!row.error ||
-    row.metrics.some((metric) => metric.error || metric.passed === false);
+    row.metrics.some((metric) => metric.error || metric.status === "unavailable" || metric.passed === false);
   const resultCases =
     result?.cases.filter(
       (row) => resultFilter === "all" || needsAttention(row),
@@ -2108,6 +2109,7 @@ function Evaluations() {
         title="Evaluation history"
         description="Inspect case scores, download results, and open the corresponding LangSmith experiment."
       >
+        <EvaluationMethodGuide />
         {!resources.data ? (
           <Loading label="Loading evaluation history…" />
         ) : evaluationJobs.length ? (
@@ -2156,9 +2158,11 @@ function Evaluations() {
               <div className="evaluation-average" key={name}>
                 <strong>{percentage(score)}</strong>
                 <span>{name}</span>
+                <span>{result.cases.filter((row) => row.metrics.some((metric) => metric.name === name && metric.score != null)).length}/{result.cases.length} case scores</span>
               </div>
             ))}
           </div>
+          <EvaluationMath result={result} />
           <Field className="mt-5 max-w-xs">
             <FieldLabel htmlFor="result-filter">Cases to inspect</FieldLabel>
             <NativeSelect
@@ -2220,9 +2224,11 @@ function Evaluations() {
                       ? "Answer error"
                       : row.metrics.some((metric) => metric.error)
                         ? "Scoring error"
+                        : row.metrics.some((metric) => metric.status === "unavailable")
+                          ? "Annotations needed"
                         : row.metrics.length === 0
                           ? "Not scored"
-                          : `${row.metrics.filter((metric) => metric.passed).length}/${row.metrics.length} metrics passed`}
+                          : `${row.metrics.filter((metric) => metric.passed).length}/${row.metrics.filter((metric) => metric.passed != null).length} threshold checks passed`}
                   </Badge>
                 </summary>
                 {row.answer && (
@@ -2267,10 +2273,12 @@ function Evaluations() {
                       <Badge variant={metric.error ? "destructive" : "outline"}>
                         {metric.error
                           ? "Scoring error"
+                          : metric.status === "unavailable" ? "Annotations needed"
                           : percentage(metric.score)}
                       </Badge>
                     </summary>
                     <p>{metric.reason || metric.error}</p>
+                    <MetricMath metric={metric} />
                   </details>
                 ))}
               </details>
