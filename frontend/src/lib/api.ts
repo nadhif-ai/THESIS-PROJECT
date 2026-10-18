@@ -18,9 +18,14 @@ export async function api<T>(
 ): Promise<T> {
   const headers = new Headers(options.headers);
   const requestCsrf = csrf;
-  const read = ["GET", "HEAD"].includes((options.method || "GET").toUpperCase());
+  const read = ["GET", "HEAD"].includes(
+    (options.method || "GET").toUpperCase(),
+  );
   const signal = read
-    ? AbortSignal.any([...(options.signal ? [options.signal] : []), AbortSignal.timeout(20_000)])
+    ? AbortSignal.any([
+        ...(options.signal ? [options.signal] : []),
+        AbortSignal.timeout(20_000),
+      ])
     : options.signal;
   if (!(options.body instanceof FormData) && options.body)
     headers.set("Content-Type", "application/json");
@@ -50,29 +55,42 @@ export async function api<T>(
     throw new Error(
       "The server returned an unreadable response. Refresh this page and try again.",
     );
-  if (options.method && !["GET", "HEAD", "OPTIONS"].includes(options.method.toUpperCase())) {
-    if (path.startsWith("/versions"))
+  if (
+    options.method &&
+    !["GET", "HEAD", "OPTIONS"].includes(options.method.toUpperCase())
+  ) {
+    if (path.startsWith("/knowledge") || path.startsWith("/jobs/"))
+      void invalidateAdmin("/knowledge", "/overview", "/jobs");
+    else if (path.startsWith("/versions"))
       void invalidateAdmin("/versions", "/overview", "/jobs");
     else if (path === "/settings") {
       await queryClient.cancelQueries({ queryKey: resourceKey(path) });
       if (requestCsrf && requestCsrf === csrf)
         queryClient.setQueryData(resourceKey(path), data);
-    }
-    else if (path === "/playground")
+    } else if (path === "/playground")
       void invalidateAdmin("/conversations", "/overview");
     else if (path.startsWith("/evaluations/dataset"))
       void invalidateAdmin("/evaluations/dataset");
     else if (path.startsWith("/evaluations"))
       void invalidateAdmin("/jobs", "/overview");
     else if (path.startsWith("/whatsapp/")) {
-      await queryClient.cancelQueries({ queryKey: resourceKey("/whatsapp/status") });
+      await queryClient.cancelQueries({
+        queryKey: resourceKey("/whatsapp/status"),
+      });
       if (requestCsrf && requestCsrf === csrf) {
         if (path === "/whatsapp/replies") {
-          queryClient.setQueryData<WhatsAppStatus>(resourceKey("/whatsapp/status"),
-            (current) => current ? { ...current, bot_replies_enabled: data.bot_replies_enabled } : current);
+          queryClient.setQueryData<WhatsAppStatus>(
+            resourceKey("/whatsapp/status"),
+            (current) =>
+              current
+                ? { ...current, bot_replies_enabled: data.bot_replies_enabled }
+                : current,
+          );
         } else if (path === "/whatsapp/attention/ignore") {
-          queryClient.setQueryData<WhatsAppStatus>(resourceKey("/whatsapp/status"),
-            (current) => current ? { ...current, ...data } : current);
+          queryClient.setQueryData<WhatsAppStatus>(
+            resourceKey("/whatsapp/status"),
+            (current) => (current ? { ...current, ...data } : current),
+          );
         }
         void invalidateAdmin("/whatsapp/status", "/overview", "/conversations");
       }
@@ -89,6 +107,7 @@ export type Version = {
   status: string;
   created_at: string;
   manifest: {
+    synced_at?: string;
     archived?: boolean;
     files: string[];
     index_statistics?: {
@@ -156,6 +175,8 @@ export type EvaluationResult = {
   }[];
 };
 export type Job = {
+  resumable?: boolean;
+  dispatch_error?: string | null;
   id: string;
   kind: string;
   status: string;
@@ -179,6 +200,8 @@ export type Job = {
     metric?: string | null;
     metrics_completed?: number;
     metrics_total?: number;
+    feedback_completed?: number;
+    feedback_total?: number;
     errors?: number;
   };
   error?: string;

@@ -65,4 +65,6 @@ def run(identifier, kind, payload):
 
 
 def stop():
+    from app.admin import durable_jobs
+    durable_jobs.stop()
     _worker.shutdown(wait=True)

@@ -14,7 +14,9 @@ def test_services_build_includes_python_subscriber_configuration():
     assert config["regions"] == ["bom1"]
     assert config["services"]["backend"]["entrypoint"] == "pyproject.toml"
     assert python["entrypoint"] == "app.main:app"
-    assert {s["entrypoint"] for s in python["subscribers"]} == {"app.integrations.waha_queue"}
+    assert {s["entrypoint"] for s in python["subscribers"]} == {
+        "app.integrations.waha_queue", "app.integrations.admin_queue"
+    }
 
 
 def test_authenticated_api_and_webhooks_route_before_frontend_catchall():

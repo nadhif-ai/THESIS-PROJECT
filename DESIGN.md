@@ -274,7 +274,7 @@ Keep the sign-in story beside a single focused form on wide screens and stack th
 
 - **Do** keep the proof record's version, state, evidence, and next action together.
 - **Do** show recorded counts, current phase, and observed check times where they exist; keep unavailable values explicit.
-- **Do** carry the selected knowledge version into Playground and keep publication behind a clear review confirmation.
+- **Do** use one knowledge source list with a prominent Sync knowledge action. Show pending changes, edit locking and observed progress. Playground and new evaluations always use synchronized knowledge; snapshot IDs belong to read-only result provenance.
 - **Do** show loading, empty, and retryable error states with plain task language.
 - **Do** keep provider configuration, session state, worker state, queue state, and delivery results distinguishable.
 - **Do** keep evaluation references and per-case metrics readable beside each case.

@@ -48,7 +48,7 @@ def split_document(document, config):
         prefix = " > ".join(headings)
         prefix = prefix + "\n\n" if prefix else ""
         budget = config.chunk_size - len(prefix)
-        if budget <= config.chunk_overlap:
+        if budget - config.chunk_overlap < 50:
             raise ValueError(
                 "A section heading is too long for this chunk configuration."
             )

@@ -19,3 +19,6 @@ entrypoint = "app.main:app"
 
 [[tool.vercel.subscribers]]
 entrypoint = "app.integrations.waha_queue"
+
+[[tool.vercel.subscribers]]
+entrypoint = "app.integrations.admin_queue"

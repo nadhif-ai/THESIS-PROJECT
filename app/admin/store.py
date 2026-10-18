@@ -181,7 +181,7 @@ def check_ready():
             "SELECT value FROM chatbot.settings WHERE key='published_version'"
         ).fetchone()
         if not row:
-            raise StateUnavailable("Import administration data before startup.")
+            return
         item = db.execute(
             "SELECT 1 FROM chatbot.versions WHERE id=%s AND status='published'",
             (json.loads(row["value"]),),
@@ -352,6 +352,8 @@ _VERSION_SUMMARY = """SELECT id,namespace,status,created_at,manifest,error,
              json_array_length(records::json)) AS chunk_count FROM chatbot.versions"""
 
 _JOB_SUMMARY = """SELECT id,kind,status,payload,progress,error,created_at,updated_at,
+    EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS resumable,
+    (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error,
     result IS NOT NULL AS has_result,
     CASE WHEN json_typeof(result::json->'cases')='array'
          THEN json_array_length(result::json->'cases') END AS result_case_count
@@ -364,6 +366,16 @@ _JOB_JSON = """to_jsonb(item) || jsonb_build_object(
 _CONVERSATION_JSON = """to_jsonb(item) || jsonb_build_object(
     'usage',COALESCE(NULLIF(item.usage,'')::jsonb,'{}'::jsonb))"""
 _PUBLISHED = "(SELECT value::jsonb FROM chatbot.settings WHERE key='published_version')"
+_KNOWLEDGE_CATALOG = f"""SELECT to_jsonb(state) || jsonb_build_object(
+    'sources',(SELECT COALESCE(jsonb_agg(to_jsonb(source)),'[]'::jsonb) FROM (
+        SELECT s.id,s.name,s.enabled,s.updated_at,b.format,b.size_bytes,b.sha256,
+        jsonb_array_length(b.pages) AS page_count FROM chatbot.knowledge_sources s
+        JOIN chatbot.knowledge_blobs b ON b.id=s.blob_id
+        WHERE s.deleted_at IS NULL ORDER BY lower(s.name)) source),
+    'active',(SELECT {_VERSION_JSON} FROM ({_VERSION_SUMMARY} WHERE id=({_PUBLISHED} #>> '{{}}')) item),
+    'active_expected',({_PUBLISHED} IS NOT NULL),
+    'pending',state.revision<>state.applied_revision) AS data
+    FROM chatbot.knowledge_state state WHERE state.id=1"""
 _WHATSAPP_JSON = """jsonb_build_object(
     'bot_replies_enabled',COALESCE((SELECT value::jsonb FROM chatbot.settings
         WHERE key='bot_replies_enabled'),'true'::jsonb),
@@ -385,6 +397,7 @@ _WHATSAPP_JSON = """jsonb_build_object(
 _ADMIN_READS = {
     "me": "'{}'::jsonb",
     "whatsapp": _WHATSAPP_JSON,
+    "knowledge": f"({_KNOWLEDGE_CATALOG})",
     "versions": f"""jsonb_build_object('published',{_PUBLISHED},'versions',
         (SELECT COALESCE(jsonb_agg({_VERSION_JSON}),'[]'::jsonb)
          FROM ({_VERSION_SUMMARY} ORDER BY created_at DESC) item))""",
