@@ -62,3 +62,15 @@ def test_old_worker_cannot_checkpoint_after_takeover(pg_live, monkeypatch):
     with pytest.raises(RuntimeError, match='lease expired'):
         kb_store.checkpoint('abandoned', 'old', {}, {}, done=True)
     assert kb_store.work('abandoned')['checkpoint']['result']['cases'] == [{'id': 'saved'}]
+
+
+def test_completed_evaluation_has_no_stall_or_resume_action(pg_live):
+    abandoned(pg_live)
+    with store._connection('execution') as db:
+        db.execute("UPDATE chatbot.jobs SET status='completed' WHERE id='abandoned'")
+        summary = db.execute(f"SELECT {store._JOB_JSON} AS data FROM ({store._JOB_SUMMARY}) item WHERE id='abandoned'").fetchone()['data']
+        detail = db.execute(f"SELECT {store._ADMIN_READS['job']} AS data", {'job_id': 'abandoned'}).fetchone()['data']
+    for item in (summary, detail):
+        assert item['status'] == 'completed'
+        assert item['execution']['stalled'] is False
+        assert item['resumable'] is False

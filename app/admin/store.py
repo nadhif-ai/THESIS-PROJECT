@@ -354,13 +354,15 @@ _VERSION_SUMMARY = """SELECT id,namespace,status,created_at,manifest,error,
 _JOB_EXECUTION = """(SELECT jsonb_build_object(
     'environment',w.environment,
     'lease_active',COALESCE(w.lease_until>now(),false),
-    'stalled',CASE WHEN w.lease_until IS NOT NULL THEN w.lease_until<now()
+    'stalled',chatbot.jobs.status IN ('queued','running') AND
+        CASE WHEN w.lease_until IS NOT NULL THEN w.lease_until<now()
         ELSE w.updated_at<now()-interval '5 minutes' END)
     FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id)"""
 
 _JOB_SUMMARY = f"""SELECT id,kind,status,payload,progress,error,created_at,updated_at,
     {_JOB_EXECUTION} AS execution,
-    EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS resumable,
+    EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id
+        AND chatbot.jobs.status<>'completed') AS resumable,
     (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error,
     result IS NOT NULL AS has_result,
     CASE WHEN json_typeof(result::json->'cases')='array'
@@ -426,7 +428,8 @@ _ADMIN_READS = {
         FROM ({_JOB_SUMMARY} ORDER BY created_at DESC LIMIT 100) item)""",
     "job": f"""(SELECT {_JOB_JSON} || jsonb_build_object('result',item.result::jsonb)
         FROM (SELECT chatbot.jobs.*, {_JOB_EXECUTION} AS execution,
-            EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS resumable,
+            EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id
+        AND chatbot.jobs.status<>'completed') AS resumable,
             (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error
             FROM chatbot.jobs WHERE id=%(job_id)s) item)""",
     "overview": f"""jsonb_build_object(
