@@ -42,8 +42,8 @@ evaluation results and their retrieval contexts remain available.
 - [x] Pin and checkpoint evaluation execution; preserve metrics and LangSmith.
 - [x] Replace version UI with the global source list; update Playground/evaluation.
 - [x] Test regression, concurrency, empty KB, retry and authenticated file access.
-- [ ] Migrate current active sources; verify new Pinecone namespace and retrieval.
-- [ ] Review production configuration and release evidence.
+- [x] Migrate current active sources; verify new Pinecone namespace and retrieval.
+- [x] Review production configuration and release evidence.
 
 ## Credentials
 
