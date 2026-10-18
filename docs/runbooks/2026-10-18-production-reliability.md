@@ -41,15 +41,30 @@ The answering pipeline itself was 7,243 ms before and 7,409 ms after for the add
 
 Raw sanitized timings are stored in ignored `data/diagnostics/2026-10-18-reliability-{baseline,improved}.json`.
 
+### Fresh WhatsApp delivery
+
+The user authorized a new test after the local backend was stopped. Two new messages arrived at 13:48 and 13:49 WIB. Both have execution leases, generated/sent timestamps, exactly one outgoing message identity, and delivery ACK 2. The address answer matches the Ciputat Timur and Pamulang addresses in source 01; the second answer asks the customer to contact an admin for unavailable thesis-printing prices. Neither is a technical-error fallback.
+
+| Stage | First message, seconds | Following message, seconds |
+| --- | ---: | ---: |
+| Webhook receipt to execution claim | 7.359 | 0.155 |
+| Claim to generated answer | 11.269 | 5.949 |
+| Sending to recorded success | 4.736 | 1.797 |
+| Webhook receipt to recorded success | 23.373 | 7.908 |
+
+These two samples demonstrate delivery without a local backend; they are not a p95 benchmark or a guarantee of subsecond RAG. The first claim delay includes queue dispatch and consumer startup, which were not separately measured. Sanitized evidence is in ignored `data/diagnostics/2026-10-18-reliability-whatsapp.json`.
+
 ## Verification
 
-- 133 offline regression tests passed against disposable UTF-8 PostgreSQL on port 54585; no production database is used by these fixtures. The suite covers auth/revocation, HMAC, deduplication, off/on controls, ordering, lease expiry/fencing, concurrent writes and connection blackholes.
+- 135 offline regression tests passed against disposable UTF-8 PostgreSQL on port 54585; no production database is used by these fixtures. The suite covers auth/revocation, HMAC, deduplication, off/on controls, ordering, lease expiry/fencing, concurrent writes and connection blackholes.
 - Frontend TypeScript/Vite production build passed.
 - Supabase migration `20261018063355_whatsapp_execution_leases` applied; role grants and RLS remain private to the backend.
 - Production `dpl_EeoSZGLkLgwQfENFbNE9x5NUBT4i` contains both `services/backend/fastapi` and `services/backend/_py_subscribers/app-integrations-waha__queue`, deployed in `bom1`.
 - The local development backend was stopped, and port 8000 confirmed closed. The WAHA session remains `WORKING`, pointing to the production custom-domain webhook, with matching HMAC and `message`/`message.ack` events.
 - Production health returns 200. The webhook reports `execution_mode=vercel_queue` and `worker_running=false`. A bad HMAC returns 401; a valid diagnostic non-message event returns 200 without queueing or sending.
-- **Pending:** a newly authorized real WhatsApp message must be matched to a leased consumer execution, a successful send and delivery acknowledgement while the local backend remains stopped. Do not call the WhatsApp recovery complete from a green build or session status alone.
+- The freshly authorized WhatsApp test passed through intake, a leased consumer, generation, send and ACK 2 while local port 8000 remained closed. Both new rows reached `sent` without an error; no duplicate outgoing identity was recorded.
+- Six remaining pre-cutover rows (five queued, one abandoned generation; all without leases and older than the expiry policy) were marked failed for review without sending. No historical failure or uncertain send was replayed or silently ignored.
+- No warning/error runtime logs were found for the verified production deployment in the queried 15-minute window. This is a bounded observation, not a claim that future failures are impossible.
 
 ## Operational limits
 
