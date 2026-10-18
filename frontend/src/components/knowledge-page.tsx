@@ -48,6 +48,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PromptEditor } from "@/components/prompt-editor";
 
 type Source = {
   id: string;
@@ -380,6 +381,7 @@ export function KnowledgePage({
           </CardContent>
         </Card>
       )}
+      <PromptEditor />
       <Card>
         <CardHeader className="flex flex-wrap items-start justify-between gap-4">
           <div>

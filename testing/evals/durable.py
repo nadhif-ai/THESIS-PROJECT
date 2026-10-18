@@ -36,14 +36,17 @@ def submit(dataset, limit):
             "semantic_top_k": settings.semantic_top_k,
         }
     )
-    from app.dependencies import get_rag_chain
+    from app.admin.prompt_settings import active_snapshot
+
+    captured_prompt = active_snapshot()
 
     identifier = kb_store.create_evaluation(
         {"dataset": dataset, "limit": limit},
         {
             "rows": rows,
             "configuration": configuration,
-            "prompt_sha256": get_rag_chain().prompt_fingerprint,
+            "prompt_sha256": captured_prompt["sha256"],
+            "prompt_snapshot": captured_prompt,
         },
     )
     try:
@@ -116,7 +119,8 @@ def _prepare(identifier, state):
         "vector_index": manifest["vector_index"],
         "evaluation_recipe": "retrieval-precision-recall-v1",
         "deepeval_version": package_version("deepeval"),
-        "prompt_sha256": state.get("prompt_sha256", get_rag_chain().prompt_fingerprint),
+        "prompt_sha256": state["prompt_sha256"] if "prompt_sha256" in state else get_rag_chain().prompt_fingerprint,
+        "prompt_snapshot": state.get("prompt_snapshot"),
         "dataset_sha256": hashlib.sha256(
             json.dumps(state["rows"], sort_keys=True, ensure_ascii=False).encode()
         ).hexdigest(),
@@ -156,6 +160,7 @@ def _prepare(identifier, state):
                         "embedding",
                         "vector_index",
                         "evaluation_recipe",
+                        "prompt_sha256",
                     )
                 },
             )
@@ -196,7 +201,8 @@ def _answer(identifier, state, row):
 
     result = state["result"]
     chain = get_rag_chain()
-    if chain.prompt_fingerprint != result["prompt_sha256"]:
+    captured_prompt = result.get("prompt_snapshot")
+    if captured_prompt is None and chain.prompt_fingerprint != result["prompt_sha256"]:
         raise ValueError(
             "Prompt changed after submission; start a new evaluation to keep its cases consistent."
         )
@@ -220,6 +226,7 @@ def _answer(identifier, state, row):
             metadata={
                 "channel": "evaluation",
                 "knowledge_version": result["knowledge_version"],
+                "prompt_sha256": result["prompt_sha256"],
             },
         ) as tree:
             record.update(trace_id=str(tree.id))
@@ -231,6 +238,7 @@ def _answer(identifier, state, row):
                     channel="evaluation",
                     top_k=result["runtime_top_k"],
                     model=result["model"],
+                    **({"prompt_config": captured_prompt} if captured_prompt else {}),
                 )
                 record.update(
                     input=row["question"],
@@ -264,6 +272,12 @@ def _answer(identifier, state, row):
                         channel="evaluation",
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        **({"prompt_config": captured_prompt} if captured_prompt else {}),
+                        history_turns=[
+                            (turns[i].content, turns[i + 1].content)
+                            for i in range(0, len(turns) - 1, 2)
+                            if turns[i].role == "user" and turns[i + 1].role == "assistant"
+                        ],
                     )
                     if response.error:
                         raise RuntimeError(response.error)

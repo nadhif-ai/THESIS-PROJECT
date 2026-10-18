@@ -40,6 +40,8 @@ def knowledge_snapshot(chain):
     settings = get_settings()
     config = store.get_settings_values({"openrouter_model": settings.openrouter_model,
             "eval_model": settings.eval_model, "semantic_top_k": settings.semantic_top_k})
+    from app.admin.prompt_settings import active_snapshot
+    config["prompt_snapshot"] = active_snapshot()
     return selected, config
 
 
@@ -77,7 +79,7 @@ def test_single_question(row, chain, knowledge_snapshot):
         with trace(
             "deepeval-quality-test",
             inputs={"question": row["question"]},
-            metadata={"channel": "evaluation", "case_id": row["id"]},
+            metadata={"channel": "evaluation", "case_id": row["id"], "prompt_sha256": config["prompt_snapshot"]["sha256"]},
         ) as parent:
             response = chain.run(
                 question=row["question"],
@@ -85,6 +87,7 @@ def test_single_question(row, chain, knowledge_snapshot):
                 channel="evaluation",
                 namespace=selected["namespace"],
                 model=config["openrouter_model"], top_k=config["semantic_top_k"],
+                prompt_config=config["prompt_snapshot"],
             )
             assert not response.error, response.error
             case = LLMTestCase(
@@ -92,6 +95,8 @@ def test_single_question(row, chain, knowledge_snapshot):
                 actual_output=response.answer,
                 expected_output=row["ground_truth"],
                 retrieval_context=[c["text"] for c in response.retrieval_context],
+                metadata={"prompt_sha256": config["prompt_snapshot"]["sha256"],
+                          "prompt_snapshot": config["prompt_snapshot"]},
             )
             parent.end(outputs={"answer": response.answer})
         check_and_report(case, metrics, str(parent.id), client)
@@ -120,6 +125,12 @@ def test_conversation(chain, knowledge_snapshot):
                 session_id="eval-pytest-" + str(thread_id),
                 channel="evaluation",
                 namespace=selected["namespace"], model=config["openrouter_model"], top_k=config["semantic_top_k"],
+                prompt_config=config["prompt_snapshot"],
+                history_turns=[
+                    (turns[i].content, turns[i + 1].content)
+                    for i in range(0, len(turns) - 1, 2)
+                    if turns[i].role == "user" and turns[i + 1].role == "assistant"
+                ],
             )
             assert not response.error, response.error
             return Turn(
@@ -139,7 +150,7 @@ def test_conversation(chain, knowledge_snapshot):
             with trace(
                 "deepeval-conversation-test",
                 inputs={"scenario": row["scenario"]},
-                metadata={"channel": "evaluation"},
+                metadata={"channel": "evaluation", "prompt_sha256": config["prompt_snapshot"]["sha256"]},
             ) as parent:
                 case = ConversationSimulator(
                     model_callback=callback,
@@ -148,6 +159,8 @@ def test_conversation(chain, knowledge_snapshot):
                     async_mode=False,
                     language="Indonesian",
                 ).simulate(conversational_goldens=[golden], max_user_simulations=4)[0]
+                case.metadata = {"prompt_sha256": config["prompt_snapshot"]["sha256"],
+                                 "prompt_snapshot": config["prompt_snapshot"]}
                 parent.end(
                     outputs={"turns": [t.model_dump(mode="json") for t in case.turns]}
                 )

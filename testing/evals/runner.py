@@ -291,6 +291,9 @@ def _sync_dataset(client, name, rows, kind):
 def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configuration=None):
     from app.dependencies import get_rag_chain
     from app.admin.jobs import update_progress
+    from app.admin.prompt_settings import active_snapshot
+
+    captured_prompt = active_snapshot()
 
     def progress(**fields):
         update_progress(job_id, **fields)
@@ -330,6 +333,8 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
         "cases": [],
         "experiment_name": f"avg-{dataset}-{job_id[:12]}",
         "reporting_error": None,
+        "prompt_snapshot": captured_prompt,
+        "prompt_sha256": captured_prompt["sha256"],
     }
     client = Client()
     examples = {}
@@ -355,7 +360,6 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
     except Exception as error:
         result["reporting_error"] = type(error).__name__
     chain = get_rag_chain()
-    result["prompt_sha256"] = chain.prompt_fingerprint
     result["dataset_sha256"] = hashlib.sha256(
         json.dumps(rows, sort_keys=True, ensure_ascii=False).encode()
     ).hexdigest()
@@ -392,6 +396,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                         channel="evaluation",
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        prompt_config=captured_prompt,
                     )
                     record.update(
                         input=row["question"],
@@ -430,6 +435,12 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                             channel="evaluation",
                             top_k=result["runtime_top_k"],
                             model=result["model"],
+                            prompt_config=captured_prompt,
+                            history_turns=[
+                                (turns[i].content, turns[i + 1].content)
+                                for i in range(0, len(turns) - 1, 2)
+                                if turns[i].role == "user" and turns[i + 1].role == "assistant"
+                            ],
                         )
                         if response.error:
                             raise ValueError(response.error)

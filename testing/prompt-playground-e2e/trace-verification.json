@@ -1,0 +1,61 @@
+{
+  "trace_id": "01a14fa1-455f-71f0-a707-a11a29d1f0c3",
+  "error": null,
+  "metadata": {
+    "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+    "knowledge_version": "kb-25f39a6805154e86a7507bb93ce1c758",
+    "namespace": "kb-25f39a6805154e86a7507bb93ce1c758",
+    "model": "openai/gpt-6-luna",
+    "history_recipe": "eight-pairs-utf8-bound-v1",
+    "channel": "playground"
+  },
+  "llm_inputs": [
+    {
+      "run_name": "ChatOpenAI",
+      "roles": [
+        "system",
+        "system",
+        "human",
+        "ai",
+        "human",
+        "ai",
+        "human"
+      ],
+      "system_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "human_turns": [
+        "Min, spanduk ukuran 2×3 meter, dua lembar. Berapa harganya?",
+        "Flexi China 280 GSM, cetak standar.",
+        "Kalau jumlahnya jadi tiga lembar, totalnya berapa?"
+      ],
+      "assistant_turn_count": 2
+    }
+  ],
+  "additional_checks": [
+    {
+      "check": "new_conversation",
+      "trace_id": "01a14fa2-e9f8-79a1-a8b0-aa67d878caee",
+      "roles": [
+        "SystemMessage",
+        "SystemMessage",
+        "HumanMessage"
+      ],
+      "prompt_hash_matches": true,
+      "model": "openai/gpt-6-luna",
+      "namespace": "kb-25f39a6805154e86a7507bb93ce1c758",
+      "error": null
+    },
+    {
+      "check": "after_reset",
+      "trace_id": "01a14fa3-5a38-78f3-afd3-364e58ff3dc2",
+      "roles": [
+        "SystemMessage",
+        "SystemMessage",
+        "HumanMessage"
+      ],
+      "prompt_hash_matches": true,
+      "model": "openai/gpt-6-luna",
+      "namespace": "kb-25f39a6805154e86a7507bb93ce1c758",
+      "error": null
+    }
+  ]
+}

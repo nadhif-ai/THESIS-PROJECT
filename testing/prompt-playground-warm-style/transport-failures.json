@@ -1,0 +1,11 @@
+[
+  {
+    "question": "Makasih, Min.",
+    "error": "Failed to fetch",
+    "observed": "UI error after first attempt"
+  },
+  {
+    "question": "Mau cetak stiker vinyl A3+, ukuran 5×5 cm, 100 pcs, potong manual tanpa kiss cut. Berapa lembar dan totalnya?",
+    "error": "TypeError: Failed to fetch"
+  }
+]
