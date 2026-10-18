@@ -9,7 +9,7 @@ Immutable IDs remain in result provenance without a version selector.
 
 ## Executed checks
 
-- `venv/bin/python -m pytest testing --ignore=testing/evals -q`: **162 passed**,
+- `venv/bin/python -m pytest testing --ignore=testing/evals -q`: **164 passed**,
   two existing third-party deprecation warnings. Disposable PostgreSQL only.
 - `node --test testing/test_admin_navigation.mjs`: **7 passed**.
 - `npm run build`: TypeScript and Vite production build passed.
@@ -38,7 +38,10 @@ isolated Pinecone namespace, never customer knowledge for the UI mutations.
 - Desktop screenshot and light/dark mobile screenshots inspected.
 - 390px and 320px viewport checks: document scroll width equals viewport width.
 - Reduced-motion emulation used; the existing shell respects that preference.
-- Further source controls and production evidence are recorded below after release.
+- PDF replacement, keyboard switch, delete/cancel, and source deletion succeeded.
+  Modal focus returned to Delete after cancellation. Empty synchronization produced
+  zero searchable passages; Playground returned the exact agreed fallback and the
+  new-evaluation button was disabled.
 
 Screenshots are local diagnostic artifacts under
 `data/diagnostics/global-knowledge-qa/`, intentionally excluded from deployment/git.
@@ -62,8 +65,10 @@ successfully after this correction.
 
 ## Production release
 
-Pending deployment and real queue execution checks. Do not interpret the local
-worker result above as proof of autonomous Vercel execution.
+Candidate `dpl_EUrUHdiiBsqYJm5SS982JPf513ok` is READY in `bom1`. Authenticated
+catalog and private-original preview were checked through `vercel curl`, with
+six sources and the original 95 active passages. Real queue execution and final
+alias promotion remain pending; local execution is not cloud execution proof.
 
 ## Design gate
 

@@ -257,15 +257,41 @@ def sync_step(identifier, checkpoint, token):
         records = store.version(snapshot_id)["records"]
         if records:
             index = get_vectorstore()
-            found = {
-                i
-                for page in index.list(namespace=namespace, _request_timeout=15)
-                for i in page
+            page = index.list_paginated(
+                namespace=namespace,
+                limit=100,
+                pagination_token=checkpoint.get("verify_token"),
+                _request_timeout=15,
+            )
+            found = set(checkpoint.get("verified_ids", [])) | {
+                v.id for v in page.vectors
             }
+            pagination = getattr(page, "pagination", None)
+            if pagination and pagination.next:
+                checkpoint.update(
+                    verified_ids=sorted(found), verify_token=pagination.next
+                )
+                return (
+                    checkpoint,
+                    {
+                        "phase": "verify",
+                        "completed": checkpoint["offset"],
+                        "total": len(records),
+                    },
+                    {"snapshot_id": snapshot_id},
+                    False,
+                )
             if found != {r["id"] for r in records}:
                 raise RuntimeError(
                     "Pinecone is still making the synchronized vectors visible."
                 )
+            checkpoint["phase"] = "query_verify"
+        else:
+            checkpoint["phase"] = "activate"
+    elif phase == "query_verify":
+        records = store.version(snapshot_id)["records"]
+        if records:
+            index = get_vectorstore()
             probe = index.query(
                 namespace=namespace,
                 vector=get_embedding_model().embed_query(records[0]["document"]),

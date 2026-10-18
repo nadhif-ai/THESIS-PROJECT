@@ -21,7 +21,7 @@ from testing.evals.metrics import (
     conversational_metrics,
     judge,
 )
-from testing.evals.runner import load_cases, SINGLE_TURN, _metric_results, retry_report
+from testing.evals.runner import load_cases, SINGLE_TURN, _metric_results, report_metric
 
 
 def submit(dataset, limit):
@@ -51,6 +51,48 @@ def submit(dataset, limit):
     except RuntimeError:
         return {"job_id": identifier, "dispatch_pending": True}
     return {"job_id": identifier}
+
+
+def submit_report(evaluation_id):
+    result = store.evaluation_result(evaluation_id)
+    if result is None:
+        raise ValueError("Saved evaluation not found.")
+    identifier = kb_store.create_report(evaluation_id, result)
+    try:
+        durable_jobs.dispatch(identifier)
+    except RuntimeError:
+        return {"job_id": identifier, "dispatch_pending": True}
+    return {"job_id": identifier}
+
+
+def _report(state):
+    result = state["result"]
+    if not result.get("project_id"):
+        result["reporting_error"] = (
+            "No LangSmith experiment was created; saved scores remain available."
+        )
+        state["phase"] = "completed"
+        return result, True
+    scores = [(row, score) for row in result["cases"] for score in row["metrics"]]
+    cursor = state.get("report_cursor", 0)
+    client = Client(timeout_ms=10000)
+    try:
+        if cursor < len(scores):
+            row, score = scores[cursor]
+            report_metric(client, result, row, score)
+            state.update(report_cursor=cursor + 1, report_attempts=0)
+            return result, False
+        result["experiment_url"] = client.read_project(
+            project_id=result["project_id"]
+        ).url
+        result["reporting_error"] = None
+    except Exception as error:
+        state["report_attempts"] = state.get("report_attempts", 0) + 1
+        if state["report_attempts"] < 3:
+            return result, False
+        result["reporting_error"] = type(error).__name__
+    state["phase"] = "completed"
+    return result, True
 
 
 def _prepare(identifier, state):
@@ -290,6 +332,10 @@ def evaluation_step(identifier, state, token):
         )
         if result
         else 0,
+        "feedback_completed": state.get("report_cursor", 0),
+        "feedback_total": sum(len(c["metrics"]) for c in result.get("cases", []))
+        if result
+        else 0,
     }
     return state, progress, result, done
 
@@ -301,9 +347,10 @@ def _step(identifier, state):
         return state["result"], False
     result = state["result"]
     if phase == "reporting":
-        result = retry_report(identifier)
-        state.update(result=result, phase="completed")
-        return result, True
+        result, done = _report(state)
+        if done:
+            store.save_evaluation_result(result["id"], result)
+        return result, done
     row = state["rows"][len(result["cases"])]
     if phase == "answering":
         _answer(identifier, state, row)

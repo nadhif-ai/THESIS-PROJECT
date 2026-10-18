@@ -467,7 +467,11 @@ def review_dataset(kind: str = "conversations"):
 
 @protected.post("/evaluations/{evaluation_id}/report")
 def retry_report(evaluation_id: str):
-    return {"job_id": jobs.create("report", {"evaluation_id": evaluation_id})}
+    from testing.evals.durable import submit_report
+    try:
+        return submit_report(evaluation_id)
+    except ValueError as error:
+        raise HTTPException(400, str(error)) from None
 
 
 @protected.get("/evaluations/{evaluation_id}/export")

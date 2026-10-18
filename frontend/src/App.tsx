@@ -1563,6 +1563,7 @@ function JobProgress({ job }: { job: Job }) {
     prepare: "Preparing the captured source list",
     embed: "Embedding and upserting passages",
     verify: "Checking Pinecone visibility",
+    query_verify: "Checking synchronized retrieval",
     activate: "Activating synchronized knowledge",
     cleanup: "Scheduling cleanup of unused originals and vectors",
     generating: "Generating conversation candidates from indexed knowledge",
@@ -1633,6 +1634,12 @@ function JobProgress({ job }: { job: Job }) {
         <p className="help-copy">
           {progress.metrics_completed || 0} of {progress.metrics_total} metrics
           recorded for this case.
+        </p>
+      )}
+      {phase === "reporting" && !!progress?.feedback_total && (
+        <p className="help-copy">
+          {progress.feedback_completed || 0} of {progress.feedback_total} metric
+          feedback records sent to LangSmith.
         </p>
       )}
       {!!progress?.errors && (

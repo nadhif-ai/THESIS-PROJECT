@@ -32,6 +32,7 @@ def dispatch(identifier):
             },
             idempotency_key=f"{identifier}:{row['sequence']}",
             retention=604800,
+            delay=min(60, row["checkpoint"].get("report_attempts", 0) * 10),
         )
     except DuplicateIdempotencyKeyError:
         return
@@ -58,6 +59,14 @@ def consume(identifier, sequence):
     if not claimed:
         raise RuntimeError("Another execution owns this step; retry after its lease.")
     try:
+        logger.info(
+            "Administration execution=%s job=%s kind=%s sequence=%s phase=%s",
+            "vercel_queue" if os.getenv("VERCEL") == "1" else "local_worker",
+            identifier,
+            row["kind"],
+            sequence,
+            claimed["checkpoint"].get("phase"),
+        )
         if row["kind"] == "sync":
             from app.admin.global_knowledge import sync_step
 

@@ -62,9 +62,6 @@ def setup_runtime(monkeypatch):
         "get_rag_chain",
         lambda: SimpleNamespace(prompt_fingerprint="fixed", run=answer),
     )
-    monkeypatch.setattr(
-        durable, "retry_report", lambda identifier: store.evaluation_result(identifier)
-    )
     return durable, calls
 
 
@@ -247,3 +244,86 @@ def test_queue_failure_preserves_checkpoint_and_retry_uses_new_dispatch_key(
     assert before["status"] == "queued" and before["dispatch_error"]
     kb_store.retry(identifier)
     assert kb_store.work(identifier)["sequence"] == before["sequence"] + 1
+
+
+def test_feedback_is_checkpointed_per_metric_and_retry_never_calls_a_judge(
+    pg_live, monkeypatch
+):
+    from testing.evals import durable
+
+    result = {
+        "id": "saved",
+        "dataset": "legacy",
+        "project_id": "project",
+        "deepeval_version": "synthetic",
+        "cases": [
+            {
+                "id": "a",
+                "trace_id": str(uuid.uuid4()),
+                "metrics": [
+                    {"name": "first", "score": 0.8},
+                    {"name": "second", "score": 0.9},
+                ],
+            }
+        ],
+    }
+    store.create_job_row("saved", "evaluate", {})
+    store.set_job_state("saved", "completed", result=result)
+    monkeypatch.setattr(durable_jobs, "dispatch", lambda identifier: None)
+    monkeypatch.setattr(
+        durable,
+        "Client",
+        lambda **kwargs: SimpleNamespace(
+            read_project=lambda **kw: SimpleNamespace(
+                url="https://example.invalid/experiment"
+            )
+        ),
+    )
+    sent = []
+    monkeypatch.setattr(
+        durable,
+        "report_metric",
+        lambda client, result, row, score: sent.append(score["name"]),
+    )
+    identifier = durable.submit_report("saved")["job_id"]
+    assert durable_jobs.consume(identifier, 0)
+    assert sent == ["first"]
+    assert kb_store.work(identifier)["checkpoint"]["report_cursor"] == 1
+    assert durable_jobs.consume(identifier, 1)
+    assert sent == ["first", "second"]
+    assert not durable_jobs.consume(identifier, 2)
+    assert (
+        store.evaluation_result("saved")["experiment_url"]
+        == "https://example.invalid/experiment"
+    )
+
+
+def test_reporting_failure_preserves_scores_after_three_bounded_attempts(
+    pg_live, monkeypatch
+):
+    from testing.evals import durable
+
+    result = {
+        "id": "saved",
+        "dataset": "legacy",
+        "project_id": "project",
+        "cases": [{"id": "a", "metrics": [{"name": "score", "score": 0.8}]}],
+    }
+    store.create_job_row("saved", "evaluate", {})
+    store.set_job_state("saved", "completed", result=result)
+    monkeypatch.setattr(durable_jobs, "dispatch", lambda identifier: None)
+    monkeypatch.setattr(durable, "Client", lambda **kwargs: object())
+    calls = []
+
+    def unavailable(*args):
+        calls.append(1)
+        raise RuntimeError("Synthetic reporting outage")
+
+    monkeypatch.setattr(durable, "report_metric", unavailable)
+    identifier = durable.submit_report("saved")["job_id"]
+    assert durable_jobs.consume(identifier, 0)
+    assert durable_jobs.consume(identifier, 1)
+    assert not durable_jobs.consume(identifier, 2)
+    assert len(calls) == 3
+    assert store.evaluation_result("saved")["cases"][0]["metrics"][0]["score"] == 0.8
+    assert store.evaluation_result("saved")["reporting_error"] == "RuntimeError"

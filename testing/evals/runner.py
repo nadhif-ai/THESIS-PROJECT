@@ -498,6 +498,19 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
     return retry_report(job_id)
 
 
+def report_metric(client, result, row, score):
+    identifier = str(uuid.uuid5(uuid.UUID(row["trace_id"]), score["name"]))
+    try:
+        client.read_feedback(identifier)
+    except LangSmithNotFoundError:
+        client.create_feedback(
+            run_id=row["trace_id"], key=score["name"], score=score["score"],
+            comment=score.get("reason") or score.get("error"), feedback_id=identifier,
+            session_id=result["project_id"], error=score["score"] is None,
+            source_info={"framework": "deepeval", "threshold": score["threshold"],
+                         "version": result["deepeval_version"]})
+
+
 def retry_report(evaluation_id):
     if not evaluation_id.isalnum():
         raise ValueError("Invalid evaluation ID.")
@@ -514,24 +527,7 @@ def retry_report(evaluation_id):
             )
         for row in result["cases"]:
             for score in row["metrics"]:
-                identifier = str(uuid.uuid5(uuid.UUID(row["trace_id"]), score["name"]))
-                try:
-                    client.read_feedback(identifier)
-                except LangSmithNotFoundError:
-                    client.create_feedback(
-                        run_id=row["trace_id"],
-                        key=score["name"],
-                        score=score["score"],
-                        comment=score.get("reason") or score.get("error"),
-                        feedback_id=identifier,
-                        session_id=result["project_id"],
-                        error=score["score"] is None,
-                        source_info={
-                            "framework": "deepeval",
-                            "threshold": score["threshold"],
-                            "version": result["deepeval_version"],
-                        },
-                    )
+                report_metric(client, result, row, score)
         result["reporting_error"] = None
         project = client.read_project(project_id=result["project_id"])
         result["experiment_url"] = project.url

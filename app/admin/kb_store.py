@@ -267,6 +267,19 @@ def work(identifier):
         ).fetchone()
 
 
+def create_report(evaluation_id, result):
+    identifier = uuid.uuid4().hex
+    with store._connection("administration") as db:
+        _insert_job(
+            db,
+            identifier,
+            "report",
+            {"evaluation_id": evaluation_id},
+            {"phase": "reporting", "result": result, "rows": result["cases"]},
+        )
+    return identifier
+
+
 def claim(identifier, sequence):
     token = uuid.uuid4().hex
     with store._connection("execution") as db:
@@ -323,7 +336,8 @@ def release_error(identifier, token, error):
     with store._connection("execution") as db:
         _state(db)
         row = db.execute(
-            """UPDATE chatbot.admin_work SET lease_token=NULL,lease_until=NULL,updated_at=now()
+            """UPDATE chatbot.admin_work SET lease_token=NULL,lease_until=NULL,updated_at=now(),
+          checkpoint=CASE WHEN checkpoint->>'phase'='verify' THEN checkpoint-'verify_token'-'verified_ids' ELSE checkpoint END
           WHERE job_id=%s AND lease_token=%s RETURNING attempts""",
             (identifier, token),
         ).fetchone()

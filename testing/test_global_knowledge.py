@@ -63,6 +63,12 @@ class Index:
     def list(self, namespace, **kwargs):
         return [list(self.values.get(namespace, {}))]
 
+    def list_paginated(self, namespace, **kwargs):
+        return SimpleNamespace(
+            vectors=[SimpleNamespace(id=i) for i in self.values.get(namespace, {})],
+            pagination=None,
+        )
+
     def query(self, **kwargs):
         return SimpleNamespace(matches=[SimpleNamespace(id="test")])
 
@@ -172,15 +178,15 @@ def test_failed_sync_keeps_active_and_can_resume_without_reembedding(
     job = kb_store.start_sync()
     durable_jobs.consume(job, 0)
     durable_jobs.consume(job, 1)
-    original = providers.list
-    providers.list = lambda **kw: [[]]
+    original = providers.list_paginated
+    providers.list_paginated = lambda **kw: SimpleNamespace(vectors=[], pagination=None)
     for _ in range(3):
         with pytest.raises(RuntimeError, match="visible"):
             durable_jobs.consume(job, 2)
     assert kb_store.work(job)["status"] == "failed"
     assert store.version_info()["id"] == "original"
     assert kb_store.catalog()["sync_job"] is None
-    providers.list = original
+    providers.list_paginated = original
     monkeypatch.setattr(
         kb,
         "get_embedding_model",

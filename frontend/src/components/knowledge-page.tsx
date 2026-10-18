@@ -340,6 +340,7 @@ export function KnowledgePage({
                     prepare: "Preparing source text",
                     embed: "Embedding passages",
                     verify: "Verifying search",
+                    query_verify: "Checking retrieval",
                     activate: "Activating knowledge",
                     cleanup: "Finishing",
                     completed: "All passages verified",

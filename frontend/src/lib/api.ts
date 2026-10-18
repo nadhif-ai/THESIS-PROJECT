@@ -200,6 +200,8 @@ export type Job = {
     metric?: string | null;
     metrics_completed?: number;
     metrics_total?: number;
+    feedback_completed?: number;
+    feedback_total?: number;
     errors?: number;
   };
   error?: string;

@@ -36,12 +36,12 @@ evaluation results and their retrieval contexts remain available.
 
 ## Delivery checklist
 
-- [ ] Add private administration tables and Storage configuration.
-- [ ] Implement durable file storage, source validation and atomic source edits.
-- [ ] Implement safe, checkpointed synchronization and cleanup.
-- [ ] Pin and checkpoint evaluation execution; preserve metrics and LangSmith.
-- [ ] Replace version UI with the global source list; update Playground/evaluation.
-- [ ] Test regression, concurrency, empty KB, retry and authenticated file access.
+- [x] Add private administration tables and Storage configuration.
+- [x] Implement durable file storage, source validation and atomic source edits.
+- [x] Implement safe, checkpointed synchronization and cleanup.
+- [x] Pin and checkpoint evaluation execution; preserve metrics and LangSmith.
+- [x] Replace version UI with the global source list; update Playground/evaluation.
+- [x] Test regression, concurrency, empty KB, retry and authenticated file access.
 - [ ] Migrate current active sources; verify new Pinecone namespace and retrieval.
 - [ ] Review production configuration and release evidence.
 
