@@ -20,6 +20,7 @@ from openai import BadRequestError
 from langsmith.wrappers import wrap_openai
 from contextvars import ContextVar
 import time
+from testing.evals.calculations import RECIPE
 
 THRESHOLD = 0.7
 STEP_DEADLINE = ContextVar("evaluation_step_deadline", default=None)
@@ -83,11 +84,17 @@ def judge(model_name=None):
     )
 
 
-def single_turn_metrics(review_notes=None, judge_model=None):
+def single_turn_metrics(review_notes=None, judge_model=None, recipe=RECIPE):
     model = judge(judge_model)
-    return [
-        FaithfulnessMetric(model=model, threshold=THRESHOLD, async_mode=False),
-        AnswerRelevancyMetric(model=model, threshold=THRESHOLD, async_mode=False),
+    mode = {"eval_mode": "llm"} if recipe == RECIPE else {}
+    metrics = [
+        FaithfulnessMetric(model=model, threshold=THRESHOLD, async_mode=False, **mode),
+        AnswerRelevancyMetric(model=model, threshold=THRESHOLD, async_mode=False, **mode),
+    ]
+    if recipe == RECIPE:
+        return metrics
+    # Resuming an older checkpoint must retain its original metric order.
+    return metrics + [
         ContextualPrecisionMetric(model=model, threshold=THRESHOLD, async_mode=False),
         ContextualRecallMetric(model=model, threshold=THRESHOLD, async_mode=False),
         GEval(
@@ -107,14 +114,18 @@ def single_turn_metrics(review_notes=None, judge_model=None):
     ]
 
 
-def conversational_metrics(judge_model=None):
+def conversational_metrics(judge_model=None, recipe="conversation-v2"):
     model = judge(judge_model)
-    return [
+    metrics = [
         TurnFaithfulnessMetric(model=model, threshold=THRESHOLD, async_mode=False),
         TurnRelevancyMetric(model=model, threshold=THRESHOLD, async_mode=False),
         ConversationCompletenessMetric(
             model=model, threshold=THRESHOLD, async_mode=False
         ),
+    ]
+    if recipe == "conversation-v2":
+        return metrics
+    return metrics + [
         ConversationalGEval(
             name="Business correctness",
             criteria="The conversation must communicate correct printing specifications, prices, units, calculations and policies grounded in the supplied knowledge. It should retain customer specifications across turns and clarify missing details. Judge against the expected outcome and context.",

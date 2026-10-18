@@ -17,6 +17,9 @@ from deepeval.simulator import ConversationSimulator
 from app.admin import store
 from app.config.settings import get_settings
 from testing.evals.metrics import single_turn_metrics, conversational_metrics, judge
+from testing.evals.calculations import (
+    RECIPE, judge_calculation, retrieval_manifest, retrieval_metrics,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATASET = Path(__file__).with_name(".dataset.json")
@@ -233,6 +236,7 @@ def _metric_results(case, metrics, progress=None):
                     "reason": metric.reason,
                     "threshold": metric.threshold,
                     "passed": metric.is_successful(),
+                    "calculation": judge_calculation(metric),
                 }
             )
         except Exception as error:
@@ -325,7 +329,8 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
             {"chunk_size": 1500, "chunk_overlap": 200, "preprocessing": "legacy"},
         ),
         "corpus_sha256": item["manifest"].get("corpus_sha256"),
-        "evaluation_recipe": "retrieval-precision-recall-v1",
+        "evaluation_recipe": RECIPE if dataset in SINGLE_TURN else "conversation-v2",
+        "retrieval_manifest": retrieval_manifest(item["records"]),
         "embedding_model": item["manifest"]["embedding"]["model"],
         "embedding": item["manifest"]["embedding"],
         "vector_index": item["manifest"]["vector_index"],
@@ -406,6 +411,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                         usage=answer.usage,
                         latency_seconds=answer.latency_seconds,
                         reference_guidance=row.get("review_notes"),
+                        retrieval_annotations=row.get("retrieval_annotations"),
                     )
                     if answer.error:
                         record["error"] = answer.error
@@ -425,6 +431,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                             ),
                             progress,
                         )
+                        record["metrics"].extend(retrieval_metrics(row, record, result))
                 else:
 
                     def callback(input, turns, thread_id):
@@ -510,6 +517,8 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
 
 
 def report_metric(client, result, row, score):
+    if score.get("status") == "unavailable":
+        return
     identifier = str(uuid.uuid5(uuid.UUID(row["trace_id"]), score["name"]))
     try:
         client.read_feedback(identifier)
@@ -518,8 +527,8 @@ def report_metric(client, result, row, score):
             run_id=row["trace_id"], key=score["name"], score=score["score"],
             comment=score.get("reason") or score.get("error"), feedback_id=identifier,
             session_id=result["project_id"], error=score["score"] is None,
-            source_info={"framework": "deepeval", "threshold": score["threshold"],
-                         "version": result["deepeval_version"]})
+            source_info={"framework": score.get("method", "deepeval"), "threshold": score.get("threshold"),
+                         "version": result["evaluation_recipe"] if score.get("method") else result["deepeval_version"]})
 
 
 def retry_report(evaluation_id):

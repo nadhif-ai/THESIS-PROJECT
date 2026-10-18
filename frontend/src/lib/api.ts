@@ -145,6 +145,20 @@ export type Metric = {
   reason: string | null;
   passed: boolean | null;
   error?: string;
+  threshold?: number;
+  status?: "scored" | "unavailable";
+  method?: string;
+  calculation?: {
+    formula: string;
+    numerator: number;
+    denominator: number;
+    k?: number;
+    returned?: number;
+    empty_score?: number | null;
+    strict_mode?: boolean;
+    accepted_verdicts?: string[];
+    items: { label: string; detail: string; counted: boolean; verdict?: string }[];
+  } | null;
 };
 export type EvaluationResult = {
   id: string;
@@ -158,6 +172,8 @@ export type EvaluationResult = {
     preprocessing: string;
   };
   evaluation_recipe?: string;
+  runtime_top_k?: number;
+  deepeval_version?: string;
   experiment_url?: string;
   reporting_error?: string;
   averages?: Record<string, number | null>;

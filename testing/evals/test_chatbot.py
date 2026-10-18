@@ -45,7 +45,7 @@ def knowledge_snapshot(chain):
     return selected, config
 
 
-def check_and_report(case, metrics, run_id, client):
+def check_and_report(case, metrics, run_id, client, retrieval=()):
     from deepeval import assert_test
 
     try:
@@ -60,6 +60,12 @@ def check_and_report(case, metrics, run_id, client):
                     score=metric.score,
                     comment=metric.reason,
                 )
+        for metric in retrieval:
+            if metric["score"] is not None:
+                client.create_feedback(
+                    run_id=run_id, key=metric["name"], score=metric["score"],
+                    comment=metric["reason"],
+                )
 
 
 @pytest.mark.skipif(
@@ -71,6 +77,7 @@ def test_single_question(row, chain, knowledge_snapshot):
     from deepeval.test_case import LLMTestCase
     from langsmith import Client, trace, tracing_context
     from testing.evals.metrics import single_turn_metrics
+    from testing.evals.calculations import retrieval_manifest, retrieval_metrics
 
     client = Client()
     selected, config = knowledge_snapshot
@@ -98,8 +105,13 @@ def test_single_question(row, chain, knowledge_snapshot):
                 metadata={"prompt_sha256": config["prompt_snapshot"]["sha256"],
                           "prompt_snapshot": config["prompt_snapshot"]},
             )
-            parent.end(outputs={"answer": response.answer})
-        check_and_report(case, metrics, str(parent.id), client)
+            retrieval = retrieval_metrics(
+                row, {"retrieval_context": response.retrieval_context},
+                {"runtime_top_k": config["semantic_top_k"],
+                 "retrieval_manifest": retrieval_manifest(selected["records"])},
+            )
+            parent.end(outputs={"answer": response.answer, "retrieval_metrics": retrieval})
+        check_and_report(case, metrics, str(parent.id), client, retrieval)
 
 
 @pytest.mark.skipif(

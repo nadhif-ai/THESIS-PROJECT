@@ -1073,6 +1073,52 @@ select {
   padding: 16px 0;
   border-bottom: 1px solid var(--border);
 }
+.evaluation-method {
+  margin: 20px 0;
+  border-block: 1px solid var(--border);
+  padding: 12px 0;
+  font-size: 13px;
+}
+.evaluation-method > summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+.evaluation-method summary:focus-visible,
+.metric-detail summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+.evaluation-definitions > div {
+  border-top: 1px solid var(--border);
+  padding: 20px 0;
+}
+.evaluation-definitions dt { font-weight: 500; }
+.evaluation-definitions dd { margin: 8px 0 0; max-width: 75ch; }
+.evaluation-definitions dd > p + p { margin-top: 8px; color: var(--muted-foreground); }
+.calculation-equation {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.metric-detail p.calculation-equation { color: var(--foreground); }
+.metric-calculation { margin-top: 16px; }
+.metric-detail > .metric-calculation { display: block; }
+.evaluation-method .metric-detail > summary strong { margin-right: 12px; }
+.calculation-items { list-style: none; margin: 16px 0 0; padding: 0; }
+.calculation-items li {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.calculation-items li > div { flex: 1 1 280px; min-width: 0; }
+.calculation-items li > span:last-child { font-variant-numeric: tabular-nums; }
+.calculation-items p { max-width: 75ch; }
 .evaluation-case summary {
   display: flex;
   align-items: flex-start;

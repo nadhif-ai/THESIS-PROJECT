@@ -110,6 +110,8 @@ Setiap pemanggilan dengan `--index` membuat draft eksperimen baru; tidak memubli
 
 Setelah review QA, pilih **Reviewed QA references** di dashboard. Run baru selalu memakai knowledge tersinkron terbaru. CLI juga menangkap knowledge aktif dan konfigurasi saat suite dimulai:
 
+Hasil dashboard kini menyertakan rumus, pembilang/penyebut, verdict per item, serta perhitungan rata-rata. Run QA baru memakai Faithfulness, Answer Relevancy, Precision@k dan Fact Coverage@k; dua metrik retrieval memerlukan anotasi offline yang cocok dengan snapshot passage. Penilaian ketepatan bisnis oleh staf tetap terpisah. Lihat [definisi metrik dan format anotasi](docs/evaluation-methodology.md). Hasil historis tidak dihitung ulang.
+
 ```bash
 RUN_PAID_EVALS=1 EVAL_DATASET=audited EVAL_CASE_LIMIT=10 venv/bin/deepeval test run testing/evals/test_chatbot.py --identifier current-knowledge
 ```

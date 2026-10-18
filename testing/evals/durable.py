@@ -22,6 +22,7 @@ from testing.evals.metrics import (
     judge,
 )
 from testing.evals.runner import load_cases, SINGLE_TURN, _metric_results, report_metric
+from testing.evals.calculations import RECIPE, retrieval_manifest, retrieval_metrics
 
 
 def submit(dataset, limit):
@@ -47,6 +48,7 @@ def submit(dataset, limit):
             "configuration": configuration,
             "prompt_sha256": captured_prompt["sha256"],
             "prompt_snapshot": captured_prompt,
+            "evaluation_recipe": RECIPE if dataset in SINGLE_TURN else "conversation-v2",
         },
     )
     try:
@@ -117,7 +119,8 @@ def _prepare(identifier, state):
         "embedding_model": manifest["embedding"]["model"],
         "embedding": manifest["embedding"],
         "vector_index": manifest["vector_index"],
-        "evaluation_recipe": "retrieval-precision-recall-v1",
+        "evaluation_recipe": state.get("evaluation_recipe", "retrieval-precision-recall-v1"),
+        "retrieval_manifest": retrieval_manifest(snapshot["records"]),
         "deepeval_version": package_version("deepeval"),
         "prompt_sha256": state["prompt_sha256"] if "prompt_sha256" in state else get_rag_chain().prompt_fingerprint,
         "prompt_snapshot": state.get("prompt_snapshot"),
@@ -248,6 +251,7 @@ def _answer(identifier, state, row):
                     usage=answer.usage,
                     latency_seconds=answer.latency_seconds,
                     reference_guidance=row.get("review_notes"),
+                    retrieval_annotations=row.get("retrieval_annotations"),
                 )
                 if answer.error:
                     record["error"] = answer.error
@@ -339,7 +343,9 @@ def evaluation_step(identifier, state, token):
         "case_id": row.get("id"),
         "case_label": row.get("question") or row.get("scenario"),
         "metrics_completed": len(record.get("metrics", [])),
-        "metrics_total": 5 if result and result["dataset"] in SINGLE_TURN else 4,
+        "metrics_total": (4 if result.get("evaluation_recipe") == RECIPE else 5)
+        if result and result["dataset"] in SINGLE_TURN
+        else (3 if result and result.get("evaluation_recipe") == "conversation-v2" else 4),
         "errors": sum(
             bool(c.get("error")) or any(m.get("error") for m in c["metrics"])
             for c in result.get("cases", [])
@@ -378,7 +384,9 @@ def _step(identifier, state):
                 expected_output=record["expected_output"],
                 retrieval_context=[c["text"] for c in record["retrieval_context"]],
             )
-            metrics = single_turn_metrics(row.get("review_notes"), result["judge"])
+            metrics = single_turn_metrics(
+                row.get("review_notes"), result["judge"], result.get("evaluation_recipe")
+            )
         else:
             case = ConversationalTestCase(
                 turns=[Turn(**t) for t in record["turns"]],
@@ -386,7 +394,7 @@ def _step(identifier, state):
                 expected_outcome=row.get("expected_outcome"),
                 context=row.get("context"),
             )
-            metrics = conversational_metrics(result["judge"])
+            metrics = conversational_metrics(result["judge"], result.get("evaluation_recipe"))
         index = len(record["metrics"])
         with tracing_context(
             project_name=result["experiment_name"]
@@ -404,6 +412,8 @@ def _step(identifier, state):
                 record["metrics"].extend(_metric_results(case, [metrics[index]]))
         if len(record["metrics"]) < len(metrics):
             return result, False
+        if result["dataset"] in SINGLE_TURN and result.get("evaluation_recipe") == RECIPE:
+            record["metrics"].extend(retrieval_metrics(row, record, result))
     result["cases"].append(state.pop("record"))
     if len(result["cases"]) < len(state["rows"]):
         state["phase"] = "answering"
