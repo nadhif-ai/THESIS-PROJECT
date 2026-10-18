@@ -6,10 +6,12 @@ import json
 import logging
 import re
 import threading
+import time
 from contextlib import contextmanager
 
 import requests
 from fastapi import APIRouter, HTTPException, Request
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field, ValidationError
 
 from app.admin import store
@@ -63,7 +65,7 @@ def enqueue(message):
 
 
 def update(row, **fields):
-    store.update_inbox(row["session"], row["message_id"], fields)
+    store.update_inbox(row["session"], row["message_id"], fields, lease_token=row.get("lease_token"))
 
 
 def plain_text(answer):
@@ -157,7 +159,10 @@ def typing_indicator(row):
 def process(row):
     from app.dependencies import get_rag_chain
 
+    started = time.monotonic()
+    item = hashlib.sha256(row["message_id"].encode()).hexdigest()[:12]
     try:
+        logger.info("WhatsApp phase=generating item=%s", item)
         with typing_indicator(row):
             if not row["answer"]:
                 update(row, status="generating")
@@ -177,9 +182,14 @@ def process(row):
                     media_url=response.media_url if not response.error else None,
                 )
                 update(row, answer=row["answer"], media_url=row["media_url"])
-            if not store.begin_inbox_send(row["session"], row["message_id"]):
+            if not store.begin_inbox_send(row["session"], row["message_id"], row.get("lease_token")):
                 return
+        logger.info("WhatsApp phase=sending item=%s generation_ms=%.1f", item, (time.monotonic()-started)*1000)
         send_reply(row)
+        logger.info("WhatsApp phase=sent item=%s total_ms=%.1f", item, (time.monotonic()-started)*1000)
+    except store.StateUnavailable:
+        # Let durable delivery retry; a transient database outage is not a failed customer answer.
+        raise
     except requests.RequestException as error:
         update(
             row,
@@ -217,6 +227,10 @@ def start():
         return
     if not settings.waha_api_key or not settings.waha_webhook_secret:
         raise ValueError("WAHA API and webhook credentials are required.")
+    from app.integrations.waha_queue import enabled
+    if enabled():
+        logger.info("WhatsApp execution=vercel_queue; polling worker disabled.")
+        return
     initialize()
     _stop.clear()
     _thread = threading.Thread(target=worker, name="whatsapp-inbox", daemon=True)
@@ -232,10 +246,12 @@ def stop():
 
 @router.get("/webhook")
 def webhook_health():
+    from app.integrations.waha_queue import enabled
     return {
         "provider": "waha",
         "session": get_settings().waha_session,
         "worker_running": bool(_thread and _thread.is_alive()),
+        "execution_mode": "vercel_queue" if enabled() else "local_worker",
     }
 
 
@@ -269,7 +285,7 @@ async def webhook(request: Request):
         if event.get("event") == "message.ack":
             message_id, ack = payload.get("id"), payload.get("ack")
             if isinstance(message_id, str) and isinstance(ack, int) and -1 <= ack <= 4:
-                store.record_ack(message_id, ack)
+                await run_in_threadpool(store.record_ack, message_id, ack)
             return {"status": "ack_recorded"}
         if event.get("event") != "message":
             return {"status": "ignored", "reason": "other_event"}
@@ -282,16 +298,28 @@ async def webhook(request: Request):
         return {"status": "ignored", "reason": "not_a_private_chat"}
     if not message.body or not message.body.strip():
         return {"status": "ignored", "reason": "no_text"}
-    inserted = enqueue(message)
+    inserted = await run_in_threadpool(enqueue, message)
+    from app.integrations.waha_queue import enabled, notify
+    if enabled():
+        row = await run_in_threadpool(store.get_inbox, settings.waha_session, message.id)
+        if row["status"] == "queued":
+            try:
+                await notify(settings.waha_session, message.id)
+            except Exception as error:
+                logger.warning("WhatsApp queue notification failed error=%s", type(error).__name__)
+                raise HTTPException(503, "Reply queue is temporarily unavailable; retry this webhook.") from None
+    logger.info("WhatsApp phase=received item=%s duplicate=%s", hashlib.sha256(message.id.encode()).hexdigest()[:12], not inserted)
     return {"status": "queued" if inserted else "duplicate"}
 
 
 def status(observations=None):
     settings = get_settings()
+    from app.integrations.waha_queue import enabled
     result = {
         "provider": settings.whatsapp_provider,
         "session": settings.waha_session,
         "worker_running": bool(_thread and _thread.is_alive()),
+        "execution_mode": "vercel_queue" if enabled() else "local_worker",
         "webhook_url": settings.waha_webhook_url,
         "credentials_configured": bool(
             settings.waha_api_key and settings.waha_webhook_secret

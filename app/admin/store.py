@@ -5,6 +5,7 @@ import json
 import logging
 import threading
 import time
+import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -117,7 +118,7 @@ def close_pool():
 
 
 @contextmanager
-def _connection(purpose=None):
+def _connection(purpose=None, *, exclusive=False):
     open_pool()
     started = time.perf_counter()
     phase = "acquire"
@@ -126,8 +127,11 @@ def _connection(purpose=None):
             phase = "transaction_setup"
             setup = "BEGIN; " + _TRANSACTION_SETUP
             if purpose:
-                cursor = db.execute(setup + "; SELECT * FROM chatbot.runtime_control WHERE id=1 FOR UPDATE")
-                for _ in range(4):
+                lock = "UPDATE" if exclusive else "SHARE"
+                cursor = db.execute(setup + "; UPDATE chatbot.runtime_control SET first_live_write_at=CURRENT_TIMESTAMP::text "
+                    "WHERE id=1 AND cutover_started_at IS NOT NULL AND first_live_write_at IS NULL AND mode<>'closed'; "
+                    "SELECT * FROM chatbot.runtime_control WHERE id=1 FOR " + lock)
+                for _ in range(5):
                     cursor.nextset()
                 control = cursor.fetchone()
                 allowed = (("intake",) if purpose == "reconciliation" else
@@ -135,11 +139,6 @@ def _connection(purpose=None):
                 if not control or control["mode"] not in allowed:
                     raise MaintenanceError(
                         "Chatbot maintenance is active. Please try again later."
-                    )
-                if control["cutover_started_at"] and not control["first_live_write_at"]:
-                    db.execute(
-                        "UPDATE chatbot.runtime_control SET first_live_write_at=%s WHERE id=1",
-                        (now(),),
                     )
             else:
                 db.execute(setup)
@@ -306,8 +305,8 @@ def _bot_replies_enabled(db):
 
 
 def set_bot_replies(enabled):
-    # All write transactions already lock runtime_control, including intake and send claims.
-    with _connection("administration") as db:
+    # Pause must serialize with intake and send claims; unrelated writes share the gate.
+    with _connection("administration", exclusive=True) as db:
         db.execute(
             """INSERT INTO chatbot.settings(key,value) VALUES('bot_replies_enabled',%s)
             ON CONFLICT(key) DO UPDATE SET value=excluded.value""",
@@ -510,7 +509,7 @@ def save_version(item):
 
 
 def publish(version_id):
-    with _connection("administration") as db:
+    with _connection("administration", exclusive=True) as db:
         row = db.execute(
             "SELECT status,manifest FROM chatbot.versions WHERE id=%s FOR UPDATE", (version_id,)
         ).fetchone()
@@ -707,33 +706,55 @@ def reconcile_intake(session, messages, acknowledgements):
     return inserted
 
 
-def claim_inbox(session):
+def claim_inbox(session, message_id=None):
     with _connection("execution") as db:
+        target = db.execute(
+            """SELECT * FROM chatbot.whatsapp_inbox WHERE session=%s
+            AND (%s::text IS NULL OR message_id=%s) AND status IN ('queued','generating','sending')
+            ORDER BY created_at,message_id LIMIT 1""", (session, message_id, message_id),
+        ).fetchone()
+        if not target or not db.execute(
+            "SELECT pg_try_advisory_xact_lock(hashtextextended(%s,0)) AS acquired",
+            ("whatsapp:" + session + ":" + target["sender"],),
+        ).fetchone()["acquired"]:
+            return None
+        # Expired sends have an unknown outcome. Never retry them automatically.
+        db.execute(
+            """UPDATE chatbot.whatsapp_inbox SET status=CASE WHEN status='sending' THEN 'uncertain' ELSE 'failed' END,
+            error='Execution expired; inspect the message before retrying.',updated_at=%s
+            WHERE session=%s AND sender=%s AND (
+              (status='sending' AND COALESCE(lease_expires_at,updated_at::timestamptz+interval '5 minutes')<CURRENT_TIMESTAMP)
+              OR (status='generating' AND lease_token IS NULL AND updated_at::timestamptz<CURRENT_TIMESTAMP-interval '5 minutes')
+              OR (status='queued' AND created_at::timestamptz<CURRENT_TIMESTAMP-interval '15 minutes'))""",
+            (now(), session, target["sender"]),
+        )
         return db.execute(
-            """WITH candidate AS (
-            SELECT pending.session,pending.message_id FROM chatbot.whatsapp_inbox AS pending
-            WHERE pending.session=%s AND pending.status='queued'
-            AND NOT EXISTS(SELECT 1 FROM chatbot.whatsapp_inbox AS active
-               WHERE active.session=pending.session AND active.sender=pending.sender AND active.status IN ('generating','sending'))
-            ORDER BY pending.created_at,pending.message_id LIMIT 1 FOR UPDATE SKIP LOCKED)
-            UPDATE chatbot.whatsapp_inbox AS inbox SET status='generating',updated_at=%s FROM candidate
-            WHERE inbox.session=candidate.session AND inbox.message_id=candidate.message_id RETURNING inbox.*""",
-            (session, now()),
+            """UPDATE chatbot.whatsapp_inbox AS pending SET status='generating',updated_at=%s,
+            lease_token=%s,lease_expires_at=CURRENT_TIMESTAMP+interval '5 minutes',
+            generation_started_at=COALESCE(generation_started_at,CURRENT_TIMESTAMP)
+            WHERE session=%s AND message_id=%s
+            AND (status='queued' OR (status='generating' AND lease_token IS NOT NULL AND lease_expires_at<CURRENT_TIMESTAMP))
+            AND NOT EXISTS(SELECT 1 FROM chatbot.whatsapp_inbox AS earlier
+                WHERE earlier.session=pending.session AND earlier.sender=pending.sender
+                AND earlier.status IN ('queued','generating','sending') AND earlier.message_id<>pending.message_id
+                AND (earlier.created_at,earlier.message_id)<(pending.created_at,pending.message_id))
+            RETURNING pending.*""", (now(), uuid.uuid4().hex, session, target["message_id"]),
         ).fetchone()
 
 
-def begin_inbox_send(session, message_id):
+def begin_inbox_send(session, message_id, lease_token=None):
     with _connection("execution") as db:
         if not _bot_replies_enabled(db):
             return False
         return bool(db.execute(
-            """UPDATE chatbot.whatsapp_inbox SET status='sending',updated_at=%s
-            WHERE session=%s AND message_id=%s AND status='generating'""",
-            (now(), session, message_id),
+            """UPDATE chatbot.whatsapp_inbox SET status='sending',updated_at=%s,send_started_at=CURRENT_TIMESTAMP
+            WHERE session=%s AND message_id=%s AND status='generating'
+            AND (%s::text IS NULL OR (lease_token=%s AND lease_expires_at>CURRENT_TIMESTAMP))""",
+            (now(), session, message_id, lease_token, lease_token),
         ).rowcount)
 
 
-def update_inbox(session, message_id, fields):
+def update_inbox(session, message_id, fields, lease_token=None):
     from psycopg import sql
 
     allowed = {"status", "answer", "media_url", "reply_ids", "error"}
@@ -750,15 +771,20 @@ def update_inbox(session, message_id, fields):
     ):
         raise ValueError("Invalid inbox state.")
     values = dict(fields, updated_at=now())
+    if fields.get("answer") is not None:
+        values["generated_at"] = now()
+    if fields.get("status") == "sent":
+        values["sent_at"] = now()
     assignments = sql.SQL(",").join(
         sql.SQL("{}=%s").format(sql.Identifier(k)) for k in values
     )
     with _connection("execution") as db:
         db.execute(
             sql.SQL(
-                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s AND status<>'skipped'"
+                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s AND status<>'skipped' "
+                "AND (%s::text IS NULL OR lease_token=%s)"
             ).format(assignments),
-            (*values.values(), session, message_id),
+            (*values.values(), session, message_id, lease_token, lease_token),
         )
 
 

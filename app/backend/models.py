@@ -33,7 +33,8 @@ class OpenRouterEmbeddings(Embeddings):
     def _embed(self, texts, input_type):
         if any(not isinstance(t, str) or not t.strip() or len(t.encode("utf-8")) + 64 > 32768 for t in texts):
             raise ValueError("Embedding inputs must be nonempty text within the conservative 32768-token bound.")
-        for attempt in range(3):
+        attempts = 2 if input_type == "query" else 3
+        for attempt in range(attempts):
             status = None
             try:
                 response = requests.post(
@@ -42,19 +43,19 @@ class OpenRouterEmbeddings(Embeddings):
                     json={"model": self.identity["model"], "input": texts,
                           "dimensions": self.identity["dimensions"], "encoding_format": "float",
                           "input_type": input_type, "provider": {"allow_fallbacks": False}},
-                    timeout=(10, 60),
+                    timeout=(5, 20) if input_type == "query" else (10, 60),
                 )
                 status = response.status_code
             except requests.RequestException:
-                if attempt == 2:
-                    raise EmbeddingUnavailable("OpenRouter embedding transport unavailable after 3 attempts.") from None
+                if attempt == attempts - 1:
+                    raise EmbeddingUnavailable(f"OpenRouter embedding transport unavailable after {attempts} attempts.") from None
             else:
                 if status == 200:
                     break
                 if status != 429 and status < 500:
                     raise EmbeddingUnavailable(f"OpenRouter embeddings returned HTTP {status}; check credentials and request configuration.")
-                if attempt == 2:
-                    raise EmbeddingUnavailable(f"OpenRouter embeddings returned HTTP {status} after 3 attempts; retry the job later.")
+                if attempt == attempts - 1:
+                    raise EmbeddingUnavailable(f"OpenRouter embeddings returned HTTP {status} after {attempts} attempts; retry the job later.")
             time.sleep(2 ** attempt)
         try:
             rows = response.json()["data"]
@@ -106,7 +107,8 @@ def get_llm(model: str | None = None) -> ChatOpenAI:
         base_url=settings.openrouter_base_url,
         temperature=0.0,
         max_tokens=1024,
-        request_timeout=120,
+        request_timeout=45,
+        max_retries=1,
         default_headers={
             "HTTP-Referer": "https://printing-rag-chatbot.local",
             "X-Title": "Digital Printing RAG Chatbot",

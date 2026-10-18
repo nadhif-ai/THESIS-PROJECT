@@ -1892,7 +1892,9 @@ function WhatsAppConnection({ compact = false }: { compact?: boolean }) {
             <div className="proof-record">
               <Status value={data.session_status || "Not reported"} />
               <span>
-                {data.worker_running
+                {data.execution_mode === "vercel_queue"
+                  ? "Replies processed on Vercel"
+                  : data.worker_running
                   ? "Reply worker running"
                   : "Reply worker stopped"}
               </span>

@@ -40,6 +40,8 @@ def pg_workspace(tmp_path, monkeypatch):
     monkeypatch.setenv("PINECONE_INDEX_NAME", "chatbot-nadhif")
     monkeypatch.setenv("ADMIN_PASSWORD", "local-test-password")
     monkeypatch.setenv("WAHA_TYPING_ENABLED", "false")
+    monkeypatch.setenv("VERCEL", "0")
+    monkeypatch.setenv("LANGSMITH_TRACING", "false")
     from app.config.settings import get_settings
 
     get_settings.cache_clear()

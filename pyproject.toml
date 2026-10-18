@@ -1,0 +1,21 @@
+[project]
+name = "asia-visual-grafika-chatbot"
+version = "2.0.0"
+requires-python = ">=3.12,<3.13"
+dynamic = ["dependencies"]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["app*", "testing*"]
+
+[tool.vercel]
+entrypoint = "app.main:app"
+
+[[tool.vercel.subscribers]]
+entrypoint = "app.integrations.waha_queue"

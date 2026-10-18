@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import chat_router, admin_router
-from app.dependencies import initialize_rag_system
 from app.config.settings import get_settings
 
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
@@ -24,12 +23,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("FastAPI Application Lifespan: Starting up...")
-    try:
-        initialize_rag_system()
-        logger.info("Lifespan Startup: RAG system initialized successfully.")
-    except Exception as e:
-        logger.critical(f"Startup FAILED: {e}", exc_info=True)
-        raise e
+    # Authentication and webhook intake must not wait for Pinecone or model providers.
     from app.integrations import waha
 
     waha.start()
