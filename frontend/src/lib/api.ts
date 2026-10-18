@@ -190,6 +190,7 @@ export type WhatsAppStatus = {
   session_status?: string;
   engine?: string;
   worker_running: boolean;
+  execution_mode?: "vercel_queue" | "local_worker";
   bot_replies_enabled?: boolean;
   attention?: {
     failed: number;

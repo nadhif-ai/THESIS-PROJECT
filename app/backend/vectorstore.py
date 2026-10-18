@@ -99,14 +99,21 @@ def similarity_search_with_score(query, k=10, filter_dict=None, namespace=None):
         if conditions
         else None
     )
-    response = get_vectorstore().query(
-        vector=get_embedding_model().embed_query(query),
+    index = get_vectorstore()
+    started = time.monotonic()
+    vector = get_embedding_model().embed_query(query)
+    embedded = time.monotonic()
+    response = index.query(
+        vector=vector,
         top_k=k,
         namespace=namespace,
         filter=where,
         include_metadata=True,
         _request_timeout=30,
     )
+    import logging
+    logging.getLogger(__name__).info("Retrieval embedding_ms=%.1f pinecone_ms=%.1f",
+        (embedded-started)*1000, (time.monotonic()-embedded)*1000)
     result = []
     for match in response.matches:
         metadata = dict(match.metadata or {})

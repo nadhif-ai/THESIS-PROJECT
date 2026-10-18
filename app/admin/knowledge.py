@@ -93,6 +93,7 @@ def new_draft(base_id=None):
             "created_at": store.now(),
             "manifest": {
                 "files": list(source["manifest"]["files"]),
+                **({"menu_text": source["manifest"]["menu_text"]} if "menu_text" in source["manifest"] else {}),
                 "base": source["id"],
                 "embedding": source["manifest"].get("embedding"),
                 "vector_index": source["manifest"].get("vector_index"),
@@ -175,6 +176,8 @@ def save_file(version_id, name, content):
         name = valid_name(name)
         path_for(item).mkdir(parents=True, exist_ok=True)
         (path_for(item) / name).write_bytes(content)
+        if name == "05_daftar_pertanyaan_populer.txt":
+            item["manifest"]["menu_text"] = content.decode("utf-8-sig")
         item["manifest"]["files"] = sorted(set(item["manifest"]["files"] + [name]))
         item["status"] = "draft"
         item["error"] = None
@@ -186,6 +189,8 @@ def delete_file(version_id, name):
         item = editable(version_id)
         name = valid_name(name)
         (path_for(item) / name).unlink(missing_ok=True)
+        if name == "05_daftar_pertanyaan_populer.txt":
+            item["manifest"]["menu_text"] = ""
         item["manifest"]["files"] = [n for n in item["manifest"]["files"] if n != name]
         item["status"] = "draft"
         store.save_version(item)

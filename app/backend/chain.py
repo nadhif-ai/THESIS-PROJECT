@@ -206,6 +206,8 @@ def _trace_inputs(inputs):
 
 
 def _trace_outputs(output):
+    if output is None:
+        return {}
     return {
         "answer": output.answer,
         "sources": output.sources,
@@ -216,7 +218,7 @@ def _trace_outputs(output):
     }
 
 
-def _load_menu_from_file(category_number: str, label: str, kb_dir: str) -> str:
+def _load_menu_from_file(category_number: str, label: str, kb_dir: str, raw: str | None = None) -> str:
     """
     Membaca file 05_daftar_pertanyaan_populer.txt dan mengekstrak contoh
     pertanyaan pada blok [KATEGORI_X] yang sesuai dengan angka yang dipilih.
@@ -236,7 +238,7 @@ def _load_menu_from_file(category_number: str, label: str, kb_dir: str) -> str:
     )
     questions = []
     try:
-        raw = faq_file.read_text(encoding="utf-8")
+        raw = faq_file.read_text(encoding="utf-8") if raw is None else raw
         target_tag = f"[KATEGORI_{category_number}]"
         inside_section = False
         for line in raw.splitlines():
@@ -353,6 +355,53 @@ class RAGChain:
         """
         logger.info("[Session %s] Running Naive RAG for: %r", session_id, question)
         t_start = time.monotonic()
+        cleaned_query = (
+            question.strip()
+            .lower()
+            .replace("?", "")
+            .replace("!", "")
+            .replace(".", "")
+            .replace(",", "")
+        )
+
+        # Penanganan sapaan awal → Tampilkan Pesan Sambutan Resmi
+        if cleaned_query in _GREETINGS:
+            return RAGResponse(
+                answer=_WELCOME_GREETING_TEXT,
+                session_id=session_id,
+                answer_source="Greeting",
+                sources=[],
+                usage={"prompt_tokens": 0, "completion_tokens": 0},
+            )
+
+        # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
+        if cleaned_query in _MENU_MAP:
+            _, label = _MENU_MAP[cleaned_query]
+            menu_dir = self.settings.structured_kb_dir
+            menu_raw = None
+            if self.settings.vector_store == "pinecone":
+                menu_version = store.version_info(namespace=namespace)
+                menu_raw = menu_version["manifest"].get("menu_text")
+            menu_text = _load_menu_from_file(
+                category_number=cleaned_query,
+                label=label,
+                kb_dir=menu_dir,
+                raw=menu_raw,
+            )
+            logger.info(
+                "[Session %s] Menu shortcut '%s' dipilih → KATEGORI_%s dari file 05",
+                session_id,
+                cleaned_query,
+                cleaned_query,
+            )
+            return RAGResponse(
+                answer=menu_text,
+                session_id=session_id,
+                answer_source="Menu",
+                sources=["05_daftar_pertanyaan_populer.txt"],
+                usage={"prompt_tokens": 0, "completion_tokens": 0},
+            )
+
         top_k = top_k or store.get_setting(
             "semantic_top_k", self.settings.semantic_top_k
         )
@@ -385,25 +434,6 @@ class RAGChain:
                 }
             )
 
-        cleaned_query = (
-            question.strip()
-            .lower()
-            .replace("?", "")
-            .replace("!", "")
-            .replace(".", "")
-            .replace(",", "")
-        )
-
-        # Penanganan sapaan awal → Tampilkan Pesan Sambutan Resmi
-        if cleaned_query in _GREETINGS:
-            return RAGResponse(
-                answer=_WELCOME_GREETING_TEXT,
-                session_id=session_id,
-                answer_source="Greeting",
-                sources=[],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
-            )
-
         # Penanganan perintah reset percakapan → Hapus konteks & berikan balasan konfirmasi
         if cleaned_query in _RESET_COMMANDS:
             clear_session_history(session_id)
@@ -415,33 +445,6 @@ class RAGChain:
                 session_id=session_id,
                 answer_source="Reset",
                 sources=[],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
-            )
-
-        # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
-        if cleaned_query in _MENU_MAP:
-            _, label = _MENU_MAP[cleaned_query]
-            menu_dir = self.settings.structured_kb_dir
-            if self.settings.vector_store == "pinecone":
-                from app.admin.knowledge import path_for
-
-                menu_dir = str(path_for(selected_version).parent)
-            menu_text = _load_menu_from_file(
-                category_number=cleaned_query,
-                label=label,
-                kb_dir=menu_dir,
-            )
-            logger.info(
-                "[Session %s] Menu shortcut '%s' dipilih → KATEGORI_%s dari file 05",
-                session_id,
-                cleaned_query,
-                cleaned_query,
-            )
-            return RAGResponse(
-                answer=menu_text,
-                session_id=session_id,
-                answer_source="Menu",
-                sources=["05_daftar_pertanyaan_populer.txt"],
                 usage={"prompt_tokens": 0, "completion_tokens": 0},
             )
 
