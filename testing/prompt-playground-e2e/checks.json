@@ -1,0 +1,80 @@
+{
+  "requests": 15,
+  "http_200": 15,
+  "llm_requests": 13,
+  "persisted_llm_rows": 13,
+  "session_count": 9,
+  "returned_prompt_hashes": [
+    "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a"
+  ],
+  "shortcuts": [
+    "Acknowledgement",
+    "Reset"
+  ],
+  "brochure": {
+    "detailed": {
+      "answer": "Dalam 1 lembar A3+ muat 4 brosur A5, jadi untuk 200 brosur dibutuhkan 50 lembar A3+.\n\nCetak Art Paper 150 GSM dua sisi untuk 50 lembar: Rp 5.000 per lembar. Totalnya *Rp 250.000*, Kak.",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "retrieved_tariff_sections": [
+        {
+          "rank": 2,
+          "source": "04_daftar_estimasi_harga.txt",
+          "tariff_excerpt": "Art Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 5.000 per lembar.\nPesan lebih dari 100 lembar: Rp 4.500 per lembar.\n",
+          "unit": "lembar"
+        },
+        {
+          "rank": 3,
+          "source": "04_daftar_estimasi_harga.txt",
+          "tariff_excerpt": "Art Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 hingga 10 lembar: Rp 10.000 per lembar.\nPesan 11 hingga 100 lembar: Rp 5.000 per lembar.\nPesan lebih dari 100 lembar: Rp 4.500 per lembar.\n",
+          "unit": "lembar"
+        },
+        {
+          "rank": 4,
+          "source": "04_daftar_estimasi_harga.txt",
+          "tariff_excerpt": "Art Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 rim: Rp 650.000.\nPesan 2 hingga 3 rim: Rp 550.000 per rim.\nPesan 4 hingga 5 rim: Rp 450.000 per rim.\n",
+          "unit": "rim"
+        }
+      ],
+      "digital_A3_2S_50_sheet_rate_found": true
+    },
+    "short": {
+      "answer": "Untuk 200 brosur A5 bolak-balik, muat 4 pcs per lembar A3+, jadi perlu 50 lembar. Tarif cetak Art Paper 150 GSM per lembar belum tersedia, jadi totalnya belum bisa dipastikan, Kak.",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "retrieved_tariff_sections": [
+        {
+          "rank": 1,
+          "source": "04_daftar_estimasi_harga.txt",
+          "tariff_excerpt": "Art Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 rim: Rp 650.000.\nPesan 2 hingga 3 rim: Rp 550.000 per rim.\nPesan 4 hingga 5 rim: Rp 450.000 per rim.\n",
+          "unit": "rim"
+        },
+        {
+          "rank": 2,
+          "source": "04_daftar_estimasi_harga.txt",
+          "tariff_excerpt": "Art Paper 150 GSM Cetak Dua Sisi (2S):\nPesan 1 rim: Rp 650.000.\nPesan 2 hingga 3 rim: Rp 550.000 per rim.\nPesan 4 hingga 5 rim: Rp 450.000 per rim.\n",
+          "unit": "rim"
+        }
+      ],
+      "digital_A3_2S_50_sheet_rate_found": false
+    }
+  },
+  "verified_price_original_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+  "reported_rag_latency_seconds": {
+    "min": 8.059,
+    "median": 10.446,
+    "max": 15.598
+  },
+  "all_llm_hashes_match_editor": true,
+  "ordinary_llm_replies_without_html_or_reset_footer": true
+}

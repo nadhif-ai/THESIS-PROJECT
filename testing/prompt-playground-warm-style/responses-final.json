@@ -1,0 +1,359 @@
+[
+  {
+    "request": {
+      "question": "Min, spanduk Flexi China 280 GSM cetak standar ukuran 2×3 meter, dua lembar. Berapa harganya?",
+      "session_id": "fd9cb01b-e02b-4760-94c7-b6a9782545f2"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Untuk spanduk Flexi China 280 GSM cetak standar ukuran 2×3 meter sebanyak 2 lembar, totalnya *Rp198.000*. Hitungannya 6 m² per lembar × 2 = 12 m², dengan tarif Rp16.500/m².",
+      "session_id": "playground_fd9cb01b-e02b-4760-94c7-b6a9782545f2",
+      "answer_source": "naive_rag",
+      "media_url": null,
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "usage": {
+        "prompt_tokens": 3706,
+        "completion_tokens": 110
+      },
+      "retrieval_context": [
+        {
+          "text": "Pilihan Bahan Spanduk Outdoor:\n1. Flexi Standar (China 280 GSM):\n   - Karakteristik: Ini adalah bahan spanduk paling tipis dan paling ringan yang kami sediakan. Permukaannya sedikit mengkilap seperti plastik licin. Kalau dilihat dari belakang saat terkena sinar matahari atau lampu terang, bahan ini agak tembus cahaya (terlihat bayangan terang dari baliknya). Bobotnya ringan sehingga mudah digulung dan dibawa, namun karena tipis, bahan ini tidak sekuat jenis flexi lainnya. Angka 280 GSM menunjukkan berat bahan per meter persegi — semakin besar angkanya, semakin tebal dan berat bahannya.\n   - Ketahanan: Sekitar 3–6 bulan jika dipasang di luar ruangan. Warnanya akan lebih cepat memudar dibanding bahan yang lebih tebal, dan bahannya bisa robek jika terus-menerus tertiup angin kencang dalam waktu lama.\n   - Penggunaan Ideal: Cocok untuk keperluan jangka pendek seperti acara hajatan, spanduk selamat datang, spanduk ulang tahun, latar belakang (backdrop) panggung wisuda, atau promosi mingguan toko dengan anggaran yang terjangkau dan ekonomis.\n   - Pilihan Kualitas Warna: Tersedia dua pilihan hasil cetak. Cetak Standar menghasilkan warna yang sudah bagus untuk kebutuhan sehari-hari dengan harga lebih hemat. Cetak Hires menghasilkan warna yang lebih tajam, lebih pekat, dan lebih detail — cocok jika desainnya banyak foto atau gradasi warna halus.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "ca57c6641782da19586a9f12285e110d61a4febb53f3e782357f38e759dbaacf",
+            "cosine_similarity": 0.523373067,
+            "similarity_score": 0.47662693300000003
+          },
+          "distance": 0.47662693300000003,
+          "similarity": 0.523373067
+        },
+        {
+          "text": "# DAFTAR ESTIMASI HARGA PRODUK CETAK — CV. ASIA VISUAL GRAFIKA\n# Berlaku untuk kedua cabang: Ciputat & Pamulang\n# Harga dalam satuan Rupiah (IDR). Dapat berubah sewaktu-waktu.\n# Untuk konfirmasi harga terkini, silakan hubungi admin toko.\n# -----------------------------------------------------------------------\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ba6c5b99ba018c4481d6018194f002a2e59e2c18d7b21cd45cd1f2f89c48f28d",
+            "cosine_similarity": 0.520456374,
+            "similarity_score": 0.479543626
+          },
+          "distance": 0.479543626,
+          "similarity": 0.520456374
+        },
+        {
+          "text": "2. Flexi Medium (China 340 GSM):\n   - Karakteristik: Bahan spanduk dengan ketebalan sedang, terasa lebih padat dan kaku saat dipegang dibandingkan Flexi 280 GSM. Seratnya lebih rapat sehingga bahan ini lebih kokoh dan tidak gampang melar atau bergelombang. Kalau dipasang di tiang, bentuknya lebih tegak dan tidak mudah melipat sendiri karena angin.\n   - Ketahanan: Mampu bertahan sekitar 6–12 bulan di luar ruangan. Lebih tahan terhadap terpaan angin dan hujan deras. Jika disambung (untuk ukuran lebar di atas 3,2 meter), sambungan lemnya juga lebih kuat karena serat bahan yang lebih padat mencengkeram lem dengan baik.\n   - Penggunaan Ideal: Spanduk nama toko yang dipajang dalam hitungan bulan, T-banner promosi di pinggir jalan, spanduk proyek konstruksi/pembangunan, dan baliho promosi di depan ruko.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 3,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "c4fd2d14a7e34a7c12d8d9ce912dad9f3842a3bff65db911c7d0cb2e517da2b9",
+            "cosine_similarity": 0.507585645,
+            "similarity_score": 0.49241435499999997
+          },
+          "distance": 0.49241435499999997,
+          "similarity": 0.507585645
+        },
+        {
+          "text": "## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: Y-Banner, yaitu banner tegak berdiri berbentuk huruf Y yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN X-Banner, BUKAN spanduk meteran.\nUkuran standar Y-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga y banner\", \"y-banner berapa\", \"banner stand y\".\n\nHarga cetak Y-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak Y-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak Y-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak Y-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "90eb4e7183901941215f6bd64895f017ef0ecd7cb901bd43cf92c2fe5690a85c",
+            "cosine_similarity": 0.46227771,
+            "similarity_score": 0.53772229
+          },
+          "distance": 0.53772229,
+          "similarity": 0.46227770999999995
+        },
+        {
+          "text": "## ROLL UP BANNER (Harga per Paket, sudah termasuk rangka / tiang)\n\nUkuran 60 x 160 cm:\nRoll Up Banner Flexi China 280 GSM ukuran 60x160: Rp 195.000 per paket.\nRoll Up Banner Flexi China 340 GSM ukuran 60x160: Rp 210.000 per paket.\nRoll Up Banner Flexi Korea 440 GSM ukuran 60x160: Rp 240.000 per paket.\nRoll Up Banner Albatros ukuran 60x160: Rp 250.000 per paket.\nRangka Roll Up Banner 60x160 saja tanpa cetak: Rp 175.000 per pcs.\n\nUkuran 85 x 200 cm:\nRoll Up Banner Flexi China 280 GSM ukuran 85x200: Rp 245.000 per paket.\nRoll Up Banner Flexi China 340 GSM ukuran 85x200: Rp 260.000 per paket.\nRoll Up Banner Flexi Korea 440 GSM (High Resolution) ukuran 85x200: Rp 325.000 per paket.\nRoll Up Banner Albatros ukuran 85x200: Rp 335.000 per paket.\nRangka Roll Up Banner 85x200 saja tanpa cetak: Rp 195.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 25,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ac807d78ef324ad8a5470dba3948e578280fe80273657929df3858f87c29b38c",
+            "cosine_similarity": 0.440889239,
+            "similarity_score": 0.559110761
+          },
+          "distance": 0.559110761,
+          "similarity": 0.440889239
+        }
+      ],
+      "latency_seconds": 12.838,
+      "trace_id": "01a14fcd-7f76-7921-856f-8fe4d7fd4fa1",
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a14fcd-7f76-7921-856f-8fe4d7fd4fa1/run/01a14fcd-7f76-7921-856f-8fe4d7fd4fa1?start_time=2026-10-18T16%3A17%3A10.006394%2B00%3A00",
+      "error": null,
+      "prompt_sha256": "82adbd598e96ea5296a1b531e71c3c436d6b240ee3c4275dd9f113097f418e05"
+    }
+  },
+  {
+    "request": {
+      "question": "Kalau jumlahnya jadi tiga lembar, totalnya berapa?",
+      "session_id": "fd9cb01b-e02b-4760-94c7-b6a9782545f2"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Dengan spesifikasi yang sama, 3 lembar ukuran 2×3 meter totalnya *Rp297.000*. Luasnya 6 m² per lembar, jadi total 18 m² × Rp16.500/m².",
+      "session_id": "playground_fd9cb01b-e02b-4760-94c7-b6a9782545f2",
+      "answer_source": "naive_rag",
+      "media_url": null,
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "usage": {
+        "prompt_tokens": 3944,
+        "completion_tokens": 94
+      },
+      "retrieval_context": [
+        {
+          "text": "# DAFTAR ESTIMASI HARGA PRODUK CETAK — CV. ASIA VISUAL GRAFIKA\n# Berlaku untuk kedua cabang: Ciputat & Pamulang\n# Harga dalam satuan Rupiah (IDR). Dapat berubah sewaktu-waktu.\n# Untuk konfirmasi harga terkini, silakan hubungi admin toko.\n# -----------------------------------------------------------------------\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ba6c5b99ba018c4481d6018194f002a2e59e2c18d7b21cd45cd1f2f89c48f28d",
+            "cosine_similarity": 0.465112925,
+            "similarity_score": 0.534887075
+          },
+          "distance": 0.534887075,
+          "similarity": 0.465112925
+        },
+        {
+          "text": "Pilihan Bahan Spanduk Outdoor:\n1. Flexi Standar (China 280 GSM):\n   - Karakteristik: Ini adalah bahan spanduk paling tipis dan paling ringan yang kami sediakan. Permukaannya sedikit mengkilap seperti plastik licin. Kalau dilihat dari belakang saat terkena sinar matahari atau lampu terang, bahan ini agak tembus cahaya (terlihat bayangan terang dari baliknya). Bobotnya ringan sehingga mudah digulung dan dibawa, namun karena tipis, bahan ini tidak sekuat jenis flexi lainnya. Angka 280 GSM menunjukkan berat bahan per meter persegi — semakin besar angkanya, semakin tebal dan berat bahannya.\n   - Ketahanan: Sekitar 3–6 bulan jika dipasang di luar ruangan. Warnanya akan lebih cepat memudar dibanding bahan yang lebih tebal, dan bahannya bisa robek jika terus-menerus tertiup angin kencang dalam waktu lama.\n   - Penggunaan Ideal: Cocok untuk keperluan jangka pendek seperti acara hajatan, spanduk selamat datang, spanduk ulang tahun, latar belakang (backdrop) panggung wisuda, atau promosi mingguan toko dengan anggaran yang terjangkau dan ekonomis.\n   - Pilihan Kualitas Warna: Tersedia dua pilihan hasil cetak. Cetak Standar menghasilkan warna yang sudah bagus untuk kebutuhan sehari-hari dengan harga lebih hemat. Cetak Hires menghasilkan warna yang lebih tajam, lebih pekat, dan lebih detail — cocok jika desainnya banyak foto atau gradasi warna halus.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "ca57c6641782da19586a9f12285e110d61a4febb53f3e782357f38e759dbaacf",
+            "cosine_similarity": 0.456881106,
+            "similarity_score": 0.543118894
+          },
+          "distance": 0.543118894,
+          "similarity": 0.456881106
+        },
+        {
+          "text": "2. Flexi Medium (China 340 GSM):\n   - Karakteristik: Bahan spanduk dengan ketebalan sedang, terasa lebih padat dan kaku saat dipegang dibandingkan Flexi 280 GSM. Seratnya lebih rapat sehingga bahan ini lebih kokoh dan tidak gampang melar atau bergelombang. Kalau dipasang di tiang, bentuknya lebih tegak dan tidak mudah melipat sendiri karena angin.\n   - Ketahanan: Mampu bertahan sekitar 6–12 bulan di luar ruangan. Lebih tahan terhadap terpaan angin dan hujan deras. Jika disambung (untuk ukuran lebar di atas 3,2 meter), sambungan lemnya juga lebih kuat karena serat bahan yang lebih padat mencengkeram lem dengan baik.\n   - Penggunaan Ideal: Spanduk nama toko yang dipajang dalam hitungan bulan, T-banner promosi di pinggir jalan, spanduk proyek konstruksi/pembangunan, dan baliho promosi di depan ruko.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 3,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "c4fd2d14a7e34a7c12d8d9ce912dad9f3842a3bff65db911c7d0cb2e517da2b9",
+            "cosine_similarity": 0.446980894,
+            "similarity_score": 0.553019106
+          },
+          "distance": 0.553019106,
+          "similarity": 0.44698089399999996
+        },
+        {
+          "text": "## PANDUAN RUMUS PERHITUNGAN HARGA (CHAIN-OF-THOUGHT)\n\nPanduan ini berisi seluruh rumus dan langkah perhitungan yang WAJIB digunakan LLM saat pelanggan menanyakan estimasi harga total pesanan. Ikuti langkah demi langkah (step-by-step) secara urut dan tuliskan rincian perhitungan pada jawaban.\n\n### A. RUMUS PERHITUNGAN PRODUK LARGE FORMAT / METERAN (Banner, Spanduk, Stiker Meteran)\n\nBerlaku untuk: cetak spanduk, banner, baliho, backdrop, stiker vinyl meteran, stiker one way vision, poster Albatros meteran, dan laminating meteran.\n\nLangkah Perhitungan:\n1. Hitung luas 1 cetakan: Luas = Panjang (meter) × Lebar (meter).\n2. Hitung total luas seluruh pesanan: Total Luas = Luas × Jumlah pcs.\n3. Tentukan harga per m² sesuai jenis bahan yang dipilih pelanggan (lihat tabel harga di atas).\n4. Hitung harga mentah: Harga Mentah = Total Luas × Harga per m².\n5. Bulatkan ke atas ke kelipatan Rp 500 terdekat: Total Harga = ceiling(Harga Mentah ÷ 500) × 500.\n\nContoh CoT: Pelanggan memesan 2 spanduk Flexi 280 GSM Standar ukuran 3 × 1 meter.\n• Luas per spanduk = 3 × 1 = 3 m².\n• Total luas = 3 × 2 = 6 m².\n• Harga per m² Flexi 280 Standar = Rp 16.500.\n• Harga mentah = 6 × Rp 16.500 = Rp 99.000.\n• Pembulatan ke kelipatan 500 → Rp 99.000 (sudah kelipatan 500).\n• Total estimasi = Rp 99.000.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 39,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "2dea54e57e33195c06ce26756989bd4c6035f6d1e3df8ad9cc95fac659c31ccc",
+            "cosine_similarity": 0.412652433,
+            "similarity_score": 0.587347567
+          },
+          "distance": 0.587347567,
+          "similarity": 0.412652433
+        },
+        {
+          "text": "## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: Y-Banner, yaitu banner tegak berdiri berbentuk huruf Y yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN X-Banner, BUKAN spanduk meteran.\nUkuran standar Y-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga y banner\", \"y-banner berapa\", \"banner stand y\".\n\nHarga cetak Y-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak Y-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak Y-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak Y-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "90eb4e7183901941215f6bd64895f017ef0ecd7cb901bd43cf92c2fe5690a85c",
+            "cosine_similarity": 0.404125512,
+            "similarity_score": 0.595874488
+          },
+          "distance": 0.595874488,
+          "similarity": 0.404125512
+        }
+      ],
+      "latency_seconds": 9.433,
+      "trace_id": "01a14fcd-baf7-7d20-81dc-f5b05d490b8b",
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a14fcd-baf7-7d20-81dc-f5b05d490b8b/run/01a14fcd-baf7-7d20-81dc-f5b05d490b8b?start_time=2026-10-18T16%3A17%3A25.239027%2B00%3A00",
+      "error": null,
+      "prompt_sha256": "82adbd598e96ea5296a1b531e71c3c436d6b240ee3c4275dd9f113097f418e05"
+    }
+  },
+  {
+    "request": {
+      "question": "Mau cetak stiker vinyl A3+, ukuran 5×5 cm, 100 pcs, potong manual tanpa kiss cut. Berapa lembar dan totalnya?",
+      "session_id": "2adc1da1-6f50-4e24-8296-88d06ecf2b48"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Untuk stiker vinyl 5×5 cm, potong manual tanpa kiss cut, muat *54 pcs per lembar A3+*. Jadi untuk 100 pcs perlu *2 lembar*; tarif vinyl tanpa kiss cut Rp12.500 per lembar, totalnya *Rp25.000*. Kapasitasnya 108 slot, jadi ada 8 slot yang tidak terpakai.",
+      "session_id": "playground_2adc1da1-6f50-4e24-8296-88d06ecf2b48",
+      "answer_source": "naive_rag",
+      "media_url": null,
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt",
+        "04_daftar_estimasi_harga.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt"
+      ],
+      "usage": {
+        "prompt_tokens": 4065,
+        "completion_tokens": 275
+      },
+      "retrieval_context": [
+        {
+          "text": "## STIKER CETAK A3+ SATUAN / KISS CUT (Harga per lembar A3+)\n\nPRODUK INI ADALAH: Stiker satuan cetak per lembar A3+, digunakan untuk label produk, stiker custom kecil-kecil dalam satu lembar besar.\nBUKAN stiker meteran gulungan, BUKAN cutting stiker vinyl dinding, BUKAN banner.\nArea cetak efektif per lembar A3+: 31 cm x 47 cm. Bisa dengan atau tanpa kiss cut (potong).\nContoh pertanyaan kategori ini: \"harga stiker per lembar\", \"stiker cromo A3\", \"stiker label 5x5 berapa lembar\", \"kiss cut stiker\".\n\nStiker Cromo tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 7.000 per lembar.\nPesan lebih dari 10 lembar: Rp 5.500 per lembar.\n\nStiker Vinyl tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Transparan tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Cromo dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.500 per lembar.\n\nStiker Vinyl dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 17.500 per lembar.\nPesan lebih dari 10 lembar: Rp 15.000 per lembar.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 11,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "188ef2889af5b97313d1ba929d87df257f8b1301cfe36cf437e622d6f7dfcc2f",
+            "cosine_similarity": 0.691594601,
+            "similarity_score": 0.30840539899999997
+          },
+          "distance": 0.30840539899999997,
+          "similarity": 0.691594601
+        },
+        {
+          "text": "## 9. TABEL ACUAN RESMI JUMLAH STIKER DAPAT BERAPA PCS PER LEMBAR A3+ (KISS CUTTING)\n\nApabila pemesan menanyakan estimasi jumlah stiker yang didapat dalam 1 lembar A3+, berikut adalah acuan resmi toko CV. Asia Visual Grafika:\n\nUkuran Persegi / Sama Sisi:\n• 2 cm x 2 cm: 234 pcs per lembar A3+\n• 2,5 cm x 2,5 cm: 150 pcs per lembar A3+\n• 3 cm x 3 cm: 108 pcs per lembar A3+\n• 3,5 cm x 3,5 cm: 77 pcs per lembar A3+\n• 4 cm x 4 cm: 54 pcs per lembar A3+\n• 4,5 cm x 4,5 cm: 48 pcs per lembar A3+\n• 5 cm x 5 cm: 35 pcs per lembar A3+\n• 5,5 cm x 5,5 cm: 35 pcs per lembar A3+\n• 6 cm x 6 cm: 24 pcs per lembar A3+\n• 6,5 cm x 6,5 cm: 24 pcs per lembar A3+\n• 7 cm x 7 cm: 20 pcs per lembar A3+\n• 7,5 cm x 7,5 cm: 15 pcs per lembar A3+\n• 8 cm x 8 cm: 15 pcs per lembar A3+\n• 8,5 cm x 8,5 cm: 12 pcs per lembar A3+\n• 9 cm x 9 cm: 12 pcs per lembar A3+\n• 10 cm x 10 cm: 8 pcs per lembar A3+",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 8,
+            "document_id": "b457cbf47b594baf9d444694eab014a8",
+            "format": "txt",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "source_id": "6e21c4942b07464a9285ad8d7d1f8cec",
+            "chunk_id": "50a4053173330fa375d1802531605d087666f85a405a87edfb4e9767d150b50b",
+            "cosine_similarity": 0.659952879,
+            "similarity_score": 0.340047121
+          },
+          "distance": 0.340047121,
+          "similarity": 0.659952879
+        },
+        {
+          "text": "## TABEL COMPREHENSIVE STIKER PERSEGI PANJANG & KUSTOM\n\nPerbandingan jumlah pcs yang didapat per 1 lembar A3+ antara Kiss Cut Mesin (29×42 cm) dan Potong Manual Karter (31×47 cm):\n\n• Ukuran 2 cm × 3 cm: Kiss Cut Mesin = 196 pcs | Potong Manual = 230 pcs.\n• Ukuran 2 cm × 4 cm: Kiss Cut Mesin = 147 pcs | Potong Manual = 165 pcs.\n• Ukuran 2 cm × 5 cm: Kiss Cut Mesin = 112 pcs | Potong Manual = 138 pcs.\n• Ukuran 3 cm × 4 cm: Kiss Cut Mesin = 98 pcs | Potong Manual = 110 pcs.\n• Ukuran 3 cm × 5 cm: Kiss Cut Mesin = 72 pcs | Potong Manual = 90 pcs.\n• Ukuran 3 cm × 6 cm: Kiss Cut Mesin = 63 pcs | Potong Manual = 75 pcs.\n• Ukuran 4 cm × 5 cm: Kiss Cut Mesin = 56 pcs | Potong Manual = 66 pcs.\n• Ukuran 4 cm × 6 cm: Kiss Cut Mesin = 49 pcs | Potong Manual = 55 pcs.\n• Ukuran 4 cm × 7 cm: Kiss Cut Mesin = 42 pcs | Potong Manual = 44 pcs.\n• Ukuran 5 cm × 6 cm: Kiss Cut Mesin = 35 pcs | Potong Manual = 45 pcs.\n• Ukuran 5 cm × 7 cm: Kiss Cut Mesin = 32 pcs | Potong Manual = 36 pcs.\n• Ukuran 5 cm × 8 cm: Kiss Cut Mesin = 25 pcs | Potong Manual = 30 pcs.\n• Ukuran 5 cm × 9 cm: Kiss Cut Mesin = 24 pcs | Potong Manual = 30 pcs.\n• Ukuran 5 cm × 10 cm: Kiss Cut Mesin = 20 pcs | Potong Manual = 27 pcs.\n• Ukuran 6 cm × 7 cm: Kiss Cut Mesin = 28 pcs | Potong Manual = 30 pcs.\n• Ukuran 6 cm × 8 cm: Kiss Cut Mesin = 21 pcs | Potong Manual = 25 pcs.\n• Ukuran 7 cm × 10 cm: Kiss Cut Mesin = 16 pcs | Potong Manual = 18 pcs.\n• Ukuran 10 cm × 15 cm: Kiss Cut Mesin = 4 pcs | Potong Manual = 9 pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 5,
+            "document_id": "661be36113044f5d99284977547c0fe8",
+            "format": "txt",
+            "source": "06_estimasi_pcs_per_lembar_a3.txt",
+            "source_id": "aea30213c78a4e5d819d2ae2dd199069",
+            "chunk_id": "ae9db18ae38a26a4c7055567dcb56d35a23d231bdfaf8d65c58668038ecd8f69",
+            "cosine_similarity": 0.650015295,
+            "similarity_score": 0.349984705
+          },
+          "distance": 0.349984705,
+          "similarity": 0.650015295
+        },
+        {
+          "text": "## STIKER CETAK A3+ SATUAN (Harga per lembar A3, ukuran A3+)\n\nStiker Cromo tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 7.000 per lembar.\nPesan lebih dari 10 lembar: Rp 5.500 per lembar.\n\nStiker Vinyl tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Transparan tanpa Kiss Cut:\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.000 per lembar.\n\nStiker Cromo dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 12.500 per lembar.\nPesan lebih dari 10 lembar: Rp 10.500 per lembar.\n\nStiker Vinyl dengan Kiss Cut (sudah termasuk cutting):\nPesan 1 hingga 10 lembar: Rp 17.500 per lembar.\nPesan lebih dari 10 lembar: Rp 15.000 per lembar.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 30,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "af2fbfaa9998b7587a30f0b1e3751ac49d5306ccf96edc2896dc88203e2eacd0",
+            "cosine_similarity": 0.640595138,
+            "similarity_score": 0.359404862
+          },
+          "distance": 0.359404862,
+          "similarity": 0.640595138
+        },
+        {
+          "text": "# ESTIMASI JUMLAH PCS STIKER PER LEMBAR A3+\n# CV. Asia Visual Grafika — Panduan Lengkap & Resmi Hasil Cetak Stiker A3+\n# -----------------------------------------------------------------------\n\n## PANDUAN ESTIMASI JUMLAH STIKER PER LEMBAR A3+\n\nPRODUK INI ADALAH: Panduan resmi menghitung estimasi jumlah pcs stiker yang dapat dicetak dalam 1 lembar A3+.\nBerlaku untuk semua jenis cetakan lembaran A3+: Stiker Cromo, Stiker Vinyl, Stiker Transparan.\nBUKAN untuk stiker meteran gulungan per m².\n\nTerdapat dua metode pemotongan stiker yang menentukan luas bidang cetak efektif:\n\n1. Metode Kiss Cut (Mesin Cutting Otomatis Plotter):\n   - Area Efektif: 29 cm × 42 cm (disisakan ruang 1–2 cm untuk tanda registrasi sensor mesin).\n   - Pemotongan setengah putus (kertas backing tetap utuh). Cocok untuk stiker bentuk bulat, oval, atau custom shape.\n\n2. Metode Potong Manual (Karter / Cutter):\n   - Area Efektif: 31 cm × 47 cm (area maksimal kertas A3+ fisik).\n   - Pemotongan lurus putus tembus. Cocok untuk stiker bentuk persegi atau persegi panjang.\n\nRumus perhitungan jumlah pcs per lembar:\n• Jumlah Kolom = floor(Lebar Area ÷ Lebar Stiker)\n• Jumlah Baris = floor(Tinggi Area ÷ Tinggi Stiker)\n• Total Pcs per Lembar = Jumlah Kolom × Jumlah Baris\n\nContoh pertanyaan kategori ini: \"stiker 5x5 dapat berapa pcs\", \"1 lembar A3 muat berapa stiker 3x3\", \"estimasi stiker per lembar\", \"stiker 2.5x2.5 dapat berapa\", \"stiker 4x6 dapat berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "document_id": "661be36113044f5d99284977547c0fe8",
+            "format": "txt",
+            "source": "06_estimasi_pcs_per_lembar_a3.txt",
+            "source_id": "aea30213c78a4e5d819d2ae2dd199069",
+            "chunk_id": "6166e1c6c27daeb9d8031c9516066fa9112a70d0be0e07a4e7c51575533daab1",
+            "cosine_similarity": 0.629120767,
+            "similarity_score": 0.37087923300000003
+          },
+          "distance": 0.37087923300000003,
+          "similarity": 0.629120767
+        }
+      ],
+      "latency_seconds": 10.368,
+      "trace_id": "01a14fcd-ec5e-7fa0-8b65-5c83e73f6953",
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a14fcd-ec5e-7fa0-8b65-5c83e73f6953/run/01a14fcd-ec5e-7fa0-8b65-5c83e73f6953?start_time=2026-10-18T16%3A17%3A37.886912%2B00%3A00",
+      "error": null,
+      "prompt_sha256": "82adbd598e96ea5296a1b531e71c3c436d6b240ee3c4275dd9f113097f418e05"
+    }
+  },
+  {
+    "request": {
+      "question": "Makasih, Min.",
+      "session_id": "2adc1da1-6f50-4e24-8296-88d06ecf2b48"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Sama-sama, Kak! 😊",
+      "session_id": "playground_2adc1da1-6f50-4e24-8296-88d06ecf2b48",
+      "answer_source": "Acknowledgement",
+      "media_url": null,
+      "sources": [],
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0
+      },
+      "retrieval_context": [],
+      "latency_seconds": 0,
+      "trace_id": null,
+      "trace_url": null,
+      "error": null,
+      "prompt_sha256": null
+    }
+  }
+]

@@ -138,6 +138,51 @@ def test_submission_captures_reference_rows_and_latest_active(pg_live, monkeypat
     assert checkpoint["snapshot"]["id"] == "active"
 
 
+def test_prompt_snapshot_survives_save_restart_and_multiple_answer_steps(pg_live, monkeypatch):
+    from app.admin import prompt_settings
+
+    seed()
+    module, calls = setup_runtime(monkeypatch)
+    monkeypatch.setattr(module, "load_cases", lambda *args: [
+        {"id": "first", "question": "First question", "ground_truth": "Reference"},
+        {"id": "second", "question": "Second question", "ground_truth": "Reference"},
+    ])
+    monkeypatch.setattr(durable_jobs, "dispatch", lambda identifier: None)
+    class Metric:
+        __name__ = "Synthetic metric"
+        threshold = 0.7
+
+        def measure(self, case):
+            self.score, self.reason = 0.8, "Synthetic score"
+
+        def is_successful(self):
+            return True
+
+    monkeypatch.setattr(module, "single_turn_metrics", lambda *args: [Metric()])
+    original = prompt_settings.save("Instruksi sebelum evaluasi.")
+    identifier = module.submit("legacy", 2)["job_id"]
+    checkpoint = kb_store.work(identifier)["checkpoint"]
+    frozen = checkpoint["prompt_snapshot"]
+    assert checkpoint["prompt_sha256"] == original["prompt_sha256"] == frozen["sha256"]
+    prompt_settings.save("Instruksi setelah submit.")
+    durable_jobs.consume(identifier, 0)
+    durable_jobs.consume(identifier, 1)
+    store.close_pool()
+    prompt_settings.save("Instruksi setelah jawaban pertama.")
+    for sequence in range(2, 6):
+        durable_jobs.consume(identifier, sequence)
+    result = store.evaluation_result(identifier)
+    assert len(calls) == 2
+    assert all(call["prompt_config"] == frozen for call in calls)
+    assert result["prompt_sha256"] == original["prompt_sha256"]
+    assert result["prompt_snapshot"] == frozen
+    assert len(result["cases"]) == 2
+    # Existing records remain readable without retroactively claiming a prompt snapshot.
+    store.create_job_row("old-result", "evaluate", {})
+    store.set_job_state("old-result", "completed", result={"id": "old-result", "prompt_sha256": "legacy-hash", "cases": []})
+    assert store.evaluation_result("old-result") == {"id": "old-result", "prompt_sha256": "legacy-hash", "cases": []}
+
+
 def test_conversation_resumes_saved_pairs_with_a_four_pair_limit(pg_live, monkeypatch):
     from deepeval.test_case import Turn
 

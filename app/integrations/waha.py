@@ -72,6 +72,8 @@ def plain_text(answer):
     import html
 
     text = re.sub(r"<br\s*/?>", "\n", answer, flags=re.IGNORECASE)
+    text = re.sub(r"</?(?:b|strong)\b[^>]*>", "*", text, flags=re.IGNORECASE)
+    text = re.sub(r"\*\*([^*\n]+)\*\*", r"*\1*", text)
     return html.unescape(re.sub(r"<[^>]+>", "", text)).strip()
 
 

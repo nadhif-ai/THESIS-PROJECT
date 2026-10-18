@@ -1,12 +1,12 @@
 import logging
 import time
-import hashlib
 from typing import Optional
 from dataclasses import dataclass, field
 from langsmith import traceable, get_current_run_tree
 from app.admin import store
 from app.backend.models import get_llm
-from app.backend.prompt_template import get_chat_prompt, format_context
+from app.backend.prompt_template import get_chat_prompt, format_context, prompt_snapshot
+from app.backend.history import bounded_history, retrieval_question
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -130,7 +130,6 @@ _GREETINGS = {
     "start",
     "menu",
     "bantuan",
-    "posisi",
     "layanan",
     "info",
     "help",
@@ -155,9 +154,7 @@ _RESET_COMMANDS = {
     "batal",
 }
 
-_RESET_RESPONSE_TEXT = """🔄 *Riwayat percakapan berhasil direset!*
-
-Konteks percakapan sebelumnya telah dibersihkan. Silakan ketik pertanyaan atau topik baru Kakak ya! 😊"""
+_RESET_RESPONSE_TEXT = "Riwayat percakapan sudah dibersihkan, Kak. Silakan mulai pertanyaan baru."
 
 
 def clear_session_history(session_id: str) -> bool:
@@ -179,20 +176,8 @@ _MENU_MAP = {
     "4": ("04_daftar_estimasi_harga.txt", "Estimasi Harga Produk"),
 }
 
-# ---------------------------------------------------------------------------
-# CONVERSATION HISTORY — History-in-Prompt Strategy
-# Menyimpan 2 giliran percakapan terakhir per session_id (nomor WhatsApp).
-# Histori disisipkan langsung ke dalam prompt Gemini sehingga LLM dapat
-# memahami konteks percakapan tanpa perlu memodifikasi kueri ke ChromaDB.
-# Query asli pelanggan selalu dikirim langsung ke ChromaDB tanpa perubahan.
-# Referensi: Lewis et al. (2020) RAG; Shi et al. (2023) Context-in-Prompt.
-# ---------------------------------------------------------------------------
-
-
-def _format_history_for_prompt(session_id: str) -> str:
-    return "\n".join(
-        f"Pelanggan: {q}\nBot: {a[:300]}" for q, a in store.prompt_turns(session_id)
-    )
+def _format_history_for_prompt(session_id: str, channel=None):
+    return bounded_history(store.prompt_turns(session_id, channel))
 
 
 def get_all_chat_logs() -> list[dict]:
@@ -215,6 +200,7 @@ def _trace_outputs(output):
         "usage": output.usage,
         "latency_seconds": output.latency_seconds,
         "error": output.error,
+        "prompt_sha256": output.prompt_sha256,
     }
 
 
@@ -263,30 +249,25 @@ def _load_menu_from_file(category_number: str, label: str, kb_dir: str, raw: str
         questions = ["• Informasi tersedia, silakan ketik pertanyaan lengkap Kakak."]
 
     contoh = "\n".join(questions)
-    footer = "\n\n💬 Siap membantu menjawab ya kak😊" if category_number == "4" else ""
     return (
         f"*{label}*\n\n"
-        f"Berikut contoh pertanyaan yang bisa Kakak ketik langsung:\n\n"
-        f"{contoh}"
-        f"{footer}\n\n"
-        f"Silakan salin atau ketik pertanyaan Kakak ya! 😊"
+        f"Contoh pertanyaan:\n{contoh}\n\n"
+        "Ketik pertanyaan langsung, atau ketik *menu* untuk pilihan lain."
     )
 
 
-_WELCOME_GREETING_TEXT = """Halo Sahabat Asia! 👋
+_WELCOME_GREETING_TEXT = "Halo, Kak! 😊 Lagi mau cetak apa? Ceritakan kebutuhannya, nanti saya bantu cek pilihan bahan atau estimasi harganya."
+_MENU_TEXT = """Pilih contoh pertanyaan:
+1. Bahan cetak
+2. Persiapan file
+3. Kebijakan toko
+4. Estimasi harga
 
-Selamat datang di Chatbot Informasi CV. Asia Visual Grafika.
-
-📌 *Kategori Informasi yang Tersedia:*
-1. Penjelasan Bahan Cetak 
-2. Cara Pemrosesan File 
-3. Standar Operasional Toko 
-4. Estimasi Harga Produk
-
-💡 Ketik angka *1*, *2*, *3*, atau *4* untuk melihat contoh pertanyaan setiap kategori.
-🔄 Ketik *reset* kapan saja jika ingin mengulang/membersihkan konteks percakapan.
-
-Silakan ketik pertanyaan Kakak secara langsung ya! 😊"""
+Ketik angka 1 sampai 4, atau langsung tulis pertanyaan.
+Ketik *reset* untuk membersihkan riwayat percakapan."""
+_HELP_COMMANDS = {"start", "menu", "bantuan", "help", "fitur", "menu utama", "layanan", "info"}
+_THANKS = {"makasih", "makasih min", "makasih kak", "terima kasih", "terimakasih", "thanks", "thank you", "tks"}
+_ACKNOWLEDGEMENTS = {"oke", "ok", "okay", "siap", "baik", "sip", "oke kak", "oke min", "siap kak"}
 
 
 @dataclass
@@ -314,6 +295,7 @@ class RAGResponse:
     trace_id: Optional[str] = None
     trace_url: Optional[str] = None
     error: Optional[str] = None
+    prompt_sha256: Optional[str] = None
 
 
 class RAGChain:
@@ -331,9 +313,7 @@ class RAGChain:
         """
         self.llm = get_llm()
         self.prompt = get_chat_prompt()
-        self.prompt_fingerprint = hashlib.sha256(
-            self.prompt.pretty_repr().encode()
-        ).hexdigest()
+        self.prompt_fingerprint = prompt_snapshot()["sha256"]
         self.settings = get_settings()
         logger.info("RAGChain initialized (Naive mode).")
 
@@ -349,6 +329,8 @@ class RAGChain:
         channel: str = "api",
         top_k: Optional[int] = None,
         model: Optional[str] = None,
+        prompt_config: Optional[dict] = None,
+        history_turns: Optional[list] = None,
     ) -> RAGResponse:
         """
         Menjalankan pipeline RAG secara penuh untuk menjawab pertanyaan pengguna.
@@ -364,7 +346,18 @@ class RAGChain:
             .replace(",", "")
         )
 
-        # Penanganan sapaan awal → Tampilkan Pesan Sambutan Resmi
+        shortcut = None
+        if cleaned_query in _HELP_COMMANDS:
+            shortcut = (_MENU_TEXT, "Menu")
+        elif cleaned_query in _THANKS:
+            shortcut = ("Sama-sama, Kak! 😊", "Acknowledgement")
+        elif cleaned_query in _ACKNOWLEDGEMENTS:
+            shortcut = ("Siap, Kak! 👍", "Acknowledgement")
+        if shortcut:
+            return RAGResponse(answer=shortcut[0], session_id=session_id,
+                               answer_source=shortcut[1], sources=[],
+                               usage={"prompt_tokens": 0, "completion_tokens": 0})
+
         if cleaned_query in _GREETINGS:
             return RAGResponse(
                 answer=_WELCOME_GREETING_TEXT,
@@ -457,7 +450,6 @@ class RAGChain:
                     "backend": self.settings.vector_store,
                     "embedding": selected_version["manifest"].get("embedding") if selected_version else None,
                     "vector_index": selected_version["manifest"].get("vector_index") if selected_version else None,
-                    "prompt_sha256": self.prompt_fingerprint,
                 }
             )
 
@@ -466,9 +458,14 @@ class RAGChain:
         else:
             faq_filter = intent_filter if intent_filter else _FAQ_FILTER
 
-        # Query asli langsung dikirim ke ChromaDB tanpa modifikasi apapun
-        # (History-in-Prompt Strategy — konteks ditangani oleh Gemini via prompt)
-        search_question = question
+        from app.admin.prompt_settings import active_snapshot
+
+        captured_prompt = prompt_config if prompt_config is not None else active_snapshot()
+        history = bounded_history(history_turns) if history_turns is not None else _format_history_for_prompt(session_id, channel)
+        search_question = retrieval_question(question, history)
+        if tree:
+            tree.add_metadata({"prompt_sha256": captured_prompt["sha256"],
+                               "history_recipe": "eight-pairs-utf8-bound-v1"})
 
         from app.backend.vectorstore import similarity_search_with_score
 
@@ -519,17 +516,18 @@ class RAGChain:
         generation_error = None
 
         try:
-            # Ambil histori percakapan sesi ini untuk disisipkan ke prompt
-            history_text = _format_history_for_prompt(session_id)
-
-            prompt_value = self.prompt.format_messages(
+            prompt_value = get_chat_prompt(captured_prompt).format_messages(
                 context=context_str,
-                history=history_text,
+                history=history,
                 question=question,
             )
             response = get_llm(model).invoke(prompt_value)
             answer = response.content if hasattr(response, "content") else str(response)
             if not isinstance(answer, str) or not answer.strip():
+                raise ValueError("The answering provider returned no usable text.")
+            from app.integrations.waha import plain_text
+            answer = plain_text(answer)
+            if not answer:
                 raise ValueError("The answering provider returned no usable text.")
 
             # Ekstrak token usage dari response OpenRouter/LangChain jika ada
@@ -606,4 +604,5 @@ class RAGChain:
             trace_id=trace_id,
             trace_url=trace_url,
             error=generation_error,
+            prompt_sha256=captured_prompt["sha256"],
         )

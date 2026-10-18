@@ -8,6 +8,27 @@ from app.admin.chunking import Chunking
 router = APIRouter(prefix="/knowledge", tags=["Knowledge"])
 
 
+@router.get("/prompt")
+def conversational_prompt():
+    from app.admin import prompt_settings
+
+    return prompt_settings.editor()
+
+
+class ConversationalPrompt(BaseModel):
+    prompt: str = Field(strict=True, min_length=1, max_length=12000)
+
+
+@router.put("/prompt")
+def save_conversational_prompt(body: ConversationalPrompt):
+    from app.admin import prompt_settings
+
+    try:
+        return prompt_settings.save(body.prompt)
+    except ValueError as error:
+        raise HTTPException(400, str(error)) from None
+
+
 def invalid(error):
     return HTTPException(400 if isinstance(error, ValueError) else 503, str(error))
 

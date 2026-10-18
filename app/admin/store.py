@@ -576,12 +576,14 @@ def conversations(channel=None, limit=200):
     return [dict(r, usage=json.loads(r["usage"] or "{}")) for r in rows]
 
 
-def prompt_turns(session_id):
+def prompt_turns(session_id, channel=None):
     boundary = get_setting("reset:" + session_id, 0)
     with _connection() as db:
         rows = db.execute(
-            "SELECT question,answer FROM chatbot.conversations WHERE session_id=%s AND id>%s ORDER BY id DESC LIMIT 2",
-            (session_id, boundary),
+            """SELECT question,answer FROM chatbot.conversations
+            WHERE session_id=%s AND id>%s AND answer<>''
+            AND (%s::text IS NULL OR channel=%s) ORDER BY id DESC LIMIT 8""",
+            (session_id, boundary, channel, channel),
         ).fetchall()
     return [(r["question"], r["answer"]) for r in reversed(rows)]
 
