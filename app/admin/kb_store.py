@@ -364,9 +364,14 @@ def retry(identifier):
           WHERE j.id=%s FOR UPDATE""",
             (identifier,),
         ).fetchone()
+        target_environment = environment()
+        local_evaluation = (
+            row and row["environment"] == "local"
+            and target_environment == "production" and row["kind"] == "evaluate"
+        )
         if (
             not row
-            or row["environment"] != environment()
+            or (row["environment"] != target_environment and not local_evaluation)
             or row["status"] == "completed"
         ):
             raise ValueError("This job cannot be resumed in this environment.")
@@ -394,8 +399,10 @@ def retry(identifier):
             (store.now(), identifier),
         )
         db.execute(
-            "UPDATE chatbot.admin_work SET attempts=0,sequence=sequence+1 WHERE job_id=%s",
-            (identifier,),
+            """UPDATE chatbot.admin_work SET attempts=0,sequence=sequence+1,
+            environment=%s,lease_token=NULL,lease_until=NULL,updated_at=now()
+            WHERE job_id=%s""",
+            (target_environment, identifier),
         )
 
 

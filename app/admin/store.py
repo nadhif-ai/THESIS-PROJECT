@@ -351,7 +351,15 @@ _VERSION_SUMMARY = """SELECT id,namespace,status,created_at,manifest,error,
     COALESCE((manifest::json->>'chunk_count')::integer,
              json_array_length(records::json)) AS chunk_count FROM chatbot.versions"""
 
-_JOB_SUMMARY = """SELECT id,kind,status,payload,progress,error,created_at,updated_at,
+_JOB_EXECUTION = """(SELECT jsonb_build_object(
+    'environment',w.environment,
+    'lease_active',COALESCE(w.lease_until>now(),false),
+    'stalled',CASE WHEN w.lease_until IS NOT NULL THEN w.lease_until<now()
+        ELSE w.updated_at<now()-interval '5 minutes' END)
+    FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id)"""
+
+_JOB_SUMMARY = f"""SELECT id,kind,status,payload,progress,error,created_at,updated_at,
+    {_JOB_EXECUTION} AS execution,
     EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS resumable,
     (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error,
     result IS NOT NULL AS has_result,
@@ -362,7 +370,14 @@ _JOB_SUMMARY = """SELECT id,kind,status,payload,progress,error,created_at,update
 
 _VERSION_JSON = "to_jsonb(item) || jsonb_build_object('manifest',item.manifest::jsonb)"
 _JOB_JSON = """to_jsonb(item) || jsonb_build_object(
-    'payload',item.payload::jsonb,'progress',item.progress::jsonb)"""
+    'payload',item.payload::jsonb,'progress',item.progress::jsonb,
+    'status',CASE WHEN item.status IN ('queued','running') AND
+        COALESCE((item.execution->>'stalled')::boolean,false)
+        THEN 'interrupted' ELSE item.status END,
+    'dispatch_error',COALESCE(item.dispatch_error,
+        CASE WHEN item.status IN ('queued','running') AND
+            COALESCE((item.execution->>'stalled')::boolean,false)
+        THEN 'Execution stopped (' || (item.execution->>'environment') || '). Resume saved work; completed cases are retained.' END))"""
 _CONVERSATION_JSON = """to_jsonb(item) || jsonb_build_object(
     'usage',COALESCE(NULLIF(item.usage,'')::jsonb,'{}'::jsonb))"""
 _PUBLISHED = "(SELECT value::jsonb FROM chatbot.settings WHERE key='published_version')"
@@ -410,7 +425,10 @@ _ADMIN_READS = {
     "jobs": f"""(SELECT COALESCE(jsonb_agg({_JOB_JSON}),'[]'::jsonb)
         FROM ({_JOB_SUMMARY} ORDER BY created_at DESC LIMIT 100) item)""",
     "job": f"""(SELECT {_JOB_JSON} || jsonb_build_object('result',item.result::jsonb)
-        FROM chatbot.jobs item WHERE id=%(job_id)s)""",
+        FROM (SELECT chatbot.jobs.*, {_JOB_EXECUTION} AS execution,
+            EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS resumable,
+            (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error
+            FROM chatbot.jobs WHERE id=%(job_id)s) item)""",
     "overview": f"""jsonb_build_object(
         'conversations',(SELECT count(*) FROM chatbot.conversations),
         'whatsapp_messages',(SELECT count(*) FROM chatbot.conversations WHERE channel='whatsapp'),
