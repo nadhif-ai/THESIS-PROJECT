@@ -18,8 +18,11 @@ from app.config.settings import get_settings
 from deepeval.models.llms.utils import trim_and_load_json
 from openai import BadRequestError
 from langsmith.wrappers import wrap_openai
+from contextvars import ContextVar
+import time
 
 THRESHOLD = 0.7
+STEP_DEADLINE = ContextVar("evaluation_step_deadline", default=None)
 
 
 class OpenRouterJudge(OpenRouterModel):
@@ -27,6 +30,12 @@ class OpenRouterJudge(OpenRouterModel):
         # DeepEval 4.2.8's sync path leaves async transports on a closed event loop.
         # A scoped synchronous client preserves the native model contract.
         with self.load_model(async_mode=False) as client:
+            deadline = STEP_DEADLINE.get()
+            if deadline is not None:
+                remaining = deadline - time.monotonic()
+                if remaining < 2:
+                    raise TimeoutError("Evaluation step exceeded its time budget.")
+                client = client.with_options(timeout=min(60, remaining), max_retries=0)
             client = wrap_openai(client, chat_name="quality-judge")
             parameters = dict(
                 model=self.name,

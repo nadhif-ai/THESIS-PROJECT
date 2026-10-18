@@ -374,14 +374,41 @@ class RAGChain:
                 usage={"prompt_tokens": 0, "completion_tokens": 0},
             )
 
+        if cleaned_query in _RESET_COMMANDS:
+            clear_session_history(session_id)
+            return RAGResponse(answer=_RESET_RESPONSE_TEXT, session_id=session_id,
+                               answer_source="Reset", sources=[],
+                               usage={"prompt_tokens": 0, "completion_tokens": 0})
+
+        active = None
+        if self.settings.vector_store == "pinecone":
+            from app.admin.global_knowledge import EMPTY_ANSWER
+            if namespace:
+                active = store.version_info(namespace=namespace)
+            else:
+                from app.admin.kb_store import active_info
+                active = active_info()
+            if active is None or active["manifest"].get("empty"):
+                response = RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
+                                   answer_source="Empty knowledge", sources=[],
+                                   usage={"prompt_tokens": 0, "completion_tokens": 0})
+                store.record_conversation(session_id, channel, question, response.answer,
+                                          usage=response.usage, latency=time.monotonic() - t_start)
+                return response
+            namespace = active["namespace"]
+
         # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
         if cleaned_query in _MENU_MAP:
             _, label = _MENU_MAP[cleaned_query]
             menu_dir = self.settings.structured_kb_dir
             menu_raw = None
             if self.settings.vector_store == "pinecone":
-                menu_version = store.version_info(namespace=namespace)
+                menu_version = active
                 menu_raw = menu_version["manifest"].get("menu_text")
+                if menu_version["manifest"].get("global_kb") and not menu_raw:
+                    return RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
+                                       answer_source="Empty menu", sources=[],
+                                       usage={"prompt_tokens": 0, "completion_tokens": 0})
             menu_text = _load_menu_from_file(
                 category_number=cleaned_query,
                 label=label,
@@ -410,7 +437,7 @@ class RAGChain:
         )
         selected_version = None
         if self.settings.vector_store == "pinecone":
-            selected_version = store.version_info(namespace=namespace)
+            selected_version = active
             from app.backend.vectorstore import require_compatible_version
 
             require_compatible_version(selected_version)
@@ -432,20 +459,6 @@ class RAGChain:
                     "vector_index": selected_version["manifest"].get("vector_index") if selected_version else None,
                     "prompt_sha256": self.prompt_fingerprint,
                 }
-            )
-
-        # Penanganan perintah reset percakapan → Hapus konteks & berikan balasan konfirmasi
-        if cleaned_query in _RESET_COMMANDS:
-            clear_session_history(session_id)
-            logger.info(
-                "[Session %s] Tombol/perintah reset dipicu pengguna.", session_id
-            )
-            return RAGResponse(
-                answer=_RESET_RESPONSE_TEXT,
-                session_id=session_id,
-                answer_source="Reset",
-                sources=[],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
             )
 
         if isinstance(intent_filter, str):

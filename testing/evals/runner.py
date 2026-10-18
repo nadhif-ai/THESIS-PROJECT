@@ -48,8 +48,8 @@ def dataset_status(kind="conversations"):
         rows = qa_rows()
         return {
             "exists": True,
-            "reviewed": QA_REVIEW.exists()
-            and json.loads(QA_REVIEW.read_text()).get("sha256") == digest,
+            "reviewed": (QA_REVIEW.exists() and json.loads(QA_REVIEW.read_text()).get("sha256") == digest)
+            or store.get_setting("dataset_review:audited", {}).get("sha256") == digest,
             "sha256": digest,
             "count": sum(row.get("review_status") != "hold" for row in rows),
             "held_count": sum(row.get("review_status") == "hold" for row in rows),
@@ -61,8 +61,8 @@ def dataset_status(kind="conversations"):
     digest = hashlib.sha256(DATASET.read_bytes()).hexdigest()
     stale = STALE.exists() and json.loads(STALE.read_text()).get("sha256") == digest
     reviewed = (
-        REVIEW.exists()
-        and json.loads(REVIEW.read_text()).get("sha256") == digest
+        ((REVIEW.exists() and json.loads(REVIEW.read_text()).get("sha256") == digest)
+         or store.get_setting("dataset_review:conversations", {}).get("sha256") == digest)
         and not stale
     )
     rows = candidate_rows()
@@ -94,12 +94,7 @@ def mark_reviewed(kind="conversations"):
                 raise ValueError(
                     "Each QA case needs a question, reference, review notes and valid status."
                 )
-        QA_REVIEW.write_text(
-            json.dumps(
-                {"sha256": status["sha256"], "reviewed_at": store.now()}, indent=2
-            )
-            + "\n"
-        )
+        store.set_settings({"dataset_review:audited": {"sha256": status["sha256"], "reviewed_at": store.now()}})
         return dataset_status(kind)
     status = dataset_status()
     if not status["exists"]:
@@ -118,10 +113,7 @@ def mark_reviewed(kind="conversations"):
         )
         if not golden.scenario or not golden.expected_outcome:
             raise ValueError("Every scenario needs a reviewed expected outcome.")
-    REVIEW.write_text(
-        json.dumps({"sha256": status["sha256"], "reviewed_at": store.now()}, indent=2)
-        + "\n"
-    )
+    store.set_settings({"dataset_review:conversations": {"sha256": status["sha256"], "reviewed_at": store.now()}})
     return dataset_status()
 
 

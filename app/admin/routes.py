@@ -42,6 +42,7 @@ def require_admin(request: Request, response: Response):
         "/admin/api/me": "me",
         "/admin/api/overview": "overview",
         "/admin/api/versions": "versions",
+        "/admin/api/knowledge": "knowledge",
         "/admin/api/settings": "settings",
         "/admin/api/conversations": "conversations",
         "/admin/api/jobs": "jobs",
@@ -72,6 +73,8 @@ def require_admin(request: Request, response: Response):
         ):
             raise HTTPException(403, "Refresh your session before saving changes.")
         store.require_live()
+        if request.url.path.startswith("/admin/api/versions"):
+            raise HTTPException(410, "Version editing is retired. Use the global Knowledge source list and Sync knowledge.")
     return row["csrf"]
 
 
@@ -151,12 +154,10 @@ def summary(item):
 @protected.get("/overview")
 def overview(request: Request):
     data = request.state.admin_data
-    if data["published"] is None:
-        raise HTTPException(503, "Published knowledge version is unavailable.")
     baseline = json.loads((knowledge.BASELINE / "results.json").read_text())
     return {
         **data,
-        "published": summary(data["published"]),
+        "published": summary(data["published"]) if data["published"] else None,
         "baseline": {
             "cases": len(baseline["rows"]),
             "hit_rate": baseline["avg_hit_rate"],
@@ -280,9 +281,9 @@ def chunks(version_id: str):
 
 
 class Playground(BaseModel):
+    model_config = {"extra": "forbid"}
     question: str = Field(min_length=1, max_length=6000)
     session_id: str = Field(min_length=1, max_length=128, pattern=r"^[a-zA-Z0-9_-]+$")
-    version_id: str | None = None
     top_k: int | None = Field(default=None, ge=1, le=20)
 
 
@@ -291,17 +292,17 @@ def playground(body: Playground):
     from app.dependencies import get_rag_chain
 
     try:
-        version = store.version_info(body.version_id)
+        from app.admin.kb_store import active_info
+        version = active_info()
         from app.backend.vectorstore import require_compatible_version
-        require_compatible_version(version)
-        if version["status"] not in ("ready", "published"):
-            raise ValueError("Index this knowledge version before testing it.")
+        if version and not version["manifest"].get("empty"):
+            require_compatible_version(version)
     except ValueError as e:
         raise HTTPException(400, str(e))
     response = get_rag_chain().run(
         question=body.question,
-        session_id="playground_" + version["id"] + "_" + body.session_id,
-        namespace=version["namespace"],
+        session_id="playground_" + body.session_id,
+        namespace=version["namespace"] if version else None,
         channel="playground",
         top_k=body.top_k,
     )
@@ -406,7 +407,7 @@ def job_detail(job_id: str, request: Request):
 
 
 class Evaluation(BaseModel):
-    version_id: str | None = None
+    model_config = {"extra": "forbid"}
     dataset: str = "legacy"
     limit: int = Field(default=10, ge=1, le=40)
 
@@ -414,29 +415,30 @@ class Evaluation(BaseModel):
 @protected.post("/evaluations")
 def evaluate(body: Evaluation):
     try:
-        item = store.version(body.version_id)
-        from app.backend.vectorstore import require_compatible_version
-        require_compatible_version(item)
-        if item["status"] not in ("ready", "published"):
-            raise ValueError("Select indexed knowledge.")
         if body.dataset not in ("legacy", "audited", "conversations", "heldout"):
             raise ValueError("Unknown dataset.")
-        from testing.evals.runner import load_cases
-
-        load_cases(body.dataset, body.limit)
+        from testing.evals.durable import submit
+        return submit(body.dataset, body.limit)
     except ValueError as e:
         raise HTTPException(400, str(e))
-    return {
-        "job_id": jobs.create(
-            "evaluate", dict(body.model_dump(), version_id=item["id"])
-        )
-    }
+
+
+@protected.post("/jobs/{job_id}/resume")
+def resume_job(job_id: str):
+    from app.admin import durable_jobs
+    try:
+        durable_jobs.resume(job_id)
+        return {"job_id": job_id}
+    except (ValueError, RuntimeError) as error:
+        raise HTTPException(400, str(error)) from None
 
 
 @protected.post("/evaluations/generate")
-def generate(body: Draft):
+def generate():
     try:
-        item = store.version(body.base_id)
+        item = store.version()
+        if not item["records"]:
+            raise ValueError("Sync searchable knowledge before generating references.")
     except ValueError as e:
         raise HTTPException(400, str(e))
     return {"job_id": jobs.create("generate", {"version_id": item["id"]})}
@@ -481,6 +483,8 @@ def export(evaluation_id: str):
     )
 
 
+from app.admin.knowledge_routes import router as knowledge_router
+protected.include_router(knowledge_router)
 admin_router.include_router(protected)
 
 

@@ -27,6 +27,22 @@ def chain():
     return get_rag_chain()
 
 
+@pytest.fixture(scope="module")
+def knowledge_snapshot(chain):
+    from app.admin import store
+    from app.config.settings import get_settings
+
+    if os.getenv("EVAL_KNOWLEDGE_VERSION"):
+        raise ValueError("EVAL_KNOWLEDGE_VERSION is retired. New evaluations use current synchronized knowledge.")
+    selected = store.version()
+    if not selected["records"]:
+        raise ValueError("Sync searchable knowledge before evaluation.")
+    settings = get_settings()
+    config = store.get_settings_values({"openrouter_model": settings.openrouter_model,
+            "eval_model": settings.eval_model, "semantic_top_k": settings.semantic_top_k})
+    return selected, config
+
+
 def check_and_report(case, metrics, run_id, client):
     from deepeval import assert_test
 
@@ -49,18 +65,14 @@ def check_and_report(case, metrics, run_id, client):
     reason="Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA references.",
 )
 @pytest.mark.parametrize("row", ROWS, ids=[r["id"] for r in ROWS])
-def test_single_question(row, chain):
+def test_single_question(row, chain, knowledge_snapshot):
     from deepeval.test_case import LLMTestCase
     from langsmith import Client, trace, tracing_context
     from testing.evals.metrics import single_turn_metrics
 
     client = Client()
-    metrics = single_turn_metrics(row.get("review_notes"))
-    from app.admin import store
-
-    selected = store.version(os.getenv("EVAL_KNOWLEDGE_VERSION") or None)
-    if selected["status"] not in ("ready", "published"):
-        raise ValueError("Select indexed knowledge for evaluation.")
+    selected, config = knowledge_snapshot
+    metrics = single_turn_metrics(row.get("review_notes"), config["eval_model"])
     with tracing_context(client=client):
         with trace(
             "deepeval-quality-test",
@@ -72,6 +84,7 @@ def test_single_question(row, chain):
                 session_id="eval-pytest-" + uuid.uuid4().hex,
                 channel="evaluation",
                 namespace=selected["namespace"],
+                model=config["openrouter_model"], top_k=config["semantic_top_k"],
             )
             assert not response.error, response.error
             case = LLMTestCase(
@@ -88,7 +101,7 @@ def test_single_question(row, chain):
     not PAID or KIND != "conversations",
     reason="Select EVAL_DATASET=conversations after human dataset review.",
 )
-def test_conversation(chain):
+def test_conversation(chain, knowledge_snapshot):
     from deepeval.dataset import ConversationalGolden
     from deepeval.simulator import ConversationSimulator
     from deepeval.test_case import Turn
@@ -97,6 +110,7 @@ def test_conversation(chain):
     from testing.evals.metrics import judge, conversational_metrics
 
     rows = load_cases("conversations", LIMIT)
+    selected, config = knowledge_snapshot
     client = Client()
     for row in rows:
 
@@ -105,6 +119,7 @@ def test_conversation(chain):
                 question=input,
                 session_id="eval-pytest-" + str(thread_id),
                 channel="evaluation",
+                namespace=selected["namespace"], model=config["openrouter_model"], top_k=config["semantic_top_k"],
             )
             assert not response.error, response.error
             return Turn(
@@ -128,7 +143,7 @@ def test_conversation(chain):
             ) as parent:
                 case = ConversationSimulator(
                     model_callback=callback,
-                    simulator_model=judge(),
+                    simulator_model=judge(config["eval_model"]),
                     max_concurrent=1,
                     async_mode=False,
                     language="Indonesian",
@@ -136,4 +151,4 @@ def test_conversation(chain):
                 parent.end(
                     outputs={"turns": [t.model_dump(mode="json") for t in case.turns]}
                 )
-            check_and_report(case, conversational_metrics(), str(parent.id), client)
+            check_and_report(case, conversational_metrics(config["eval_model"]), str(parent.id), client)

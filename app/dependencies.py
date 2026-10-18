@@ -12,9 +12,11 @@ def initialize_rag_system():
     store.check_ready()
     if get_settings().vector_store == "pinecone":
         from app.backend.vectorstore import get_vectorstore, require_compatible_version
-
-        get_vectorstore()
-        require_compatible_version(store.version_info())
+        from app.admin.kb_store import active_info
+        active = active_info()
+        if active and not active["manifest"].get("empty"):
+            get_vectorstore()
+            require_compatible_version(active)
     _rag_chain = RAGChain()
 
 

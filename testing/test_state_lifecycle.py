@@ -23,9 +23,10 @@ def test_startup_is_read_only(pg_live, monkeypatch):
     assert store.list_job_rows()[0]['status']=='running'
 
 
-def test_startup_rejects_an_incompatible_pinecone_index(monkeypatch):
+def test_startup_rejects_an_incompatible_pinecone_index(pg_live, monkeypatch):
     from app import dependencies
     from app.backend import vectorstore
+    seed_published()
 
     monkeypatch.setattr(dependencies, '_rag_chain', None)
     monkeypatch.setattr(store, 'check_ready', lambda: None)

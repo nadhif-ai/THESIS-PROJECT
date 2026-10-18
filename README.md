@@ -64,15 +64,15 @@ Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di Postg
 ## Menggunakan dashboard
 
 1. **Dashboard**: status knowledge, aktivitas, waktu respons, dan baseline retrieval.
-2. **Knowledge**: pilih versi, buat draft, upload/edit dokumen TXT/MD/PDF/CSV, lalu index. PDF harus memiliki teks; OCR belum tersedia.
-   Di **Passage configuration**, simpan ukuran chunk dan overlap sebelum indexing. Draft dari versi lama dimulai dengan **1.000 karakter / overlap 100**. Pengaturan disimpan per versi; versi ready/published harus diklon menjadi draft untuk mengubahnya. Indexing mempertahankan heading produk pada tiap passage, menghapus separator kosong, dan memeriksa batas konservatif input **32.768 token Nemotron** berdasarkan byte UTF-8 + allowance, bukan hitungan tokenizer aktual; input tidak dipotong diam-diam. Nilai karakter tidak sama dengan token.
-3. **Playground**: pilih versi published atau ready, ajukan pertanyaan, lihat konteks/sumber, penggunaan token, dan link trace LangSmith. Sesi playground terpisah dari pelanggan.
-4. Setelah review, **Publish to WhatsApp** mengaktifkan versi ready. Pilih versi ready sebelumnya dan publish untuk rollback. File gagal diindex tidak mengganti knowledge pelanggan.
+2. **Knowledge**: satu daftar sumber TXT/PDF teks. Upload langsung ke private Supabase Storage; preview file asli, teks dan passage. TXT dapat diedit; PDF diganti lewat **Replace**. Switch aktif/nonaktif dan hapus per sumber baru berlaku setelah **Sync knowledge**. Batas per file 10 MB, PDF 300 halaman, hasil ekstraksi 1 MB UTF-8; PDF scan memerlukan OCR sebelum upload.
+   Di **Passage configuration**, simpan ukuran karakter dan overlap. Migrasi awal mempertahankan konfigurasi aktif 1.500/200 dengan preprocessing legacy; instalasi kosong dimulai 1.000/100. Menyimpan konfigurasi baru memakai pemisahan section dengan heading pada passage. Nilai karakter berbeda dari token. Embedding tetap Nemotron/OpenRouter 2.048 dimensi di `chatbot-nadhif`.
+3. **Playground**: knowledge tersinkron terbaru, tanpa pemilih versi; lihat konteks/sumber, penggunaan token, dan trace LangSmith. Sesi playground terpisah dari pelanggan.
+4. **Sync knowledge** membangun namespace pengganti, memverifikasi vector, lalu mengaktifkannya secara atomik. Editing Knowledge terkunci selama sinkronisasi; data sebelumnya tetap melayani hingga penggantinya siap. Jika semua sumber nonaktif/dihapus, bot menjawab “Maaf Kak, informasi tersebut belum tersedia saat ini.” Evaluasi baru memerlukan knowledge yang dapat dicari.
 5. **Conversations**: filter WhatsApp, playground, API, atau evaluasi. Riwayat lama diimpor sekali tanpa mengubah file asal.
 6. **Providers**: model jawaban, model judge, top-k, dan status konfigurasi kredensial.
 7. **Evaluations**: jalankan pertanyaan asli atau skenario percakapan yang telah direview; periksa skor/alasan per kasus, ekspor JSON, dan buka eksperimen LangSmith.
 
-Job indexing dan evaluasi berjalan dengan satu worker lokal. Status dan hasil disimpan; startup mempertahankan status pekerjaan yang terputus. Periksa proses pemilik dan hasilnya sebelum melakukan pemulihan manual. Kegagalan upload hasil LangSmith dapat di-retry memakai skor tersimpan tanpa memanggil judge lagi.
+Sinkronisasi dan evaluasi memakai checkpoint PostgreSQL, lease eksekusi dan Vercel Queues; lokal menjalankan state machine yang sama. Evaluasi menangkap knowledge, dataset dan konfigurasi model saat Mulai, konsisten walaupun sync lain selesai. **Resume** meneruskan checkpoint setelah kegagalan; panggilan provider yang terputus sebelum checkpoint mungkin terulang. File/vector lama dibersihkan setelah grace 24 jam dan tidak dipin konfigurasi/pekerjaan yang masih memerlukannya. [Kontrak dan prosedur migrasi KB global](docs/single-knowledge-base.md).
 
 ## Baseline dan evaluasi
 
@@ -108,13 +108,13 @@ venv/bin/python -m testing.compare_chunking --index --output testing/comparisons
 
 Setiap pemanggilan dengan `--index` membuat draft eksperimen baru; tidak memublikasikannya. Semua kandidat memakai preprocessing section yang sama. Kandidat di atas batas token dilaporkan blocked; snapshot historis 1.500/200 tetap tersedia sebagai pembanding terpisah. Perbandingan baseline lama dengan kandidat baru juga mencakup perubahan preprocessing, bukan ukuran chunk saja.
 
-Setelah review QA, pilih **Reviewed QA references** dan versi **1.000/100** di dashboard untuk menjalankan metrik jawaban. CLI yang sama dapat dipakai dengan versi tertentu:
+Setelah review QA, pilih **Reviewed QA references** di dashboard. Run baru selalu memakai knowledge tersinkron terbaru. CLI juga menangkap knowledge aktif dan konfigurasi saat suite dimulai:
 
 ```bash
-RUN_PAID_EVALS=1 EVAL_DATASET=audited EVAL_KNOWLEDGE_VERSION=<version-id> EVAL_CASE_LIMIT=10 venv/bin/deepeval test run testing/evals/test_chatbot.py --identifier chunking-1000-100
+RUN_PAID_EVALS=1 EVAL_DATASET=audited EVAL_CASE_LIMIT=10 venv/bin/deepeval test run testing/evals/test_chatbot.py --identifier current-knowledge
 ```
 
-Ganti `<version-id>` dengan ID versi ready. Bandingkan semua versi memakai referensi, model, judge, prompt dan top-k yang sama. Biaya API model berlaku untuk evaluasi jawaban; skor retrieval sumber-file yang tinggi belum membuktikan jawaban harga benar.
+Variabel `EVAL_KNOWLEDGE_VERSION` sudah dihentikan. Bandingkan hasil historis memakai referensi, model, judge, prompt dan top-k yang dicatat. Biaya API model berlaku; skor retrieval sumber-file yang tinggi belum membuktikan jawaban harga benar. Eksperimen chunking CLI di atas adalah tooling reproduksi terpisah, bukan konfigurasi KB pada dashboard.
 
 Pengujian boundary tanpa panggilan model:
 
@@ -146,7 +146,9 @@ Chroma sudah dipisahkan dari dependency runtime. Untuk reproduksi benchmark hist
 
 ## WhatsApp
 
-### WAHA di VPS, backend di Mac
+Production memakai webhook `https://chatbotta-nadhif.vercel.app/chat/waha/webhook` dan consumer Vercel Queues. WAHA tetap berjalan terpisah di laptop Linux. Mac tidak diperlukan untuk pemrosesan production.
+
+### Pengembangan lokal (opsional)
 
 Koneksi saat ini menggunakan session `asia-chatbot` pada WAHA GOWS. Mac dan VPS berada di jaringan Tailscale yang sama. Jalankan backend di Mac:
 
@@ -173,7 +175,7 @@ Mac harus tetap menyala dengan backend dan Tailscale aktif. WAHA di VPS saja bel
 
 ### Preview gambar
 
-Pipeline mengirim gambar ketika dokumen hasil retrieval memiliki metadata `media_url`. Loader teks mengekstrak URL dari penanda `[MEDIA: https://host/gambar.png]` dalam dokumen; loader CSV menerima kolom `media_url`. Tambahkan gambar yang relevan pada sumber knowledge, index ulang, review di playground, lalu publish. Pipeline memilih URL pertama yang tersedia dari dokumen hasil retrieval. Mengunggah PDF tidak otomatis menghasilkan preview foto produk.
+Pipeline mengirim gambar ketika dokumen hasil retrieval memiliki metadata `media_url`. Tambahkan penanda `[MEDIA: https://host/gambar.png]` pada sumber, lalu **Sync knowledge** dan periksa Playground. Pipeline memilih URL pertama dari hasil retrieval. Mengunggah PDF tidak otomatis menghasilkan foto produk untuk WhatsApp.
 
 Gunakan URL HTTPS gambar PNG/JPEG yang dapat diunduh dari server WAHA. URL localhost akan diterjemahkan ke host HTTPS callback yang dikonfigurasi. Gambar dikirim melalui `/api/sendImage`, lalu jawaban lengkap melalui `/api/sendText`. Jika gambar gagal, balasan teks tetap dicoba. Verifikasi koneksi awal berhasil mengirim teks dan PNG diagnostik kepada pengirim pesan uji; keduanya menerima delivery acknowledgement `2`.
 
@@ -189,7 +191,7 @@ Dashboard/playground dapat digunakan tanpa mengirim pesan WhatsApp. Pengujian da
 | --- | --- |
 | `app/main.py`, `app/routes.py` | Server, API chat, webhook WhatsApp |
 | `app/integrations/waha.py` | Webhook WAHA, antrean persisten, pengiriman teks/gambar dan receipts |
-| `app/admin/` | Auth, knowledge versions, PostgreSQL, job runner dan admin API |
+| `app/admin/` | Auth, KB global, private originals, PostgreSQL, checkpoint jobs dan admin API |
 | `app/backend/` | Loader, embedding/LLM, Pinecone, prompt dan RAG |
 | `frontend/` | React + Vite + shadcn dashboard |
 | `testing/evals/` | Dataset, metrik DeepEval, suite dan LangSmith bridge |
