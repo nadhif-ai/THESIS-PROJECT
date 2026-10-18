@@ -58,6 +58,7 @@ def consume(identifier, sequence):
     claimed = kb_store.claim(identifier, sequence)
     if not claimed:
         raise RuntimeError("Another execution owns this step; retry after its lease.")
+    started = time.monotonic()
     try:
         logger.info(
             "Administration execution=%s job=%s kind=%s sequence=%s phase=%s",
@@ -85,6 +86,13 @@ def consume(identifier, sequence):
             progress,
             result=result,
             done=done,
+        )
+        logger.info(
+            "Administration checkpoint job=%s sequence=%s phase=%s completed=%s/%s metrics=%s/%s duration_ms=%.1f done=%s",
+            identifier, sequence + 1, progress.get("phase"),
+            progress.get("completed"), progress.get("total"),
+            progress.get("metrics_completed"), progress.get("metrics_total"),
+            (time.monotonic() - started) * 1000, done,
         )
         return not done
     except Exception as error:
