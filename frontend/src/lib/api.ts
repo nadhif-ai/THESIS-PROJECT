@@ -157,7 +157,16 @@ export type Metric = {
     empty_score?: number | null;
     strict_mode?: boolean;
     accepted_verdicts?: string[];
-    items: { label: string; detail: string; counted: boolean; verdict?: string }[];
+    items: {
+      label: string;
+      detail: string;
+      counted: boolean;
+      verdict?: string;
+      rank?: number;
+      relevant_so_far?: number;
+      precision_at_rank?: number;
+      contribution?: number;
+    }[];
   } | null;
 };
 export type EvaluationResult = {
@@ -189,6 +198,17 @@ export type EvaluationResult = {
     trace_url?: string;
     error?: string;
   }[];
+};
+export type EvaluationSummary = {
+  job_id: string;
+  created_at: string;
+  completed_at: string | null;
+  dataset: string;
+  knowledge_version: string | null;
+  runtime_top_k: number | null;
+  case_count: number;
+  averages: Record<string, number | null> | null;
+  scored_cases: Record<string, number>;
 };
 export type Job = {
   resumable?: boolean;

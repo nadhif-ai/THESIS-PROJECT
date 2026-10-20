@@ -99,3 +99,58 @@ def test_ranked_context_precision_is_not_unweighted_precision():
     calculation = judge_calculation(metric)
     assert calculation["numerator"] == pytest.approx(1 + 2 / 3)
     assert calculation["denominator"] == 2
+    assert calculation["items"][2]["precision_at_rank"] == pytest.approx(2 / 3)
+    assert calculation["items"][1]["contribution"] == 0
+
+
+def test_contextual_recall_counts_reference_verdicts_and_preserves_rejections():
+    metric = SimpleNamespace(__name__="Contextual Recall", score=2 / 3,
+        verdicts=[{"verdict": v, "reason": f"Evidence {i}"} for i, v in enumerate(["yes", "no", "yes"])])
+    calculation = judge_calculation(metric)
+    assert calculation["numerator"] == 2
+    assert calculation["denominator"] == 3
+    assert calculation["accepted_verdicts"] == ["yes"]
+    assert calculation["items"][1] == {
+        "label": "Reference statement 2", "verdict": "no", "counted": False, "detail": "Evidence 1"
+    }
+
+
+def test_context_precision_trace_requires_one_verdict_for_each_original_rank():
+    metric = SimpleNamespace(__name__="Contextual Precision", score=1,
+                             verdicts=[None, {"verdict": "yes"}])
+    assert judge_calculation(metric) is None
+    metric.verdicts = [{"verdict": "yes"}]
+    assert judge_calculation(metric, SimpleNamespace(retrieval_context=["a", "b"])) is None
+
+
+def test_context_precision_keeps_irrelevant_ranks_when_relevant_denominator_is_zero():
+    metric = SimpleNamespace(__name__="Contextual Precision", score=0,
+                             verdicts=[{"verdict": "no"}, {"verdict": "no"}])
+    calculation = judge_calculation(metric)
+    assert calculation["denominator"] == 0 and calculation["empty_score"] == 0
+    assert [item["rank"] for item in calculation["items"]] == [1, 2]
+
+
+@pytest.mark.parametrize("name", ["Contextual Recall", "Contextual Precision"])
+def test_contextual_metrics_empty_verdicts_follow_library_zero_convention(name):
+    calculation = judge_calculation(SimpleNamespace(__name__=name, score=0, verdicts=[]))
+    assert calculation["denominator"] == 0 and calculation["empty_score"] == 0
+
+
+def test_metric_recipe_selection_preserves_historical_order(monkeypatch):
+    from testing.evals import metrics
+    from testing.evals.calculations import RECIPE, ANNOTATED_RECIPE
+
+    monkeypatch.setattr(metrics, "judge", lambda model: object())
+    for constructor, name in [("FaithfulnessMetric", "Faithfulness"), ("AnswerRelevancyMetric", "Answer Relevancy"),
+                              ("ContextualRecallMetric", "Contextual Recall"), ("ContextualPrecisionMetric", "Contextual Precision")]:
+        monkeypatch.setattr(metrics, constructor, lambda _name=name, **kwargs: SimpleNamespace(__name__=_name, options=kwargs))
+    monkeypatch.setattr(metrics, "GEval", lambda **kwargs: SimpleNamespace(__name__=kwargs["name"], options=kwargs))
+    current = metrics.single_turn_metrics()
+    assert [m.__name__ for m in current] == ["Faithfulness", "Answer Relevancy", "Contextual Recall", "Contextual Precision"]
+    assert all(m.options["eval_mode"] == "llm" for m in current)
+    assert len(metrics.single_turn_metrics(recipe=ANNOTATED_RECIPE)) == 2
+    assert [m.__name__ for m in metrics.single_turn_metrics(recipe="retrieval-precision-recall-v1")] == [
+        "Faithfulness", "Answer Relevancy", "Contextual Precision", "Contextual Recall", "Business correctness"
+    ]
+    assert RECIPE != ANNOTATED_RECIPE

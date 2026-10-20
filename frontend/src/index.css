@@ -705,25 +705,32 @@ select {
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
-.baseline-values {
-  display: flex;
-  gap: 32px;
+.evaluation-summary-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
   margin-top: 4px;
 }
-.baseline-values > div {
+.evaluation-summary-values > div {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.baseline-values strong {
-  font-size: 28px;
+.evaluation-summary-values strong {
+  font-size: 22px;
   font-weight: 500;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-.baseline-values span {
+.evaluation-summary-values span,
+.evaluation-summary-values small {
   color: var(--muted-foreground);
   font-size: 12px;
+}
+.evaluation-summary-values strong[data-unavailable] {
+  font-size: 16px;
+  line-height: 33px;
+  letter-spacing: normal;
 }
 .knowledge-toolbar {
   display: flex;

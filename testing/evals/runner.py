@@ -18,7 +18,7 @@ from app.admin import store
 from app.config.settings import get_settings
 from testing.evals.metrics import single_turn_metrics, conversational_metrics, judge
 from testing.evals.calculations import (
-    RECIPE, judge_calculation, retrieval_manifest, retrieval_metrics,
+    RECIPE, judge_calculation, retrieval_manifest,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -236,7 +236,8 @@ def _metric_results(case, metrics, progress=None):
                     "reason": metric.reason,
                     "threshold": metric.threshold,
                     "passed": metric.is_successful(),
-                    "calculation": judge_calculation(metric),
+                    "method": "llm_judge",
+                    "calculation": judge_calculation(metric, case),
                 }
             )
         except Exception as error:
@@ -431,7 +432,6 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                             ),
                             progress,
                         )
-                        record["metrics"].extend(retrieval_metrics(row, record, result))
                 else:
 
                     def callback(input, turns, thread_id):

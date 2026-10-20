@@ -31,6 +31,7 @@ import brandMark from "@/assets/brand-mark.png";
 import printingDesk from "@/assets/printing-desk.jpg";
 import { api, ApiError, jsonBody, setCsrf } from "@/lib/api";
 import { adminPagePath, readAdminPage } from "@/lib/admin-navigation";
+import { replyProcessing } from "@/lib/whatsapp-status";
 import {
   isTransientReadError,
   queryClient,
@@ -39,6 +40,7 @@ import {
 import { prefetchResource, useResource } from "@/hooks/use-resource";
 import { KnowledgePage } from "@/components/knowledge-page";
 import { EvaluationMath, EvaluationMethodGuide, MetricMath } from "@/components/evaluation-math";
+import { evaluationView, QA_METRICS } from "@/lib/evaluation-metrics";
 import type { KnowledgeCatalog } from "@/components/knowledge-page";
 import type {
   AdminSession,
@@ -47,6 +49,7 @@ import type {
   Job,
   Conversation,
   EvaluationResult,
+  EvaluationSummary,
   Providers,
   WhatsAppStatus,
 } from "@/lib/api";
@@ -478,7 +481,7 @@ type Overview = {
   whatsapp_messages: number;
   average_latency: number | null;
   published: Version | null;
-  baseline: { cases: number; hit_rate: number; precision: number };
+  latest_evaluation: EvaluationSummary | null;
   recent: Conversation[];
   jobs: Job[];
 };
@@ -601,32 +604,7 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
             )}
           </Panel>
         </div>
-        <Panel
-          title="Retrieval reference"
-          description={`${data.baseline.cases} original questions, evaluated at k=3`}
-        >
-          <div className="baseline-values">
-            <div>
-              <strong>{data.baseline.hit_rate}%</strong>
-              <span>Hit rate</span>
-            </div>
-            <div>
-              <strong>{percentage(data.baseline.precision)}</strong>
-              <span>Source precision</span>
-            </div>
-          </div>
-          <p className="help-copy mt-4">
-            These scores measure source retrieval. DeepEval adds answer quality
-            and conversation evaluation.
-          </p>
-          <Button
-            variant="outline"
-            className="mt-5"
-            onClick={() => navigate("Evaluations")}
-          >
-            Open evaluations
-          </Button>
-        </Panel>
+        <LatestEvaluation summary={data.latest_evaluation} activeVersion={data.published?.id} />
       </div>
       {data.jobs.length > 0 && (
         <Panel title="Background work">
@@ -634,6 +612,44 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
         </Panel>
       )}
     </div>
+  );
+}
+
+function LatestEvaluation({ summary, activeVersion }: {
+  summary: EvaluationSummary | null;
+  activeVersion?: string;
+}) {
+  return (
+    <Panel title="Latest QA evaluation" description={summary
+      ? `${summary.dataset === "audited" ? "Reviewed QA" : "Original questions"} · ${summary.case_count} cases${summary.runtime_top_k != null ? ` · k=${summary.runtime_top_k}` : ""} · ${date(summary.completed_at || summary.created_at)}`
+      : "No completed QA evaluation yet."}>
+      {summary ? (
+        <>
+          <div className="evaluation-summary-values">
+            {QA_METRICS.map((name) => {
+              const score = summary.averages?.[name];
+              const available = typeof score === "number" && Number.isFinite(score);
+              return (
+                <div key={name}>
+                  <span>{name}</span>
+                  <strong data-unavailable={!available || undefined}>{available ? percentage(score) : "Unavailable"}</strong>
+                  <small>{summary.scored_cases[name] || 0}/{summary.case_count} scored</small>
+                </div>
+              );
+            })}
+          </div>
+          <p className="help-copy mt-4">Mean scores; missing results are excluded.</p>
+          {summary.knowledge_version && summary.knowledge_version !== activeVersion && (
+            <p className="help-copy mt-2">This run used older knowledge.</p>
+          )}
+        </>
+      ) : <p className="help-copy">Complete a QA run to see answer quality and retrieval scores here.</p>}
+      <Button variant="outline" className="mt-4" asChild>
+        <a href={summary ? `/admin/evaluations?run=${encodeURIComponent(summary.job_id)}` : "/admin/evaluations"}>
+          {summary ? "View evaluation" : "Open evaluations"}
+        </a>
+      </Button>
+    </Panel>
   );
 }
 
@@ -1286,13 +1302,7 @@ function WhatsAppConnection({ compact = false }: { compact?: boolean }) {
                 ? "A callback URL and verification secret are configured. Receipt of a message confirms delivery."
                 : "Set a callback URL and webhook secret, then configure the callback in WAHA.",
         },
-        {
-          title: "Reply worker",
-          ready: data.worker_running,
-          detail: data.worker_running
-            ? "The local inbox worker is running."
-            : "The reply worker is stopped. Keep the backend running with the WAHA provider enabled.",
-        },
+        replyProcessing(data),
       ]
     : [];
   return (
@@ -1812,7 +1822,7 @@ function Evaluations() {
   const providers = useResource<Providers>("/settings");
   const [kind, setKind] = useState("legacy"),
     [limit, setLimit] = useState(10),
-    [resultJobId, setResultJobId] = useState(""),
+    [resultJobId, setResultJobId] = useState(() => new URLSearchParams(window.location.search).get("run") || ""),
     [datasetOpen, setDatasetOpen] = useState(false),
     [datasetKind, setDatasetKind] = useState("conversations"),
     [busy, setBusy] = useState(false),
@@ -1822,7 +1832,8 @@ function Evaluations() {
     resultJobId ? `/jobs/${resultJobId}` : null,
     false,
   );
-  const result = resultResource.data?.result;
+  const savedResult = resultResource.data?.result;
+  const result = savedResult ? evaluationView(savedResult) : undefined;
   const reviewData = datasetKind === "audited" ? qa.data : dataset.data;
   const evaluationJobs = (resources.data || []).filter((job) =>
     ["evaluate", "generate", "report"].includes(job.kind),

@@ -1,17 +1,8 @@
 import type { EvaluationResult, Metric } from "@/lib/api";
+import { QA_RECIPE } from "@/lib/evaluation-metrics";
 
 const number = (value: number) => Number(value.toFixed(4)).toString();
 const definitions = [
-  {
-    name: "Precision@k",
-    formula: "P@k = Σ rᵢ / k",
-    explanation: "rᵢ is 1 for an annotated relevant passage, otherwise 0. k is the requested retrieval limit. Unfilled positions contribute zero. Relevance is labelled offline for this passage snapshot, not inferred from its filename.",
-  },
-  {
-    name: "Fact Coverage@k",
-    formula: "FC@k = |covered reference facts| / |all reference facts|",
-    explanation: "Count each reference fact once when a retrieved passage is annotated as containing it. Keep the same facts across chunking configurations and re-label their supporting passages. This is fact coverage, not standard passage Recall@k.",
-  },
   {
     name: "Faithfulness",
     formula: "F = accepted claim verdicts / all claim verdicts",
@@ -22,6 +13,16 @@ const definitions = [
     formula: "AR = accepted statement verdicts / all statement verdicts",
     explanation: "An LLM judges whether statements address the question. The current DeepEval configuration accepts yes and borderline verdicts. A relevant statement can still contain an incorrect price or calculation.",
   },
+  {
+    name: "Contextual Recall",
+    formula: "CRᵢ = Aᵢ / Nᵢ",
+    explanation: "Aᵢ counts reference-answer statements the judge can attribute to the retrieved context; Nᵢ counts all reference statements judged. This measures information coverage across the returned contexts, not the number of matching source files.",
+  },
+  {
+    name: "Contextual Precision",
+    formula: "CP = Σ [P@j × rⱼ] / Σ rⱼ; P@j = Σₗ≤ⱼ rₗ / j",
+    explanation: "The judge marks each returned context relevant (rⱼ = 1) or irrelevant (0) using the question and reference answer. Cumulative precision at each relevant rank is averaged, rewarding relevant contexts near the top. This differs from unweighted Precision@k.",
+  },
 ];
 
 export function EvaluationMethodGuide() {
@@ -29,7 +30,7 @@ export function EvaluationMethodGuide() {
     <details className="evaluation-method">
       <summary>Evaluation methods and formulas</summary>
       <p className="help-copy">
-        New single-question runs report two annotated retrieval measures and two LLM-judged answer measures. Internal staff assessment and SUS remain separate.
+        Single-question runs report Faithfulness, Answer Relevancy, Contextual Recall and Contextual Precision. All four use an LLM judge; staff assessment and SUS remain separate.
       </p>
       <dl className="evaluation-definitions">
         {definitions.map((definition) => (
@@ -43,7 +44,7 @@ export function EvaluationMethodGuide() {
         ))}
       </dl>
       <p className="help-copy">
-        Precision and fact coverage need offline annotations bound to the question and passage snapshot. Missing or stale labels produce an unavailable score, not zero. For chunking comparisons, keep the question set, reference facts, embedding, prompt, answer model and k fixed.
+        The judge extracts claims or statements and supplies verdicts; the application calculates the ratios and ranking weights. A mathematical score still depends on those semantic decisions. Compare chunking with the same questions, reference answers, corpus, embedding, prompt, models and k. Conversation scenarios use their separate turn-level measures.
       </p>
     </details>
   );
@@ -57,8 +58,8 @@ export function EvaluationMath({ result }: { result: EvaluationResult }) {
         Each percentage is 100 × the arithmetic mean of available case scores, not the percentage of cases that passed. Missing scores are excluded and counted below. Each metric can have a different denominator.
       </p>
       <p className="calculation-equation">Mean(m) = Σ sᵢ,m / nₘ</p>
-      {result.evaluation_recipe !== "chunking-fact-coverage-v1" && (
-        <p className="help-copy">Historical run: original metric names and scores are preserved. Its contextual metrics must not be relabelled as annotated Precision@k or Fact Coverage@k.</p>
+      {["legacy", "audited"].includes(result.dataset) && result.evaluation_recipe !== QA_RECIPE && (
+        <p className="help-copy">Historical run: this view shows the four research metrics where recorded. Missing contextual scores are not inferred from other metrics. The JSON export preserves all original measurements.</p>
       )}
       {Object.entries(result.averages || {}).map(([name, saved]) => {
         const values = result.cases.map((row) => ({
@@ -99,13 +100,7 @@ export function MetricMath({ metric }: { metric: Metric }) {
     return (
       <div className="metric-calculation">
         {definition && <p className="calculation-equation">{definition.formula}</p>}
-        <p>{metric.status === "unavailable"
-          ? "No calculation is made until matching offline annotations are supplied."
-          : metric.name.startsWith("Business correctness")
-            ? "Historical G-Eval rubric score. This is not a count of correct answers; staff business assessment is separate in the new protocol."
-            : "This saved score has no compatible calculation trace. Counts cannot be reconstructed from a percentage alone."}</p>
-        {metric.name === "Contextual Precision" && <p className="calculation-equation">CP = Σ [P@i × rᵢ] / Σ rᵢ (LLM-judged ranking)</p>}
-        {metric.name === "Contextual Recall" && <p className="calculation-equation">CR = attributable reference statements / all reference statements (LLM-judged)</p>}
+        <p>This saved score has no compatible calculation trace. Counts cannot be reconstructed from a percentage alone.</p>
       </div>
     );
   }
@@ -114,7 +109,7 @@ export function MetricMath({ metric }: { metric: Metric }) {
       <p className="calculation-equation">{calculation.formula}</p>
       <p className="calculation-equation">
         {calculation.denominator === 0
-          ? `No items to divide. DeepEval's empty-item convention returns ${calculation.empty_score}; this is not evidence of factual correctness.`
+          ? `The denominator is zero. DeepEval returns ${calculation.empty_score} by convention; no 0/0 ratio is evaluated.`
           : `${number(calculation.numerator)} / ${calculation.denominator} = ${number(calculation.numerator / calculation.denominator)}; × 100 = ${number(calculation.numerator / calculation.denominator * 100)}%`}
       </p>
       {calculation.strict_mode && <p>DeepEval strict mode applies its configured threshold after this ratio.</p>}
@@ -123,10 +118,14 @@ export function MetricMath({ metric }: { metric: Metric }) {
       <ul className="calculation-items">
         {calculation.items.map((item, index) => (
           <li key={index}>
-            <div><span>{item.label}</span>{item.detail && <p>{item.detail}</p>}</div>
-            <span>{item.verdict || (metric.name === "Fact Coverage@k"
-              ? item.counted ? "Covered" : "Not covered"
-              : item.counted ? "Relevant" : "Irrelevant")} · {item.counted ? "Counted" : "Not counted"}</span>
+            <div>
+              <span>{item.rank !== undefined ? `Rank ${item.rank}: ` : ""}{item.label}</span>
+              {item.detail && <p>{item.detail}</p>}
+              {item.rank !== undefined && item.relevant_so_far !== undefined && item.precision_at_rank !== undefined && item.contribution !== undefined && (
+                <p>P@{item.rank} = {item.relevant_so_far}/{item.rank} = {number(item.precision_at_rank)}; weighted contribution = {number(item.contribution)}</p>
+              )}
+            </div>
+            <span>{item.verdict || (item.counted ? "Accepted" : "Not accepted")} · {item.counted ? "Counted" : "Not counted"}</span>
           </li>
         ))}
       </ul>
