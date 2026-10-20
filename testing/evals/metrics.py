@@ -20,7 +20,7 @@ from openai import BadRequestError
 from langsmith.wrappers import wrap_openai
 from contextvars import ContextVar
 import time
-from testing.evals.calculations import RECIPE
+from testing.evals.calculations import RECIPE, ANNOTATED_RECIPE
 
 THRESHOLD = 0.7
 STEP_DEADLINE = ContextVar("evaluation_step_deadline", default=None)
@@ -86,13 +86,18 @@ def judge(model_name=None):
 
 def single_turn_metrics(review_notes=None, judge_model=None, recipe=RECIPE):
     model = judge(judge_model)
-    mode = {"eval_mode": "llm"} if recipe == RECIPE else {}
+    mode = {"eval_mode": "llm"} if recipe in (RECIPE, ANNOTATED_RECIPE) else {}
     metrics = [
         FaithfulnessMetric(model=model, threshold=THRESHOLD, async_mode=False, **mode),
         AnswerRelevancyMetric(model=model, threshold=THRESHOLD, async_mode=False, **mode),
     ]
-    if recipe == RECIPE:
+    if recipe == ANNOTATED_RECIPE:
         return metrics
+    if recipe == RECIPE:
+        return metrics + [
+            ContextualRecallMetric(model=model, threshold=THRESHOLD, async_mode=False, **mode),
+            ContextualPrecisionMetric(model=model, threshold=THRESHOLD, async_mode=False, **mode),
+        ]
     # Resuming an older checkpoint must retain its original metric order.
     return metrics + [
         ContextualPrecisionMetric(model=model, threshold=THRESHOLD, async_mode=False),

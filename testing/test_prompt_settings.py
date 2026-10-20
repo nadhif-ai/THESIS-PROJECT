@@ -102,13 +102,18 @@ def test_history_preserves_complete_specifications_and_bounds_pairs(pg_live):
     assert len(store.conversations()) == 3
 
 
-@pytest.mark.parametrize("question,answer", [("Makasih, Min.", "Sama-sama, Kak! 😊"), ("oke", "Siap, Kak! 👍"), ("Halo!", "Halo, Kak! 😊 Lagi mau cetak apa? Ceritakan kebutuhannya, nanti saya bantu cek pilihan bahan atau estimasi harganya.")])
+@pytest.mark.parametrize("question,answer", [("Makasih, Min.", "Sama-sama, Kak! 😊"), ("oke", "Siap, Kak! 👍"), ("Halo!", chain._WELCOME_GREETING_TEXT)])
 def test_short_social_replies_need_no_knowledge_or_provider(monkeypatch, question, answer):
     rag = chain.RAGChain.__new__(chain.RAGChain)
+    monkeypatch.setattr(chain.store, "prompt_turns", lambda *args: [])
+    monkeypatch.setattr(chain.store, "record_conversation", lambda *args, **kwargs: None)
     monkeypatch.setattr(chain.store, "get_setting", lambda *args: pytest.fail("Unnecessary database call"))
     response = rag.run(question, "social")
     assert response.answer == answer
-    assert "reset" not in response.answer and "1." not in response.answer
+    if response.answer_source == "Greeting":
+        assert "1." in response.answer and "reset" in response.answer
+    else:
+        assert "reset" not in response.answer and "1." not in response.answer
 
 
 def test_cached_chain_observes_saves_and_uses_order_history_in_retrieval(pg_live, monkeypatch):

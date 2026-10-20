@@ -151,10 +151,9 @@ _RESET_COMMANDS = {
     "reset percakapan",
     "restart",
     "mulai ulang",
-    "batal",
 }
 
-_RESET_RESPONSE_TEXT = "Riwayat percakapan sudah dibersihkan, Kak. Silakan mulai pertanyaan baru."
+_RESET_RESPONSE_TEXT = "Kita mulai pembahasan baru, Kak. Konteks percakapan sebelumnya tidak dipakai lagi."
 
 
 def clear_session_history(session_id: str) -> bool:
@@ -256,7 +255,19 @@ def _load_menu_from_file(category_number: str, label: str, kb_dir: str, raw: str
     )
 
 
-_WELCOME_GREETING_TEXT = "Halo, Kak! 😊 Lagi mau cetak apa? Ceritakan kebutuhannya, nanti saya bantu cek pilihan bahan atau estimasi harganya."
+_WELCOME_GREETING_TEXT = """Halo, Sahabat Asia! 👋
+
+Selamat datang di chatbot CV. Asia Visual Grafika. Saya bisa membantu Kakak mencari informasi dan menyiapkan kebutuhan cetak.
+
+Mau cari informasi tentang apa?
+1. Bahan cetak dan kegunaannya
+2. Cara menyiapkan file untuk dicetak
+3. Informasi toko dan ketentuan pemesanan
+4. Estimasi harga produk
+
+Ketik angka 1, 2, 3, atau 4 untuk melihat contoh pertanyaan, atau langsung ceritakan kebutuhan Kakak. Misalnya: “Mau cetak label makanan 50 pcs, cocoknya pakai bahan apa?”
+
+Ketik *menu* untuk melihat pilihan ini lagi, atau *reset* untuk memulai pembahasan baru tanpa memakai konteks sebelumnya."""
 _MENU_TEXT = """Pilih contoh pertanyaan:
 1. Bahan cetak
 2. Persiapan file
@@ -264,7 +275,7 @@ _MENU_TEXT = """Pilih contoh pertanyaan:
 4. Estimasi harga
 
 Ketik angka 1 sampai 4, atau langsung tulis pertanyaan.
-Ketik *reset* untuk membersihkan riwayat percakapan."""
+Ketik *reset* untuk memulai pembahasan baru tanpa memakai konteks sebelumnya."""
 _HELP_COMMANDS = {"start", "menu", "bantuan", "help", "fitur", "menu utama", "layanan", "info"}
 _THANKS = {"makasih", "makasih min", "makasih kak", "terima kasih", "terimakasih", "thanks", "thank you", "tks"}
 _ACKNOWLEDGEMENTS = {"oke", "ok", "okay", "siap", "baik", "sip", "oke kak", "oke min", "siap kak"}
@@ -346,31 +357,36 @@ class RAGChain:
             .replace(",", "")
         )
 
+        if cleaned_query in _RESET_COMMANDS:
+            clear_session_history(session_id)
+            history = []
+        else:
+            history = (
+                bounded_history(history_turns)
+                if history_turns is not None
+                else _format_history_for_prompt(session_id, channel)
+            )
+
         shortcut = None
         if cleaned_query in _HELP_COMMANDS:
             shortcut = (_MENU_TEXT, "Menu")
         elif cleaned_query in _THANKS:
             shortcut = ("Sama-sama, Kak! 😊", "Acknowledgement")
-        elif cleaned_query in _ACKNOWLEDGEMENTS:
+        elif cleaned_query in _ACKNOWLEDGEMENTS and not history:
             shortcut = ("Siap, Kak! 👍", "Acknowledgement")
+        elif cleaned_query in _GREETINGS:
+            greeting = (
+                "Halo lagi, Kak! Ada yang ingin ditanyakan atau dilanjutkan?"
+                if history else _WELCOME_GREETING_TEXT
+            )
+            shortcut = (greeting, "Greeting")
+        elif cleaned_query in _RESET_COMMANDS:
+            shortcut = (_RESET_RESPONSE_TEXT + "\n\n" + _WELCOME_GREETING_TEXT, "Reset")
         if shortcut:
+            store.record_conversation(session_id, channel, question, shortcut[0],
+                                      latency=time.monotonic() - t_start)
             return RAGResponse(answer=shortcut[0], session_id=session_id,
                                answer_source=shortcut[1], sources=[],
-                               usage={"prompt_tokens": 0, "completion_tokens": 0})
-
-        if cleaned_query in _GREETINGS:
-            return RAGResponse(
-                answer=_WELCOME_GREETING_TEXT,
-                session_id=session_id,
-                answer_source="Greeting",
-                sources=[],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
-            )
-
-        if cleaned_query in _RESET_COMMANDS:
-            clear_session_history(session_id)
-            return RAGResponse(answer=_RESET_RESPONSE_TEXT, session_id=session_id,
-                               answer_source="Reset", sources=[],
                                usage={"prompt_tokens": 0, "completion_tokens": 0})
 
         active = None
@@ -391,7 +407,13 @@ class RAGChain:
             namespace = active["namespace"]
 
         # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
-        if cleaned_query in _MENU_MAP:
+        # A numeric reply to a branch/quantity question belongs to that conversation.
+        menu_expected = (
+            not history
+            or history[-1].content == _MENU_TEXT
+            or history[-1].content.endswith(_WELCOME_GREETING_TEXT)
+        )
+        if cleaned_query in _MENU_MAP and menu_expected:
             _, label = _MENU_MAP[cleaned_query]
             menu_dir = self.settings.structured_kb_dir
             menu_raw = None
@@ -414,6 +436,8 @@ class RAGChain:
                 cleaned_query,
                 cleaned_query,
             )
+            store.record_conversation(session_id, channel, question, menu_text,
+                                      latency=time.monotonic() - t_start)
             return RAGResponse(
                 answer=menu_text,
                 session_id=session_id,
@@ -461,7 +485,6 @@ class RAGChain:
         from app.admin.prompt_settings import active_snapshot
 
         captured_prompt = prompt_config if prompt_config is not None else active_snapshot()
-        history = bounded_history(history_turns) if history_turns is not None else _format_history_for_prompt(session_id, channel)
         search_question = retrieval_question(question, history)
         if tree:
             tree.add_metadata({"prompt_sha256": captured_prompt["sha256"],

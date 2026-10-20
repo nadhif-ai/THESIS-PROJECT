@@ -22,7 +22,7 @@ from testing.evals.metrics import (
     judge,
 )
 from testing.evals.runner import load_cases, SINGLE_TURN, _metric_results, report_metric
-from testing.evals.calculations import RECIPE, retrieval_manifest, retrieval_metrics
+from testing.evals.calculations import RECIPE, ANNOTATED_RECIPE, retrieval_manifest, retrieval_metrics
 
 
 def submit(dataset, limit):
@@ -343,7 +343,7 @@ def evaluation_step(identifier, state, token):
         "case_id": row.get("id"),
         "case_label": row.get("question") or row.get("scenario"),
         "metrics_completed": len(record.get("metrics", [])),
-        "metrics_total": (4 if result.get("evaluation_recipe") == RECIPE else 5)
+        "metrics_total": (4 if result.get("evaluation_recipe") in (RECIPE, ANNOTATED_RECIPE) else 5)
         if result and result["dataset"] in SINGLE_TURN
         else (3 if result and result.get("evaluation_recipe") == "conversation-v2" else 4),
         "errors": sum(
@@ -412,7 +412,7 @@ def _step(identifier, state):
                 record["metrics"].extend(_metric_results(case, [metrics[index]]))
         if len(record["metrics"]) < len(metrics):
             return result, False
-        if result["dataset"] in SINGLE_TURN and result.get("evaluation_recipe") == RECIPE:
+        if result["dataset"] in SINGLE_TURN and result.get("evaluation_recipe") == ANNOTATED_RECIPE:
             record["metrics"].extend(retrieval_metrics(row, record, result))
     result["cases"].append(state.pop("record"))
     if len(result["cases"]) < len(state["rows"]):

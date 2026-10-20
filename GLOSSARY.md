@@ -7,6 +7,12 @@ Terms used when discussing the business chatbot, its administration, and the the
 **Customer conversation**:
 A customer's exchange of messages with the business chatbot, including follow-up questions that depend on earlier messages.
 
+**Print inquiry summary**:
+A summary of a customer's intended print specifications and unresolved details for review by store staff. It is not a confirmed order or a reservation in the production queue.
+
+**Preferred branch**:
+The store branch a customer chooses for continuing a print inquiry.
+
 **Knowledge base**:
 The business information maintained for the chatbot to answer questions about Asia Visual Grafika's services, requirements, and policies.
 _Avoid_: Knowledge database when referring to the business information itself.

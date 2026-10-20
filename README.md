@@ -4,13 +4,16 @@ Chatbot informasi percetakan untuk satu bisnis. Pelanggan menggunakan WhatsApp m
 
 Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding Nemotron melalui OpenRouter → pencarian Pinecone → jawaban OpenRouter. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
 
+Panduan lokal: [macOS](#menjalankan-di-macos) · [Windows / PowerShell](#menjalankan-di-windows-powershell).
+
 ## Menjalankan di macOS
 
 Gunakan Python **3.12** dan Node **22.12+**. Jalankan perintah dari root proyek:
 
 ```bash
-uv venv --python 3.12 venv
-uv pip install --python venv/bin/python -r requirements.txt
+python3.12 -m venv venv
+venv/bin/python -m pip install --upgrade pip
+venv/bin/python -m pip install -r requirements.txt
 ```
 
 Untuk membuat environment baru, salin `.env.example` menjadi `.env` lalu isi kredensial. Jika `.env` sudah ada, gunakan file tersebut.
@@ -40,6 +43,133 @@ Buka [halaman utama](http://127.0.0.1:8000/), [login administrator](http://127.0
 
 Untuk development frontend, jalankan `npm run dev` dari `frontend/` di terminal kedua dan buka [Vite halaman utama](http://127.0.0.1:5173/) atau [Vite admin](http://127.0.0.1:5173/admin/). Permintaan admin API diteruskan ke backend port 8000.
 
+## Menjalankan di Windows (PowerShell)
+
+Panduan ini memakai PowerShell di Windows, tanpa WSL. Backend harus memakai Python **3.12** sesuai `pyproject.toml`, dan frontend memerlukan Node.js **22.12 atau lebih baru**. Gunakan konfigurasi layanan development terpisah bila akan mengubah knowledge, menjalankan evaluasi, atau menguji WhatsApp: menjalankan aplikasi di localhost tetap mengakses database dan layanan yang ditentukan di `.env`.
+
+### 1. Instal alat dan ambil kode
+
+Instal [Python 3.12 untuk Windows](https://www.python.org/downloads/windows/), [Git for Windows](https://git-scm.com/downloads/win), dan [Node.js](https://nodejs.org/en/download) beserta npm. Pada installer Python 3.12, sertakan **pip** dan **Python launcher (`py`)**, serta aktifkan **Add python.exe to PATH**. Virtual environment memakai modul [`venv` bawaan Python](https://docs.python.org/3.12/library/venv.html), dan dependency dipasang menggunakan pip.
+
+Tutup lalu buka kembali PowerShell agar PATH diperbarui. Periksa instalasi:
+
+```powershell
+git --version
+node --version
+npm.cmd --version
+py -3.12 --version
+```
+
+Clone repository, lalu masuk ke root proyek. Repository privat memerlukan akun GitHub yang memiliki akses; gunakan autentikasi Git, jangan menaruh token di URL clone.
+
+```powershell
+git clone https://github.com/nadhif-ai/THESIS-PROJECT.git
+Set-Location .\THESIS-PROJECT
+py -3.12 -m venv venv
+.\venv\Scripts\python.exe -m pip install --upgrade pip
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe --version
+```
+
+Jika repository sudah tersedia, cukup masuk ke folder tersebut, buat virtualenv jika belum ada, lalu jalankan perintah pip. Semua perintah backend berikut dijalankan dari root proyek. Tidak perlu menjalankan `Activate.ps1`; interpreter dipanggil langsung dari `venv\Scripts\python.exe`, sehingga pip selalu memasang dependency ke environment proyek.
+
+### 2. Siapkan `.env` dan akses layanan
+
+Salin template hanya jika `.env` belum ada, lalu edit file tersebut:
+
+```powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
+```
+
+Isi konfigurasi berikut dari lingkungan yang memang akan digunakan:
+
+| Konfigurasi | Kebutuhan lokal |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL yang sudah dimigrasikan, memakai role runtime `chatbot_app` dan TLS untuk koneksi remote |
+| `OPENROUTER_API_KEY`, `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | Akses model dan knowledge; pertahankan embedding Nemotron, 2.048 dimensi, cosine |
+| `SUPABASE_URL`, `SUPABASE_SECRET_KEY` | Akses backend ke private Storage untuk file knowledge |
+| `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` | Diperlukan bila tracing diaktifkan; gunakan `LANGSMITH_TRACING=false` bila tracing tidak digunakan |
+| `WHATSAPP_PROVIDER`, `WAHA_BASE_URL`, `WAHA_API_KEY`, `WAHA_SESSION`, `WAHA_WEBHOOK_SECRET`, `WAHA_WEBHOOK_URL` | Diperlukan untuk integrasi WAHA; server WAHA harus dapat dijangkau dari Windows |
+| `COOKIE_SECURE=false` | Untuk login melalui HTTP localhost; pertahankan origin localhost pada `ALLOWED_ORIGINS` |
+
+`DATABASE_MIGRATION_URL` hanya untuk operator saat migrasi eksplisit, bukan kredensial runtime. Instalasi dependency tidak membuat schema, akun admin, atau knowledge aktif. Gunakan database yang sudah disiapkan dan akun admin yang tersedia; untuk penyediaan/migrasi state, ikuti [runbook PostgreSQL](docs/runbooks/supabase-state-cutover.md) dan [kontrak knowledge global](docs/single-knowledge-base.md). Contoh `venv/bin/python` pada runbook menjadi `.\venv\Scripts\python.exe` di PowerShell.
+
+Simpan kunci hanya di `.env` backend, bukan variabel `VITE_*`. Restart backend setelah mengubah `.env`. Embedding memakai API sehingga tidak perlu mengunduh model lokal.
+
+### 3. Instal dan build dashboard
+
+```powershell
+Set-Location .\frontend
+npm.cmd ci
+npm.cmd run build
+Set-Location ..
+```
+
+Build diperlukan agar backend dapat melayani dashboard melalui port 8000. Untuk perubahan frontend selama development, gunakan Vite pada langkah berikut.
+
+### 4. Jalankan backend dan frontend
+
+Untuk development penuh dengan layanan development sendiri, buka terminal pertama di root proyek. Pastikan mode Vercel tidak tersisa dari sesi preview:
+
+```powershell
+Remove-Item Env:VERCEL -ErrorAction SilentlyContinue
+.\venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Jika provider `waha` aktif, perintah ini juga memulai worker inbox lokal. Gunakan satu proses backend dan jangan menjalankannya bersamaan dengan consumer production pada inbox yang sama.
+
+Untuk **hanya melihat dashboard dan hasil tersimpan** dengan konfigurasi bersama, gunakan mode preview berikut sebagai pengganti perintah di atas:
+
+```powershell
+$env:VERCEL = "1"
+.\venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Mode ini menonaktifkan polling WhatsApp lokal. Ini bukan mode database read-only: jangan menjalankan Sync knowledge, evaluasi baru, atau mengubah pengaturan bersama saat preview. Mode Vercel mengalihkan pekerjaan ke Queues, yang tidak disediakan oleh server lokal ini. Setelah selesai, tekan `Ctrl+C` lalu jalankan `Remove-Item Env:VERCEL -ErrorAction SilentlyContinue` di terminal yang sama.
+
+Buka terminal kedua di folder repository yang sama:
+
+```powershell
+Set-Location .\frontend
+npm.cmd run dev -- --host 127.0.0.1
+```
+
+Biarkan kedua terminal berjalan. Buka [dashboard development](http://127.0.0.1:5173/admin/dashboard) dan login dengan akun admin yang sudah tersedia. Vite meneruskan `/admin/api` ke backend port 8000. [Dashboard hasil build](http://127.0.0.1:8000/admin/dashboard) dan [API docs](http://127.0.0.1:8000/docs) juga tersedia. Hentikan masing-masing server dengan `Ctrl+C`.
+
+### 5. Pemeriksaan dan masalah umum
+
+- **`npm.ps1 cannot be loaded`**: gunakan `npm.cmd` seperti contoh; tidak perlu mengubah execution policy PowerShell.
+- **`py`, `node`, atau `git` tidak dikenali**: buka terminal baru setelah instalasi dan periksa PATH. Jika `py` tidak tersedia tetapi `python --version` menunjukkan Python 3.12, gunakan `python -m venv venv`. Jika versi berbeda, instal Python 3.12 beserta launchernya terlebih dahulu.
+- **Port 8000/5173 sudah digunakan**: hentikan proses development sebelumnya. Jika port backend diubah, sesuaikan target proxy di `frontend/vite.config.ts`; gunakan URL yang dicetak Vite bila port frontend bergeser dan tambahkan origin tersebut ke `ALLOWED_ORIGINS`.
+- **Dashboard terbuka tetapi API gagal**: periksa terminal backend dan `DATABASE_URL`. PostgreSQL harus dapat dijangkau dan schema sudah dimigrasikan; membuat virtualenv saja tidak menyiapkan database.
+- **Login gagal**: gunakan akun yang memang ada pada database terpilih. Mengisi password di `.env` tidak membuat atau mengganti akun otomatis.
+- **WhatsApp `Unreachable`**: pastikan host WAHA menyala, session aktif, dan jaringan/Tailscale tersedia bila memakai alamat privat. Akses dashboard localhost tidak membuat callback Windows dapat dijangkau oleh WAHA; gunakan callback HTTPS sesuai [panduan WhatsApp](#whatsapp).
+
+Pemeriksaan frontend tanpa panggilan model:
+
+```powershell
+Set-Location .\frontend
+npm.cmd run lint
+npm.cmd run build
+Set-Location ..
+```
+
+Untuk tes backend, instal dan jalankan [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/), lalu mulai PostgreSQL disposable di terminal terpisah:
+
+```powershell
+docker run --rm --name chatbot-state-test -e POSTGRES_HOST_AUTH_METHOD=trust -p 127.0.0.1:54585:5432 postgres:17
+```
+
+Di root proyek pada terminal lain, jalankan suite offline. Fixture membuat database `chatbot_test_*` di port 54585 dan menolak koneksi database eksternal; jangan mengganti target tes dengan Supabase production.
+
+```powershell
+$env:LANGSMITH_TRACING = "false"
+.\venv\Scripts\python.exe -m pytest -q
+```
+
+Evaluasi berbayar tidak diperlukan untuk memeriksa instalasi ini. Dependency Chroma historis tetap memakai environment terpisah melalui `testing/requirements-baseline.txt`, bukan virtualenv runtime di atas. Perintah Windows ini telah diperiksa terhadap struktur repository dan dokumentasi Python; eksekusi native Windows belum diverifikasi dari lingkungan macOS ini.
+
 ## Konfigurasi
 
 | Variabel | Keterangan |
@@ -63,7 +193,7 @@ Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di Postg
 
 ## Menggunakan dashboard
 
-1. **Dashboard**: status knowledge, aktivitas, waktu respons, dan baseline retrieval.
+1. **Dashboard**: status knowledge, aktivitas, waktu respons, dan ringkasan QA terbaru yang selesai: Faithfulness, Answer Relevancy, Contextual Recall, dan Contextual Precision. Kartu menampilkan tanggal, jumlah kasus, retrieval k, serta pemberitahuan jika knowledge yang dievaluasi berbeda dari knowledge aktif.
 2. **Knowledge**: satu daftar sumber TXT/PDF teks. Upload langsung ke private Supabase Storage; preview file asli, teks dan passage. TXT dapat diedit; PDF diganti lewat **Replace**. Switch aktif/nonaktif dan hapus per sumber baru berlaku setelah **Sync knowledge**. Batas per file 10 MB, PDF 300 halaman, hasil ekstraksi 1 MB UTF-8; PDF scan memerlukan OCR sebelum upload.
    Di **Passage configuration**, simpan ukuran karakter dan overlap. Migrasi awal mempertahankan konfigurasi aktif 1.500/200 dengan preprocessing legacy; instalasi kosong dimulai 1.000/100. Menyimpan konfigurasi baru memakai pemisahan section dengan heading pada passage. Nilai karakter berbeda dari token. Embedding tetap Nemotron/OpenRouter 2.048 dimensi di `chatbot-nadhif`.
 3. **Playground**: knowledge tersinkron terbaru, tanpa pemilih versi; lihat konteks/sumber, penggunaan token, dan trace LangSmith. Sesi playground terpisah dari pelanggan.
@@ -110,7 +240,7 @@ Setiap pemanggilan dengan `--index` membuat draft eksperimen baru; tidak memubli
 
 Setelah review QA, pilih **Reviewed QA references** di dashboard. Run baru selalu memakai knowledge tersinkron terbaru. CLI juga menangkap knowledge aktif dan konfigurasi saat suite dimulai:
 
-Hasil dashboard kini menyertakan rumus, pembilang/penyebut, verdict per item, serta perhitungan rata-rata. Run QA baru memakai Faithfulness, Answer Relevancy, Precision@k dan Fact Coverage@k; dua metrik retrieval memerlukan anotasi offline yang cocok dengan snapshot passage. Penilaian ketepatan bisnis oleh staf tetap terpisah. Lihat [definisi metrik dan format anotasi](docs/evaluation-methodology.md). Hasil historis tidak dihitung ulang.
+Hasil dashboard menyertakan rumus, pembilang/penyebut, verdict per item, bobot peringkat Contextual Precision, serta perhitungan rata-rata. Run QA baru memakai empat metrik: Faithfulness, Answer Relevancy, Contextual Recall dan Contextual Precision. Keempatnya menggunakan LLM-as-a-judge; CR dan CP memakai jawaban acuan serta konteks retrieval tanpa memerlukan anotasi offline. G-Eval tidak dijalankan pada run baru. Penilaian staf dan SUS tetap terpisah. Lihat [definisi metrik dan perhitungan](docs/evaluation-methodology.md). Hasil dan checkpoint historis mempertahankan metode aslinya.
 
 ```bash
 RUN_PAID_EVALS=1 EVAL_DATASET=audited EVAL_CASE_LIMIT=10 venv/bin/deepeval test run testing/evals/test_chatbot.py --identifier current-knowledge
@@ -147,6 +277,8 @@ Metrik QA: Faithfulness, Answer Relevancy, business correctness. Percakapan: Tur
 Chroma sudah dipisahkan dari dependency runtime. Untuk reproduksi benchmark historis, gunakan environment Python 3.12 terpisah dengan `testing/requirements-baseline.txt`, lalu `VECTOR_STORE=chroma` dan koleksi Chroma lama atau koleksi yang dipulihkan dari snapshot. Jangan memasang dependency Chroma lama dan DeepEval baru pada environment runtime yang sama: keduanya membutuhkan versi PostHog yang berbeda.
 
 ## WhatsApp
+
+Chatbot membantu menyiapkan **ringkasan kebutuhan cetak**, memilih cabang, dan memberikan langkah melanjutkan ke toko/admin berdasarkan knowledge aktif. Persetujuan pelanggan belum menjadi booking atau pesanan produksi. [Perilaku, batas kemampuan, dan skenario verifikasi](docs/runbooks/print-inquiry-conversations.md).
 
 Production memakai webhook `https://chatbotta-nadhif.vercel.app/chat/waha/webhook` dan consumer Vercel Queues. WAHA tetap berjalan terpisah di laptop Linux. Mac tidak diperlukan untuk pemrosesan production.
 

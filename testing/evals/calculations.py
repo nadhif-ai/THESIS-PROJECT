@@ -4,7 +4,8 @@ import hashlib
 import json
 import math
 
-RECIPE = "chunking-fact-coverage-v1"
+RECIPE = "rag-four-metrics-v1"
+ANNOTATED_RECIPE = "chunking-fact-coverage-v1"
 RETRIEVAL_NAMES = ("Precision@k", "Fact Coverage@k")
 
 
@@ -96,12 +97,17 @@ def retrieval_metrics(row, record, result):
     ]
 
 
-def judge_calculation(metric):
+def judge_calculation(metric, case=None):
     name = metric.__name__
     if name not in ("Faithfulness", "Answer Relevancy", "Contextual Recall", "Contextual Precision"):
         return None
     verdicts = getattr(metric, "verdicts", None)
     if verdicts is None:
+        return None
+    if name == "Contextual Precision" and (
+        any(v is None for v in verdicts)
+        or (case is not None and len(case.retrieval_context or []) != len(verdicts))
+    ):
         return None
     indexed = [(i, v.model_dump(mode="json") if hasattr(v, "model_dump") else v)
                for i, v in enumerate(verdicts) if v is not None]
@@ -115,20 +121,34 @@ def judge_calculation(metric):
     if name == "Answer Relevancy" or (name == "Faithfulness" and not getattr(metric, "penalize_ambiguous_claims", False)):
         accepted.add("borderline")
     texts = getattr(metric, "claims" if name == "Faithfulness" else "statements", []) or []
+    if name == "Contextual Precision":
+        texts = getattr(case, "retrieval_context", []) or []
+    label = "Reference statement" if name == "Contextual Recall" else "Rank" if name == "Contextual Precision" else "Item"
     items = [
-        {"label": texts[indexed[i][0]] if indexed[i][0] < len(texts) else f"Item {indexed[i][0] + 1}",
+        {"label": texts[indexed[i][0]] if indexed[i][0] < len(texts) else f"{label} {indexed[i][0] + 1}",
          "verdict": value, "counted": value in accepted,
          "detail": verdicts[i].get("reason") or ""}
         for i, value in enumerate(values)
     ]
     numerator = sum(value in accepted for value in values)
     denominator = len(values)
-    formula = "score = accepted verdicts / all verdicts"
+    formula = {
+        "Faithfulness": "F = accepted claim verdicts / all claim verdicts",
+        "Answer Relevancy": "AR = accepted statement verdicts / all statement verdicts",
+        "Contextual Recall": "CR = attributable reference statements / all reference statements",
+        "Contextual Precision": "CP = Σ [P@j × rⱼ] / Σ rⱼ",
+    }[name]
     if name == "Contextual Precision":
-        numerator = sum(sum(v == "yes" for v in values[:i]) / i
-                        for i, value in enumerate(values, 1) if value == "yes")
+        relevant = 0
+        numerator = 0
+        for rank, (value, item) in enumerate(zip(values, items), 1):
+            relevant += value == "yes"
+            precision = relevant / rank
+            contribution = precision if value == "yes" else 0
+            item.update(rank=rank, relevant_so_far=relevant,
+                        precision_at_rank=precision, contribution=contribution)
+            numerator += contribution
         denominator = values.count("yes")
-        formula = "CP = Σ [P@i × rᵢ] / Σ rᵢ"
     expected = numerator / denominator if denominator else (1 if name in ("Faithfulness", "Answer Relevancy") else 0)
     if getattr(metric, "strict_mode", False) and expected < metric.threshold:
         expected = 0

@@ -411,6 +411,26 @@ _WHATSAPP_JSON = """jsonb_build_object(
     'last_sent_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_inbox WHERE session=%(session)s AND status='sent'),
     'last_ack_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_receipts))"""
 
+_LATEST_QA = """(SELECT jsonb_build_object(
+    'job_id',id,'created_at',created_at,
+    'completed_at',result::jsonb->>'completed_at',
+    'dataset',result::jsonb->>'dataset',
+    'knowledge_version',result::jsonb->>'knowledge_version',
+    'runtime_top_k',result::jsonb->'runtime_top_k',
+    'averages',result::jsonb->'averages',
+    'case_count',jsonb_array_length(result::jsonb->'cases'),
+    'scored_cases',(SELECT COALESCE(jsonb_object_agg(name,n),'{}'::jsonb) FROM (
+        SELECT metric->>'name' AS name,
+            count(*) FILTER (WHERE jsonb_typeof(metric->'score')='number') AS n
+        FROM jsonb_array_elements(result::jsonb->'cases') c,
+            jsonb_array_elements(c->'metrics') metric
+        GROUP BY metric->>'name') counts))
+    FROM chatbot.jobs WHERE kind='evaluate' AND status='completed'
+        AND result::jsonb->>'dataset' IN ('legacy','audited')
+        AND jsonb_typeof(result::jsonb->'cases')='array'
+    ORDER BY COALESCE((result::jsonb->>'completed_at')::timestamptz,
+        created_at::timestamptz) DESC,created_at DESC,id DESC LIMIT 1)"""
+
 _ADMIN_READS = {
     "me": "'{}'::jsonb",
     "whatsapp": _WHATSAPP_JSON,
@@ -433,6 +453,7 @@ _ADMIN_READS = {
             (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error
             FROM chatbot.jobs WHERE id=%(job_id)s) item)""",
     "overview": f"""jsonb_build_object(
+        'latest_evaluation',{_LATEST_QA},
         'conversations',(SELECT count(*) FROM chatbot.conversations),
         'whatsapp_messages',(SELECT count(*) FROM chatbot.conversations WHERE channel='whatsapp'),
         'average_latency',(SELECT round(avg(NULLIF(latency,0))::numeric,2) FROM chatbot.conversations),

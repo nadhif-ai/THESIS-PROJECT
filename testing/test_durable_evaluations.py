@@ -136,11 +136,11 @@ def test_submission_captures_reference_rows_and_latest_active(pg_live, monkeypat
     checkpoint = kb_store.work(identifier)["checkpoint"]
     assert checkpoint["rows"][0]["question"] == "Captured"
     assert checkpoint["snapshot"]["id"] == "active"
-    assert checkpoint["evaluation_recipe"] == "chunking-fact-coverage-v1"
+    assert checkpoint["evaluation_recipe"] == "rag-four-metrics-v1"
 
 
-def test_new_recipe_saves_four_measures_with_no_paid_judge(pg_live, monkeypatch):
-    from testing.evals.calculations import RECIPE, passage_key, question_key, retrieval_manifest
+def test_historical_annotated_checkpoint_keeps_its_measures(pg_live, monkeypatch):
+    from testing.evals.calculations import ANNOTATED_RECIPE, passage_key, question_key, retrieval_manifest
 
     seed()
     module, calls = setup_runtime(monkeypatch)
@@ -164,15 +164,64 @@ def test_new_recipe_saves_four_measures_with_no_paid_judge(pg_live, monkeypatch)
         def is_successful(self): return True
 
     monkeypatch.setattr(module, "single_turn_metrics", lambda *args: [Metric("Faithfulness"), Metric("Answer Relevancy")])
-    identifier = module.submit("audited", 1)["job_id"]
+    identifier = kb_store.create_evaluation(
+        {"dataset": "audited"},
+        {"rows": [row], "evaluation_recipe": ANNOTATED_RECIPE,
+         "configuration": {"openrouter_model": "answer/fixed", "eval_model": "judge/fixed", "semantic_top_k": 3}},
+    )
     for sequence in range(5): durable_jobs.consume(identifier, sequence)
     result = store.evaluation_result(identifier)
     assert len(calls) == 1
-    assert result["evaluation_recipe"] == RECIPE
-    assert result["averages"]["Precision@k"] == 1 / get_settings().semantic_top_k
+    assert result["evaluation_recipe"] == ANNOTATED_RECIPE
+    assert result["averages"]["Precision@k"] == 1 / 3
     assert result["averages"]["Fact Coverage@k"] == 1
     assert set(result["averages"]) == {"Faithfulness", "Answer Relevancy", "Precision@k", "Fact Coverage@k"}
     assert result["cases"][0]["metrics"][3]["calculation"]["numerator"] == 1
+
+
+def test_four_judge_metrics_resume_without_annotations_or_repeating_answers(pg_live, monkeypatch):
+    from testing.evals.calculations import RECIPE
+
+    seed()
+    module, calls = setup_runtime(monkeypatch)
+    monkeypatch.setattr(module, "load_cases", lambda *args: [
+        {"id": "q1", "question": "Question", "ground_truth": "Reference"}
+    ])
+    monkeypatch.setattr(durable_jobs, "dispatch", lambda identifier: None)
+    names = ["Faithfulness", "Answer Relevancy", "Contextual Recall", "Contextual Precision"]
+    measured = []
+
+    class Metric:
+        threshold = 0.7
+        def __init__(self, name): self.__name__ = name
+        def measure(self, case):
+            assert case.expected_output == "Reference"
+            assert case.retrieval_context == ["Synthetic evidence"]
+            measured.append(self.__name__)
+            self.verdicts = ([{"verdict": "yes"}] if self.__name__ == "Contextual Precision"
+                             else [{"verdict": "yes"}, {"verdict": "no"}, {"verdict": "yes"}])
+            self.score = 1 if self.__name__ == "Contextual Precision" else 2 / 3
+            self.reason = "Offline fixture verdicts"
+        def is_successful(self): return self.score >= self.threshold
+
+    monkeypatch.setattr(module, "single_turn_metrics", lambda *args: [Metric(name) for name in names])
+    identifier = module.submit("legacy", 1)["job_id"]
+    for sequence in range(3): durable_jobs.consume(identifier, sequence)
+    work = kb_store.work(identifier)
+    assert work["checkpoint"]["result"]["evaluation_recipe"] == RECIPE
+    assert len(work["checkpoint"]["record"]["metrics"]) == 1
+    assert store.job(identifier)["progress"]["metrics_total"] == 4
+    store.close_pool()
+    for sequence in range(3, 7): durable_jobs.consume(identifier, sequence)
+    result = store.evaluation_result(identifier)
+    assert measured == names
+    assert len(calls) == 1
+    assert list(result["cases"][0]["metrics"][i]["name"] for i in range(4)) == names
+    assert set(result["averages"]) == set(names)
+    assert all(m["calculation"] for m in result["cases"][0]["metrics"])
+    cp = result["cases"][0]["metrics"][3]["calculation"]
+    assert cp["items"][0]["rank"] == 1
+    assert cp["items"][0]["label"] == "Synthetic evidence"
 
 
 def test_prompt_snapshot_survives_save_restart_and_multiple_answer_steps(pg_live, monkeypatch):
