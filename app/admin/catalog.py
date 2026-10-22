@@ -19,8 +19,8 @@ CATEGORIES = {
 PRODUCTS = {
     'banner-spanduk': ['banner', 'spanduk', 'flexi'],
     'stiker-meteran': ['stiker meteran', 'sticker meteran', 'one way vision', 'owv', 'vinyl ritrama'],
-    'x-banner': ['x banner', 'xbanner'],
-    'y-banner': ['y banner', 'ybanner'],
+    'x-banner': ['x banner', 'xbanner', 'banner x'],
+    'y-banner': ['y banner', 'ybanner', 'banner y'],
     'roll-up-banner': ['roll up banner', 'rollup banner', 'roll up', 'rollup', 'roll banner'],
     'stiker-a3-kiss-cut': ['stiker a3', 'sticker a3', 'kiss cut', 'kisscut'],
     'digital-print-a3': ['digital print', 'cetak a3', 'print a3'],

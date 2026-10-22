@@ -231,9 +231,9 @@ export function CatalogPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Automatic catalog images</CardTitle>
+          <CardTitle>Requested catalog images</CardTitle>
           <CardDescription>
-            Text first, with at most one relevant image. Playground previews
+            Images only on request: one image, then price and product details. Playground previews
             never send WhatsApp messages.
           </CardDescription>
         </CardHeader>
@@ -403,8 +403,8 @@ export function CatalogPage() {
           </form>
           {preview && (
             <div className="mt-4 flex flex-col gap-3" aria-live="polite">
-              <p className="whitespace-pre-wrap">{preview.answer}</p>
               <MediaPreview answer={preview} />
+              <p className="whitespace-pre-wrap">{preview.answer}</p>
             </div>
           )}
         </CardContent>

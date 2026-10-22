@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: Dashboard: clean URL, direct load and legacy bookmark
+ok 1 - Dashboard: clean URL, direct load and legacy bookmark
+  ---
+  duration_ms: 0.71525
+  type: 'test'
+  ...
+# Subtest: Knowledge: clean URL, direct load and legacy bookmark
+ok 2 - Knowledge: clean URL, direct load and legacy bookmark
+  ---
+  duration_ms: 0.090125
+  type: 'test'
+  ...
+# Subtest: Playground: clean URL, direct load and legacy bookmark
+ok 3 - Playground: clean URL, direct load and legacy bookmark
+  ---
+  duration_ms: 0.144583
+  type: 'test'
+  ...
+# Subtest: Conversations: clean URL, direct load and legacy bookmark
+ok 4 - Conversations: clean URL, direct load and legacy bookmark
+  ---
+  duration_ms: 0.062833
+  type: 'test'
+  ...
+# Subtest: Providers: clean URL, direct load and legacy bookmark
+ok 5 - Providers: clean URL, direct load and legacy bookmark
+  ---
+  duration_ms: 0.063459
+  type: 'test'
+  ...
+# Subtest: Evaluations: clean URL, direct load and legacy bookmark
+ok 6 - Evaluations: clean URL, direct load and legacy bookmark
+  ---
+  duration_ms: 0.106375
+  type: 'test'
+  ...
+# Subtest: history uses the approved path and malformed hashes cannot break navigation
+ok 7 - history uses the approved path and malformed hashes cannot break navigation
+  ---
+  duration_ms: 0.104208
+  type: 'test'
+  ...
+# Subtest: read query recovers after a temporary service failure
+ok 8 - read query recovers after a temporary service failure
+  ---
+  duration_ms: 2.364791
+  type: 'test'
+  ...
+# Subtest: read status 401 is not retried
+ok 9 - read status 401 is not retried
+  ---
+  duration_ms: 0.202917
+  type: 'test'
+  ...
+# Subtest: read status 403 is not retried
+ok 10 - read status 403 is not retried
+  ---
+  duration_ms: 0.111625
+  type: 'test'
+  ...
+# Subtest: read status 404 is not retried
+ok 11 - read status 404 is not retried
+  ---
+  duration_ms: 0.069708
+  type: 'test'
+  ...
+# Subtest: read status 422 is not retried
+ok 12 - read status 422 is not retried
+  ---
+  duration_ms: 0.149334
+  type: 'test'
+  ...
+# Subtest: read status 500 is not retried
+ok 13 - read status 500 is not retried
+  ---
+  duration_ms: 0.147916
+  type: 'test'
+  ...
+# Subtest: ordinary read retries remain bounded
+ok 14 - ordinary read retries remain bounded
+  ---
+  duration_ms: 2.317833
+  type: 'test'
+  ...
+# Subtest: session bootstrap can recover after several temporary failures
+ok 15 - session bootstrap can recover after several temporary failures
+  ---
+  duration_ms: 5.25025
+  type: 'test'
+  ...
+# Subtest: writes are sent once even if the service is unavailable
+ok 16 - writes are sent once even if the service is unavailable
+  ---
+  duration_ms: 8.82525
+  type: 'test'
+  ...
+# Subtest: an expired session dispatches logout instead of being retried
+ok 17 - an expired session dispatches logout instead of being retried
+  ---
+  duration_ms: 0.513125
+  type: 'test'
+  ...
+# Subtest: clearing the private cache cancels a pending session check
+ok 18 - clearing the private cache cancels a pending session check
+  ---
+  duration_ms: 0.385458
+  type: 'test'
+  ...
+# Subtest: a timed-out read body retains the timeout reason for automatic recovery
+ok 19 - a timed-out read body retains the timeout reason for automatic recovery
+  ---
+  duration_ms: 11.69275
+  type: 'test'
+  ...
+# Subtest: QA research view keeps four named metrics in order without rewriting saved evidence
+ok 20 - QA research view keeps four named metrics in order without rewriting saved evidence
+  ---
+  duration_ms: 1.738667
+  type: 'test'
+  ...
+# Subtest: historical annotated scores cannot become contextual scores
+ok 21 - historical annotated scores cannot become contextual scores
+  ---
+  duration_ms: 0.074958
+  type: 'test'
+  ...
+# Subtest: conversation diagnostics retain turn-level names
+ok 22 - conversation diagnostics retain turn-level names
+  ---
+  duration_ms: 0.051958
+  type: 'test'
+  ...
+# Subtest: Vercel mode does not report a stopped polling thread as a failure
+ok 23 - Vercel mode does not report a stopped polling thread as a failure
+  ---
+  duration_ms: 0.637625
+  type: 'test'
+  ...
+# Subtest: local mode reports the actual worker state, including older API responses
+ok 24 - local mode reports the actual worker state, including older API responses
+  ---
+  duration_ms: 0.118916
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 124.838542

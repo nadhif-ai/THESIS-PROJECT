@@ -18,7 +18,7 @@ def prepared():
     return row
 
 
-def test_text_first_image_failure_notice_and_no_text_replay(pg_live,monkeypatch):
+def test_image_first_failure_retains_text_and_no_replay(pg_live,monkeypatch):
     row = prepared()
     calls=[]
     def send(method,path,payload,**kwargs):
@@ -28,8 +28,8 @@ def test_text_first_image_failure_notice_and_no_text_replay(pg_live,monkeypatch)
         return {'id':str(len(calls))}
     monkeypatch.setattr(waha,'api',send)
     waha.send_reply(row)
-    assert [p for p,_ in calls] == ['/api/sendText','/api/sendImage','/api/sendText']
-    assert calls[0][1]['text']=='Jawaban harga.'
+    assert [p for p,_ in calls] == ['/api/sendImage','/api/sendText','/api/sendText']
+    assert calls[1][1]['text']=='Jawaban harga.'
     saved=store.get_inbox('test','incoming')
     assert saved['delivery_parts']['text']['status']=='sent'
     assert saved['delivery_parts']['image']['status']=='failed'
@@ -37,7 +37,7 @@ def test_text_first_image_failure_notice_and_no_text_replay(pg_live,monkeypatch)
     assert len(calls)==3
 
 
-def test_text_timeout_stops_image_and_cannot_be_replayed(pg_live,monkeypatch):
+def test_image_and_text_timeouts_are_independent_and_not_replayed(pg_live,monkeypatch):
     row=prepared(); calls=[]
     def send(*args,**kwargs):
         calls.append(args[1]);raise requests.Timeout()
@@ -46,16 +46,16 @@ def test_text_timeout_stops_image_and_cannot_be_replayed(pg_live,monkeypatch):
     saved=store.get_inbox('test','incoming')
     assert saved['status']=='uncertain'
     assert saved['delivery_parts']['text']['status']=='uncertain'
-    assert 'image' not in saved['delivery_parts']
+    assert saved['delivery_parts']['image']['status']=='uncertain'
     waha.send_reply(dict(saved))
-    assert calls==['/api/sendText']
+    assert calls==['/api/sendImage','/api/sendText']
 
 
-def test_disable_after_text_skips_image(pg_live,monkeypatch):
+def test_disable_before_dispatch_skips_image_but_keeps_details(pg_live,monkeypatch):
     row=prepared(); calls=[]
+    catalog.set_enabled('roll-up-hero',False,1,'operator')
     def send(method,path,payload,**kwargs):
         calls.append(path)
-        catalog.set_enabled('roll-up-hero',False,1,'operator')
         return {'id':'text-only'}
     monkeypatch.setattr(waha,'api',send)
     waha.send_reply(row)
@@ -86,3 +86,41 @@ def test_crash_between_send_and_checkpoint_expires_to_uncertain(pg_live):
     saved=store.get_inbox('test','incoming')
     assert saved['status']=='uncertain'
     assert saved['delivery_parts']['text']['status']=='uncertain'
+
+
+def test_successful_image_is_not_replayed_after_text_timeout(pg_live,monkeypatch):
+    row=prepared();calls=[]
+    def send(method,path,payload,**kwargs):
+        calls.append(path)
+        if path.endswith('sendText'):raise requests.Timeout()
+        return {'id':'image-accepted'}
+    monkeypatch.setattr(waha,'api',send)
+    waha.send_reply(row)
+    saved=store.get_inbox('test','incoming')
+    assert saved['delivery_parts']['image']['provider_id']=='image-accepted'
+    assert saved['delivery_parts']['text']['status']=='uncertain'
+    waha.send_reply(dict(saved))
+    assert calls==['/api/sendImage','/api/sendText']
+
+
+def test_text_failure_summary_remains_visible_after_successful_image(pg_live, monkeypatch):
+    row = prepared()
+    def send(method, path, payload, **kwargs):
+        if path.endswith('sendText'):
+            raise ValueError('Rejected')
+        return {'id': 'accepted-image'}
+    monkeypatch.setattr(waha, 'api', send)
+    waha.send_reply(row)
+    saved = store.get_inbox('test', 'incoming')
+    assert saved['status'] == 'failed'
+    assert 'text' in saved['error'].lower() and 'failed' in saved['error']
+
+
+def test_old_automatic_selection_does_not_bypass_request_only_policy(pg_live, monkeypatch):
+    row = prepared()
+    row['body'] = 'Harga roll up?'
+    row['media_selection']['explicit'] = False
+    calls = []
+    monkeypatch.setattr(waha, 'api', lambda method, path, payload, **kwargs: calls.append(path) or {'id': 'text'})
+    waha.send_reply(row)
+    assert calls == ['/api/sendText']

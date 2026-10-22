@@ -109,15 +109,15 @@ def test_shared_rag_preview_selects_catalog_not_legacy_url_and_honors_topic_cont
         return [(Document(page_content='Roll up banner tersedia.',metadata={'source':'products.txt','media_url':'https://unapproved.example/other.png'}),0.1)]
     monkeypatch.setattr(vectorstore,'similarity_search_with_score',retrieve)
     rag=chain.RAGChain()
-    first=rag.run('Harga roll up banner?', 'preview', channel='playground')
+    first=rag.run('Gambar roll up banner?', 'preview', channel='playground')
     assert first.media_selection['asset_id']=='roll-up-hero'
     assert 'unapproved.example' not in first.media_url
     followup=rag.run('Kalau 5 pcs?', 'preview',channel='playground')
     assert followup.media_selection is None
-    assert followup.media_decision['reason']=='same_product_followup'
+    assert followup.media_decision['reason']=='image_not_requested'
     other=rag.run('Harga X-banner?', 'preview',channel='playground')
     assert searches[-1]=='Harga X-banner?'
-    assert other.media_decision['reason']=='no_product_evidence'
+    assert other.media_decision['reason']=='image_not_requested'
     context=store.catalog_context('playground:preview')
     assert context['seen']==['roll-up-hero']
     reset=rag.run('reset','preview',channel='playground')
@@ -161,3 +161,68 @@ def test_enabling_media_preserves_established_factual_conversation(pg_live,monke
     monkeypatch.setattr(vectorstore,'similarity_search_with_score',lambda **kwargs:[(Document(page_content='Roll up banner tersedia.',metadata={}),0.1)])
     chain.RAGChain().run('Kalau 5 pcs?', 'existing',channel='whatsapp')
     assert any('Saya mau roll up' in message.content for message in prompts[0])
+
+
+def test_authenticated_playground_coordinates_visual_status_with_factual_details(pg_live, monkeypatch):
+    from types import SimpleNamespace
+    from langchain_core.documents import Document
+    from app import dependencies
+    from app.backend import chain, vectorstore
+    from app.admin import store
+    from testing.test_global_knowledge import seed_active
+    from testing.test_prompt_settings import client, authorize
+    seed_active(); catalog.save({**record(), 'description': 'UNTRUSTED_CATALOG_PRICE Rp 1'}, 0, 'operator')
+    store.catalog_feature(True)
+    captured = []
+    def invoke(messages):
+        captured.append(messages)
+        return SimpleNamespace(content='Ilustrasi roll up, Kak. Harga bahan A Rp 50.000; bahan B Rp 60.000. Mau bahan yang mana?')
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=invoke))
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score', lambda **kwargs: [
+        (Document(page_content='Roll up banner: bahan A Rp 50.000; bahan B Rp 60.000.', metadata={}), 0.1)])
+    monkeypatch.setattr(dependencies, 'get_rag_chain', lambda: chain.RAGChain())
+    with client() as browser:
+        authorize(browser)
+        result = browser.post('/admin/api/playground', json={'question': 'Preview roll up dong', 'session_id': 'visual'} )
+        assert result.status_code == 200
+        data = result.json()
+        assert data['media_selection']['asset_id'] == 'roll-up-hero'
+        assert 'Rp 50.000' in data['answer'] and 'Rp 60.000' in data['answer']
+        prompt = '\n'.join(m.content for m in captured[-1])
+        assert 'Ilustrasi katalog terpilih: roll up' in prompt
+        assert 'Rp 50.000' in prompt and 'UNTRUSTED_CATALOG_PRICE' not in prompt
+        assert 'gambar dahulu' in prompt and 'pesan terpisah' in prompt
+        again = browser.post('/admin/api/playground', json={'question': 'Kirim itu lagi', 'session_id': 'visual'}).json()
+        assert again['media_selection']['asset_id'] == 'roll-up-hero'
+
+
+def test_generation_failure_suppresses_selected_image_and_focus(pg_live, monkeypatch):
+    from types import SimpleNamespace
+    from langchain_core.documents import Document
+    from app.backend import chain, vectorstore
+    from app.admin import store
+    from testing.test_global_knowledge import seed_active
+    seed_active(); catalog.save(record(), 0, 'operator'); store.catalog_feature(True)
+    def fail(messages):
+        raise RuntimeError('Simulated provider failure')
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=fail))
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score', lambda **kwargs: [
+        (Document(page_content='Roll up banner tersedia.', metadata={}), 0.1)])
+    result = chain.RAGChain().run('Gambar roll up', 'failed-preview', channel='playground')
+    assert result.error and result.media_selection is None and result.media_url is None
+    assert result.media_decision['reason'] == 'generation_error'
+    assert store.catalog_context('playground:failed-preview')['focus'] == []
+
+
+def test_legacy_media_fallback_is_request_only_in_shared_rag(pg_live, monkeypatch):
+    from types import SimpleNamespace
+    from langchain_core.documents import Document
+    from app.backend import chain, vectorstore
+    from testing.test_global_knowledge import seed_active
+    seed_active()
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=lambda messages: SimpleNamespace(content='Harga mengikuti pilihan bahan.')))
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score', lambda **kwargs: [
+        (Document(page_content='Roll up banner tersedia.', metadata={'media_url': 'https://example.com/roll-up.png'}), .1)])
+    rag = chain.RAGChain()
+    assert rag.run('Harga roll up?', 'legacy', channel='playground').media_url is None
+    assert rag.run('Kirim gambarnya', 'legacy', channel='playground').media_url == 'https://example.com/roll-up.png'

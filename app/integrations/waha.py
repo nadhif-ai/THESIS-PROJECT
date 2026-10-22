@@ -118,13 +118,12 @@ def send_reply(row):
         store.checkpoint_delivery_part(row, name, "sent", provider_id=identifier)
         return "sent"
 
-    text = send_part("text", "/api/sendText", {"text": row["answer"], "linkPreview": True})
-    if text != "sent":
-        update(row, status="uncertain" if text == "uncertain" else "skipped" if text == "skipped" else "failed",
-               error="Text delivery " + text + "; image not submitted.")
-        return
     selection = row.get("media_selection")
     media_url = catalog_storage.public_url(selection["object_key"]) if selection else row.get("media_url")
+    from app.backend.catalog_selection import image_request
+    explicit = bool(selection.get('explicit')) if selection else image_request(row.get('body', ''), product_context=True)
+    if not explicit:
+        media_url = None
     image = None
     if media_url:
         from urllib.parse import urlsplit
@@ -148,16 +147,20 @@ def send_reply(row):
                              "filename": (selection["asset_id"] if selection else "preview") + (".png" if mime == "image/png" else ".jpg")},
                     "caption": caption,
                 }, timeout=60)
+    text = send_part("text", "/api/sendText", {"text": row["answer"], "linkPreview": True})
     notice = None
-    if image == "failed" and selection and selection.get("explicit"):
+    if image == "failed" and text == "sent" and explicit:
         notice = send_part("notice", "/api/sendText", {
             "text": "Maaf Kak, gambar belum berhasil dikirim. Silakan minta kembali nanti ya.",
             "linkPreview": False,
         })
-    uncertain = "uncertain" in (image, notice)
-    update(row, status="uncertain" if uncertain else "sent",
+    uncertain = "uncertain" in (image, text, notice)
+    status = "uncertain" if uncertain else "failed" if text == "failed" else "skipped" if text == "skipped" and image != "sent" else "sent"
+    errors = [name + ' delivery ' + outcome + '.' for name, outcome in
+              (('Image', image), ('Text', text), ('Notice', notice)) if outcome and outcome != 'sent']
+    update(row, status=status,
            reply_ids=row.get("reply_ids") or "[]",
-           error=("Image delivery " + image + "; text retained.") if image and image != "sent" else None)
+           error=' '.join(errors) or None)
 
 
 def _typing(row, action):

@@ -760,6 +760,9 @@ function Playground() {
                                   ? "You"
                                   : "Asia Visual Grafika"}
                               </MessageHeader>
+                              {row.response && (
+                                <MediaPreview answer={row.response} />
+                              )}
                               <Bubble
                                 variant={
                                   row.role === "user" ? "default" : "muted"
@@ -773,9 +776,6 @@ function Playground() {
                                   </p>
                                 </BubbleContent>
                               </Bubble>
-                              {row.response && (
-                                <MediaPreview answer={row.response} />
-                              )}
                               {row.response && (
                                 <MessageFooter>
                                   <Button

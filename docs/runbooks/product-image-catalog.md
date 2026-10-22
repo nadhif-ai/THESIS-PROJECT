@@ -1,6 +1,6 @@
 # Product image catalog operations
 
-The approved design is `docs/superpowers/specs/2026-10-22-context-aware-product-images-design.md`. Product facts and prices continue to use the active knowledge snapshot and existing Nemotron/Pinecone index.
+The original design is `docs/superpowers/specs/2026-10-22-context-aware-product-images-design.md`, superseded for request policy and delivery order by `docs/superpowers/specs/2026-10-22-request-only-product-images-spec.md`. Product facts and prices continue to use the active knowledge snapshot and existing Nemotron/Pinecone index.
 
 ## Provision and import
 
@@ -25,20 +25,20 @@ Set precise depicted variants, separately from available source-only variants. K
 
 Export metadata from the catalog page or authenticated `GET /admin/api/catalog/export` for review and backup. PostgreSQL is the runtime authority after import; the repository manifest is the approved seed/provenance package. Do not replace dashboard records by rerunning a seed import with overwrite behavior.
 
-The global Automatic catalog images switch controls rollout and emergency rollback. Every selection reads current catalog state; Save/Disable needs no restart or Pinecone Sync. Playground and catalog question previews share selection logic but never send WhatsApp messages or consume a customer's delivery allowance.
+The global Requested catalog images switch controls rollout and emergency rollback. Images attach only to visual requests, including contextual previews and explicit repeats. Product, price, material and textual comparison inquiries alone receive no attachment. A suitable reply contains one illustration first, then a separate price/detail text grounded in active knowledge. Several requested products use one suitable comparison or a clarification. Every selection reads current catalog state; Save/Disable needs no restart or Pinecone Sync. Playground and catalog question previews share selection logic but never send WhatsApp messages or consume a customer's delivery allowance.
 
 ## Validate and enable
 
 Run the offline suite against disposable PostgreSQL and frontend lint/build. Verify an initial product, quantity follow-up, material/form comparison, explicit resend, topic switch, ambiguous sticker inquiry, reset and 24-hour inactivity. Verify actual images and suppression reasons in Playground.
 
-Use a controlled test account (or the WAHA account's own identity) for live sends. Verify text-before-image provider IDs and acknowledgements before enabling customer rollout. Do not use a customer from stored conversation history as a test recipient. The feature switch defaults off for initial provisioning.
+Use a controlled test account (or the WAHA account's own identity) for live sends. Verify image-before-details provider IDs and acknowledgements before enabling customer rollout. Do not use a customer from stored conversation history as a test recipient. The feature switch defaults off for initial provisioning.
 
 ## Delivery recovery
 
 Each inbox item pins the selected asset revision/object and stores `text`, `image`, and, if needed, `notice` delivery parts. Provider acceptance is distinct from delivered/read ACK. `reply_ids` remains the provider receipt correlation list.
 
-- A successful text part is never replayed to recover an image.
-- A definitive automatic image failure adds no customer notice. An explicit image request gets a short failure notice, checkpointed separately.
+- A successful image or text part is never replayed to recover another part. A new explicit customer request may reuse the same illustration; this is separate from recovering an old inbox item.
+- A definitive image failure on a visual request gets a short failure notice after available detail text, checkpointed separately. This includes legacy knowledge-media fallback. Failed or uncertain images do not block detail text; failed or uncertain text is recorded independently.
 - Timeouts, missing provider IDs and crashes during sending are uncertain outcomes. Expired sending leases become uncertain; queue redelivery does not resend them.
 - Inspect WAHA/WhatsApp and provider receipts for an uncertain item. Do not flip it to queued as an automatic retry. A customer's new explicit resend is a new inbox action; retain the old uncertain record.
 - Disable or a bot-replies fence skips unsent image parts. A provider request already submitted cannot be recalled.

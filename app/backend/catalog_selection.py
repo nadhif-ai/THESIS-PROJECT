@@ -62,12 +62,38 @@ def variant_terms(assets, targets):
     return terms
 
 
+def image_request(question, *, product_context=False):
+    text = normalized(question)
+    visual = r'(?:gambar(?:nya)?|foto(?:nya)?|preview|visual(?:nya)?)'
+    view = r'(?:lihat|liat|tunjukkan|tunjukin)'
+    negation = r'(?:jangan|tidak usah|tidak perlu|tak usah|ga usah|gak usah|nggak usah|gausah)'
+    visual_action = rf'(?:{visual}|contoh(?:nya)?|{view}|kirim(?:kan|in)?)'
+    if re.search(r'\b(?:teks|text)\s*(?:saja|aja|only)\b|\btext only\b', text):
+        return False
+    if re.search(rf'\b{negation}\b(?:\s+\w+){{0,3}}\s+{visual_action}\b|\b{visual}(?:\s+\w+){{0,4}}\s+{negation}\b|\btanpa\s+{visual}\b', text):
+        return False
+    # Photo-printing terms describe the order rather than an attachment request.
+    request_text = re.sub(r'\b(?:cetak|print|kertas|untuk)\s+foto\b', '', text)
+    artwork_question = re.search(r'\b(?:file|format|resolusi|dpi|pixel|piksel)\b', text)
+    visual_command = re.search(rf'\b(?:kirim(?:kan|in)?|tampilkan|tunjukkan|tunjukin|{view})\b', text)
+    if artwork_question and not visual_command:
+        return False
+    if re.search(r'\b' + visual + r'\b', request_text):
+        return True
+    if re.search(r'\bcontoh(?:nya)?\b', text) and not re.search(r'\bcontoh(?:nya)?\s+(?:harga|ukuran|bahan|spesifikasi|hitung\w*|perhitungan|kalkulasi|total|estimasi)\b', text):
+        return True
+    if re.search(rf'\b{view}\s+(?:daftar\s+)?(?:harga|tarif|ongkir|ukuran|bahan|spesifikasi)\b', text):
+        return False
+    return bool(product_context and re.search(
+        r'\b(?:mau|boleh|bisa|ingin|pengen)\s+(?:lihat|liat)|\b(?:lihat|liat|tunjukkan|tunjukin)\b|\bkirim(?:kan|in)?\s+(?:itu\s+)?(?:lagi|ulang)\b', text))
+
+
 def select(question, assets, evidence, *, focus=(), seen=()):
     text = normalized(question)
-    explicit = bool(re.search(r'\b(gambar|foto|contoh|visual)\b', text))
+    direct = products(question, assets)
+    explicit = image_request(question, product_context=bool(direct or focus))
     comparison = bool(re.search(r'\b(beda\w*|banding\w*|versus|vs|pilihan bahan|macam bahan|jenis bahan)\b', text))
     detail = bool(re.search(r'\b(detail|hasil potong|potongan)\b', text)) or (explicit and contains(text, 'kiss cut'))
-    direct = products(question, assets)
     ambiguous = (not direct and bool(re.search(r'\b(stiker|sticker|banner|kartu)\b', text)))
     targets = direct or ([] if ambiguous else list(focus))
     result = {'asset': None, 'reason': '', 'focus': targets, 'explicit': explicit}
@@ -79,6 +105,8 @@ def select(question, assets, evidence, *, focus=(), seen=()):
     shipping = not explicit and re.search(r'\b(ongkir|pengiriman|bisa kirim|bisa dikirim|kirim ke|antar ke)\b', text)
     if non_product or shipping:
         return {**skip('non_product_intent'), 'focus': list(focus)}
+    if not explicit:
+        return skip('image_not_requested')
     if ambiguous:
         return skip('ambiguous_product')
     if not targets:
@@ -89,8 +117,6 @@ def select(question, assets, evidence, *, focus=(), seen=()):
             evidenced.update(products(line, assets))
     if not set(targets) <= evidenced:
         return skip('no_product_evidence')
-    if not explicit and not comparison and targets == list(focus):
-        return skip('same_product_followup')
     requested_variants = {key for key, terms in _VARIANTS.items() if any(contains(text, t) for t in terms)}
     metadata_variants = {term for term in variant_terms(assets, targets) if contains(text, term)}
     # Dimension and paper-weight requests require an actually depicted label.
@@ -119,16 +145,12 @@ def select(question, assets, evidence, *, focus=(), seen=()):
             continue
         if any(label not in depicted for label in requested_labels):
             continue
-        if a['asset_id'] in seen and not explicit:
-            continue
         positive = sum(contains(text, term) for term in a.get('retrieval_keywords', []))
         negative = sum(contains(text, term) for term in a.get('negative_retrieval_keywords', []))
         preference = (0 if comparison == is_comparison else 1,
                       0 if a['role'] == 'hero' else 1, negative - positive, a['asset_id'])
         candidates.append((preference, a))
     if not candidates:
-        if not explicit and any(a['asset_id'] in seen and set(targets) <= set(a['covered_product_types']) for a in eligible):
-            return skip('already_attempted')
         return skip('variant_not_depicted' if requested_variants or metadata_variants or requested_labels else 'no_matching_asset')
     chosen = sorted(candidates, key=lambda item: item[0])[0][1]
-    return {**result, 'asset': chosen, 'reason': 'explicit_example' if explicit else 'comparison' if comparison else 'new_product'}
+    return {**result, 'asset': chosen, 'reason': 'explicit_comparison' if comparison else 'explicit_example'}

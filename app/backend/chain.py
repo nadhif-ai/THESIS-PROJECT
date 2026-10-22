@@ -499,12 +499,17 @@ class RAGChain:
         from app.admin.prompt_settings import active_snapshot
 
         captured_prompt = prompt_config if prompt_config is not None else active_snapshot()
+        from app.backend.catalog_selection import image_request, products
+        requested_image = image_request(
+            question, product_context=bool(products(question, (catalog_data or {}).get('assets', []))
+                                           or (media_context or {}).get('focus') or history))
         search_question = retrieval_question(question, history)
         if media_context:
-            from app.backend.catalog_selection import products
             current_products = products(question, catalog_data['assets'])
             if current_products and current_products != media_context['focus']:
                 search_question = question
+        if requested_image:
+            search_question += '\nHarga dan detail bahan, ukuran, serta pilihan produk yang diminta.'
         if tree:
             tree.add_metadata({"prompt_sha256": captured_prompt["sha256"],
                                "history_recipe": "eight-pairs-utf8-bound-v1"})
@@ -538,12 +543,49 @@ class RAGChain:
             retrieved_docs = [doc for doc, _ in semantic_results]
 
         media_url = None
-        if retrieved_docs and not (catalog_data and catalog_data['enabled']):
+        if requested_image and retrieved_docs and not (catalog_data and catalog_data['enabled']):
             for doc in retrieved_docs:
-                url = doc.metadata.get("media_url")
+                url = doc.metadata.get('media_url')
                 if url and str(url).strip():
                     media_url = str(url).strip()
                     break
+        media_selection = None
+        media_decision = {'reason': 'catalog_disabled', 'asset_id': None}
+        if media_context:
+            from app.backend.catalog_selection import select
+            from app.admin.catalog_storage import public_url
+            decision = select(question, catalog_data['assets'], [d.page_content for d in retrieved_docs],
+                              focus=media_context['focus'], seen=media_context['seen'])
+            media_context['next_focus'] = decision['focus']
+            asset = decision['asset']
+            media_decision = {'reason': decision['reason'], 'asset_id': asset['asset_id'] if asset else None,
+                              'catalog_revision': catalog_data['revision']}
+            if asset:
+                media_selection = {k: asset[k] for k in ('asset_id','revision','object_key','mime_type','caption','alt_text')}
+                media_selection['explicit'] = decision['explicit']
+                media_selection['reason'] = decision['reason']
+                media_selection['catalog_revision'] = catalog_data['revision']
+                media_url = public_url(asset['object_key'])
+        media_prompt = []
+        if requested_image:
+            from langchain_core.messages import SystemMessage
+            from app.admin.catalog import PRODUCTS
+            if media_selection:
+                labels = [PRODUCTS[p][0] for p in decision['focus']]
+                state = 'Ilustrasi katalog terpilih: ' + ', '.join(labels) + '.'
+            elif media_url:
+                state = 'Gambar referensi dari knowledge tersedia untuk dilampirkan.'
+            else:
+                state = 'Tidak ada gambar yang dipilih. Alasan: ' + media_decision['reason'] + '.'
+            media_prompt = [SystemMessage(content=(
+                'STATUS LAMPIRAN TERVERIFIKASI (kontrol aplikasi, bukan sumber harga): ' + state +
+                ' Jika ilustrasi terpilih, aplikasi akan mengirim gambar dahulu, lalu jawaban teks Anda sebagai pesan terpisah. '
+                'Jangan mengatakan foto/tautan preview belum tersedia jika ilustrasi terpilih; jangan membuat URL atau mengklaim gambar sudah diterima. '
+                'Berikan harga dan detail produk relevan secara ringkas dari KONTEKS KNOWLEDGE, meskipun pelanggan hanya meminta gambar. '
+                'Jika harga pasti bergantung pada ukuran/bahan yang belum dipilih, jelaskan opsi yang tersedia atau tanyakan detail yang diperlukan; jangan menebak. '
+                'Jika tidak ada gambar terpilih, jelaskan keterbatasan yang sebenarnya atau klarifikasi produknya, tanpa menyiratkan ada lampiran. '
+                'Gambar katalog adalah ilustrasi, bukan bukti model stok atau varian persis.'
+            ))]
 
         context_str = format_context(retrieved_docs)
 
@@ -562,6 +604,7 @@ class RAGChain:
                 context=context_str,
                 history=history,
                 question=question,
+                media=media_prompt,
             )
             response = get_llm(model).invoke(prompt_value)
             answer = response.content if hasattr(response, "content") else str(response)
@@ -597,6 +640,15 @@ class RAGChain:
             )
             answer = "Maaf kak, terjadi kesalahan teknis saat memproses pertanyaan. Silakan coba lagi atau hubungi admin langsung ya"
 
+        if generation_error:
+            media_url = None
+            media_selection = None
+            media_decision = {'reason': 'generation_error', 'asset_id': None}
+            if media_context:
+                media_context.pop('next_focus', None)
+        elif media_context and channel == 'playground':
+            store.catalog_focus(media_context, decision['focus'], preview_asset=decision['asset'])
+
         # Simpan giliran percakapan ini ke histori sesi untuk konteks berikutnya
         total_elapsed = time.monotonic() - t_start
         trace_id = str(tree.id) if tree else None
@@ -626,25 +678,6 @@ class RAGChain:
             usage_dict,
         )
 
-        media_selection = None
-        media_decision = {'reason': 'catalog_disabled', 'asset_id': None}
-        if media_context and not generation_error:
-            from app.backend.catalog_selection import select
-            from app.admin.catalog_storage import public_url
-            decision = select(question, catalog_data['assets'], [d.page_content for d in retrieved_docs],
-                              focus=media_context['focus'], seen=media_context['seen'])
-            media_context['next_focus'] = decision['focus']
-            if channel == 'playground':
-                store.catalog_focus(media_context, decision['focus'], preview_asset=decision['asset'])
-            asset = decision['asset']
-            media_decision = {'reason': decision['reason'], 'asset_id': asset['asset_id'] if asset else None,
-                              'catalog_revision': catalog_data['revision']}
-            if asset:
-                media_selection = {k: asset[k] for k in ('asset_id','revision','object_key','mime_type','caption','alt_text')}
-                media_selection['explicit'] = decision['explicit']
-                media_selection['reason'] = decision['reason']
-                media_selection['catalog_revision'] = catalog_data['revision']
-                media_url = public_url(asset['object_key'])
         return RAGResponse(
             answer=answer,
             session_id=session_id,

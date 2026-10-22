@@ -52,3 +52,6 @@ A catalog image the business has approved for showing to customers. Approval doe
 
 **Variant comparison image**:
 A catalog image that presents several identified product forms, materials, or finishes together to help customers compare their appearance.
+
+**Customer image request**:
+A customer's request to see a product illustration, including a contextual follow-up such as asking to see the image again. A price, material, or shipping question alone is not an image request.
