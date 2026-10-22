@@ -1,0 +1,199 @@
+{
+  "project": "ndgfipshsgqmqnsmjhzz",
+  "selected_assets": 27,
+  "groups": 7,
+  "anonymous_public_head": [
+    {
+      "asset_id": "banner-spanduk-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "b94edd39c45fd0abaa51dec46328721e0d35781b4f3c44c32738432bc54ebe7c"
+    },
+    {
+      "asset_id": "banner-spanduk-material-comparison",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "20ef436ec470d356da6f835f0015270e3c001cc8ca4253d5068be4808fda4ecc"
+    },
+    {
+      "asset_id": "brosur-flyer-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "477ac4a5ac8c2f25e8aeda929b21b07577427cf3ebca15f337b7283cefa3d9e8"
+    },
+    {
+      "asset_id": "digital-print-a3-plus-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "24c751216ed4b8d97d615422d43143460eaad2fdf6e9ca595679004a5252402b"
+    },
+    {
+      "asset_id": "digital-print-a3-plus-paper-comparison",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "eeddb012c7083d9a190a06ee722b497f9b4e35f8ef6966480df2e0dcaf75902a"
+    },
+    {
+      "asset_id": "e-money-custom-uv-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "1a376068eb61c233b004dd7a3334996685c232b1cf04a1ffa7a015c39bf9f3ca"
+    },
+    {
+      "asset_id": "id-card-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "4137d741e694b3148dc4a4142301f0bb157dd18f675b650ca7437fb3d2896ceb"
+    },
+    {
+      "asset_id": "kalender-meja-a5-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "e2d7d730e213f14349f518202e4e6767025c113045a52144efebaeaa9cee7f0a"
+    },
+    {
+      "asset_id": "kartu-nama-glossy-doff-comparison",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "cc8aa7d316354b18ba61cf95b5cf4496d026e8431263aeb90d9a925ca9a517f9"
+    },
+    {
+      "asset_id": "kartu-nama-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "9df33a7192bd3554b5e483b34c671ab6122ddc4c9f2943aea73b8a9603488668"
+    },
+    {
+      "asset_id": "korek-api-custom-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "e9493890ef3d868ff15f538aea688abef4d67d5728699e2a4a172d0843aaa1d6"
+    },
+    {
+      "asset_id": "lanyard-custom-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "e3c6c5844deab2484aecb304bf832b585161d9d4c697a7616e081ca13b5f293a"
+    },
+    {
+      "asset_id": "nota-ncr-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "938ea366aca44830c8614792f808d6659187cadef7b8736176be3b79b830e0fc"
+    },
+    {
+      "asset_id": "pin-aksesoris-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "bfe87bbf98627be2f30d4b4148d1d0af8095221b1dacbe26defb3627a05bdd96"
+    },
+    {
+      "asset_id": "plakat-akrilik-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "6ef6428dc98823e9e40e25e188f4d665408e24f0c370ff559a476f0b3fc743ed"
+    },
+    {
+      "asset_id": "poster-albatros-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "bdbe82d85bada60695a47843764f7fdb474fffe9b5faec008ba5cd11ade230d2"
+    },
+    {
+      "asset_id": "roll-up-banner-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "94af55d73f1867913724165f84d88425bf8c30f575d8d62e7a72479edb72b024"
+    },
+    {
+      "asset_id": "standing-banner-form-comparison",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "41f7e08c68c86e9d30696128d2e585d33317dfe2c3f38274ecf4490222c2d8d9"
+    },
+    {
+      "asset_id": "stempel-otomatis-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "c3508164a47208475ba26df122767266491ba5aced482c3405dab34871f6a425"
+    },
+    {
+      "asset_id": "stiker-a3-plus-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "4fe2fe7c6703e2ca226c9842d91b9421fae610f396070b2a334b7724879c5245"
+    },
+    {
+      "asset_id": "stiker-a3-plus-kiss-cut-detail",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "521a741c7656e52252df6f5f72975d40afed6b766122e4497f46f5148001b84b"
+    },
+    {
+      "asset_id": "stiker-meteran-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "f95eaa775b55573508f834740c6403dd7cb9579aabeeefe51f136ba1e60d47b5"
+    },
+    {
+      "asset_id": "stiker-meteran-material-comparison",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "81f178f72d3f2a17a695a2c9883661d9d4f0eafede31d64a7f804e776a898034"
+    },
+    {
+      "asset_id": "tumbler-custom-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "8017100f4844fa92452e462fdb2408967647f9d3f2431f32d5b597bfa7606633"
+    },
+    {
+      "asset_id": "x-banner-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "734fe66aa8903c68d4de5533b6acef3bbecfac1ade2b48b0cca9795afdf450c9"
+    },
+    {
+      "asset_id": "y-banner-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "6f6f92d4d9756b5219d3f21172671b8fd1426b2caea8a5f4843ab1bf7c341bb7"
+    },
+    {
+      "asset_id": "yasin-buku-saku-hero",
+      "status": 200,
+      "content_type": "image/png",
+      "bytes_match": true,
+      "sha256": "05d1ae0bbd79fcc9d1eb8985a4b8cfb9babb69c24003e69cd99039f36c1e06dc"
+    }
+  ],
+  "all_public": true,
+  "customer_feature_enabled": false,
+  "catalog_revision": 27
+}

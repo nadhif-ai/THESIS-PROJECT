@@ -39,6 +39,7 @@ import {
 } from "@/lib/query-client";
 import { prefetchResource, useResource } from "@/hooks/use-resource";
 import { KnowledgePage } from "@/components/knowledge-page";
+import { CatalogPage, MediaPreview } from "@/components/catalog-page";
 import { EvaluationMath, EvaluationMethodGuide, MetricMath } from "@/components/evaluation-math";
 import { evaluationView, QA_METRICS } from "@/lib/evaluation-metrics";
 import type { KnowledgeCatalog } from "@/components/knowledge-page";
@@ -139,6 +140,7 @@ import {
 const pages = [
   { name: "Dashboard", icon: Grid2X2 },
   { name: "Knowledge", icon: Database },
+  { name: "Catalog", icon: FileText },
   { name: "Playground", icon: MessagesSquare },
   { name: "Conversations", icon: MessageSquare },
   { name: "Providers", icon: SlidersHorizontal },
@@ -154,6 +156,7 @@ const date = (value: string) =>
 const percentage = (value?: number | null) =>
   value == null ? "Not scored" : `${Math.round(value * 100)}%`;
 const descriptions: Record<string, string> = {
+  Catalog: "Manage approved product illustrations and preview when they appear in replies.",
   Dashboard:
     "Active knowledge, customer activity, and work that needs attention.",
   Knowledge:
@@ -757,6 +760,9 @@ function Playground() {
                                   ? "You"
                                   : "Asia Visual Grafika"}
                               </MessageHeader>
+                              {row.response && (
+                                <MediaPreview answer={row.response} />
+                              )}
                               <Bubble
                                 variant={
                                   row.role === "user" ? "default" : "muted"
@@ -2427,6 +2433,7 @@ function WorkspaceLink({
     const path = {
       Dashboard: "/overview",
       Knowledge: "/knowledge",
+      Catalog: "/catalog",
       Playground: "/knowledge",
       Conversations: "/conversations?channel=whatsapp",
       Providers: "/settings",
@@ -2823,6 +2830,8 @@ function Workspace() {
                 <Dashboard navigate={navigate} />
               ) : title === "Knowledge" ? (
                 <KnowledgePage testKnowledge={() => navigate("Playground")} />
+              ) : title === "Catalog" ? (
+                <CatalogPage />
               ) : title === "Playground" ? (
                 <Playground />
               ) : title === "Conversations" ? (

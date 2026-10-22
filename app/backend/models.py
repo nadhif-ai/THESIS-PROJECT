@@ -90,7 +90,7 @@ def get_embedding_model():
 
 
 @lru_cache(maxsize=8)
-def get_llm(model: str | None = None) -> ChatOpenAI:
+def get_llm(model: str | None = None, *, structured=False, timeout=45) -> ChatOpenAI:
     """
     Membuat klien model jawaban melalui layanan OpenRouter.
 
@@ -106,9 +106,10 @@ def get_llm(model: str | None = None) -> ChatOpenAI:
         api_key=settings.openrouter_api_key,
         base_url=settings.openrouter_base_url,
         temperature=0.0,
-        max_tokens=1024,
-        request_timeout=45,
-        max_retries=1,
+        max_tokens=2048,
+        request_timeout=timeout,
+        max_retries=0 if structured else 1,
+        extra_body={"provider": {"require_parameters": True}} if structured else None,
         default_headers={
             "HTTP-Referer": "https://printing-rag-chatbot.local",
             "X-Title": "Digital Printing RAG Chatbot",
@@ -117,3 +118,24 @@ def get_llm(model: str | None = None) -> ChatOpenAI:
 
     logger.info("LLM initialized successfully.")
     return llm
+
+
+def structured_response(schema, messages, *, timeout):
+    """One provider-constrained structured call, retaining reported usage for diagnostics."""
+    model = get_llm(get_settings().product_intent_model, structured=True, timeout=timeout)
+    result = model.with_structured_output(schema, method='json_schema', strict=True,
+                                         include_raw=True).invoke(messages)
+    if result.get('parsing_error') or result.get('parsed') is None:
+        raise ValueError('Invalid structured provider response')
+    raw = result['raw']
+    usage = raw.usage_metadata or {}
+    metadata = raw.response_metadata or {}
+    reported = metadata.get('token_usage') or {}
+    cost = reported.get('cost')
+    return result['parsed'], {
+        'prompt_tokens': usage.get('input_tokens', reported.get('prompt_tokens', 0)),
+        'completion_tokens': usage.get('output_tokens', reported.get('completion_tokens', 0)),
+        'cost_usd': cost if isinstance(cost, (int, float)) else None,
+        'provider': metadata.get('provider'), 'model': metadata.get('model_name'),
+        'requests': 1,
+    }
