@@ -114,6 +114,8 @@ def login(body: Login, request: Request, response: Response):
             "db_session": time.perf_counter() - verified_at,
         }.items()
     )
+    # A legacy root cookie shadows the /admin cookie when both reach Starlette.
+    response.delete_cookie("avg_admin", path="/")
     response.set_cookie(
         "avg_admin",
         token,
