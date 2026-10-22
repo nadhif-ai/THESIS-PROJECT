@@ -115,9 +115,9 @@ def test_failed_image_still_sends_text(client, monkeypatch):
         row = store.get_inbox("asia-chatbot", "test-message-1")
     row.update(answer="File PDF Print.", media_url="https://example.com/sample.png")
     waha.send_reply(row)
-    assert [path for path, _ in calls] == ["/api/sendImage", "/api/sendText"]
-    assert calls[0][1]["file"]["mimetype"] == "image/png"
-    assert calls[1][1]["chatId"] == row["sender"]
+    assert [path for path, _ in calls] == ["/api/sendText", "/api/sendImage"]
+    assert calls[1][1]["file"]["mimetype"] == "image/png"
+    assert calls[0][1]["chatId"] == row["sender"]
     with client.pg.admin_connection() as db:
         assert (
             db.execute("SELECT status FROM chatbot.whatsapp_inbox").fetchone()[0]
@@ -152,7 +152,7 @@ def test_image_timeout_retains_uncertainty_after_text_success(client,monkeypatch
     persisted=store.get_inbox('asia-chatbot','test-message-1')
     assert persisted['status']=='uncertain'
     assert json.loads(persisted['reply_ids'])==['known-text-reply']
-    assert calls==['/api/sendImage','/api/sendText']
+    assert calls==['/api/sendText','/api/sendImage']
 
 
 def test_missing_send_response_identity_is_uncertain(client,monkeypatch):

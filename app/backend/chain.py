@@ -307,6 +307,9 @@ class RAGResponse:
     trace_url: Optional[str] = None
     error: Optional[str] = None
     prompt_sha256: Optional[str] = None
+    media_selection: Optional[dict] = None
+    media_decision: Optional[dict] = None
+    media_context: Optional[dict] = None
 
 
 class RAGChain:
@@ -342,6 +345,7 @@ class RAGChain:
         model: Optional[str] = None,
         prompt_config: Optional[dict] = None,
         history_turns: Optional[list] = None,
+        media_conversation_key: Optional[str] = None,
     ) -> RAGResponse:
         """
         Menjalankan pipeline RAG secara penuh untuk menjawab pertanyaan pengguna.
@@ -357,6 +361,16 @@ class RAGChain:
             .replace(",", "")
         )
 
+        catalog_data = None
+        media_context = None
+        if channel in ('whatsapp', 'playground'):
+            from app.admin import catalog
+            catalog_data = catalog.snapshot()
+            if catalog_data['enabled']:
+                media_context = store.catalog_context(
+                    media_conversation_key or channel + ':' + session_id,
+                    reset=cleaned_query in _RESET_COMMANDS,
+                )
         if cleaned_query in _RESET_COMMANDS:
             clear_session_history(session_id)
             history = []
@@ -486,6 +500,11 @@ class RAGChain:
 
         captured_prompt = prompt_config if prompt_config is not None else active_snapshot()
         search_question = retrieval_question(question, history)
+        if media_context:
+            from app.backend.catalog_selection import products
+            current_products = products(question, catalog_data['assets'])
+            if current_products and current_products != media_context['focus']:
+                search_question = question
         if tree:
             tree.add_metadata({"prompt_sha256": captured_prompt["sha256"],
                                "history_recipe": "eight-pairs-utf8-bound-v1"})
@@ -519,7 +538,7 @@ class RAGChain:
             retrieved_docs = [doc for doc, _ in semantic_results]
 
         media_url = None
-        if retrieved_docs:
+        if retrieved_docs and not (catalog_data and catalog_data['enabled']):
             for doc in retrieved_docs:
                 url = doc.metadata.get("media_url")
                 if url and str(url).strip():
@@ -607,6 +626,25 @@ class RAGChain:
             usage_dict,
         )
 
+        media_selection = None
+        media_decision = {'reason': 'catalog_disabled', 'asset_id': None}
+        if media_context and not generation_error:
+            from app.backend.catalog_selection import select
+            from app.admin.catalog_storage import public_url
+            decision = select(question, catalog_data['assets'], [d.page_content for d in retrieved_docs],
+                              focus=media_context['focus'], seen=media_context['seen'])
+            media_context['next_focus'] = decision['focus']
+            if channel == 'playground':
+                store.catalog_focus(media_context, decision['focus'], preview_asset=decision['asset'])
+            asset = decision['asset']
+            media_decision = {'reason': decision['reason'], 'asset_id': asset['asset_id'] if asset else None,
+                              'catalog_revision': catalog_data['revision']}
+            if asset:
+                media_selection = {k: asset[k] for k in ('asset_id','revision','object_key','mime_type','caption','alt_text')}
+                media_selection['explicit'] = decision['explicit']
+                media_selection['reason'] = decision['reason']
+                media_selection['catalog_revision'] = catalog_data['revision']
+                media_url = public_url(asset['object_key'])
         return RAGResponse(
             answer=answer,
             session_id=session_id,
@@ -628,4 +666,7 @@ class RAGChain:
             trace_url=trace_url,
             error=generation_error,
             prompt_sha256=captured_prompt["sha256"],
+            media_selection=media_selection,
+            media_decision=media_decision,
+            media_context=media_context,
         )

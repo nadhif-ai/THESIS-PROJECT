@@ -1,0 +1,22 @@
+{
+  "recipient": "WAHA account self identity",
+  "database": "disposable loopback only",
+  "knowledge": "copy of active published snapshot; original Pinecone namespace read only",
+  "inbox_status": "sent",
+  "selected_asset": "roll-up-banner-hero",
+  "parts": {
+    "text": {
+      "status": "sent",
+      "provider_id_present": true,
+      "provider_id_sha256": "2cd69933913cdf1d1557b903085cb6a3c19240995aaf563d57e14c3444783496",
+      "observed_ack": 1
+    },
+    "image": {
+      "status": "sent",
+      "provider_id_present": true,
+      "provider_id_sha256": "a66f19f2023810cc5de5c695a09b963c4470d2a4dd3b75b6558793f3b4945fc0",
+      "observed_ack": 1
+    }
+  },
+  "text_first": true
+}

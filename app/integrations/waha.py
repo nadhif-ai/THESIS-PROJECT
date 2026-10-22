@@ -85,56 +85,79 @@ def _reply_id(response):
 
 
 def send_reply(row):
+    from app.admin import catalog_storage
+
     settings = get_settings()
     base = {"session": row["session"], "chatId": row["sender"]}
-    replies = []
-    media_error = None
-    media_uncertain = False
-    if row["media_url"]:
-        try:
-            from urllib.parse import urlsplit
+    parts = row.get("delivery_parts") or {}
+    if not parts and json.loads(row.get("reply_ids") or "[]"):
+        update(row, status="uncertain", error="Legacy partial delivery requires operator inspection.")
+        return
 
-            media_url = row["media_url"]
-            parts = urlsplit(media_url)
-            if parts.scheme not in ("https", "http"):
-                raise ValueError("Knowledge image needs an HTTP(S) URL.")
-            if (
-                parts.hostname in ("127.0.0.1", "localhost")
-                and settings.waha_webhook_url
-            ):
-                callback = urlsplit(settings.waha_webhook_url)
-                media_url = parts._replace(
-                    scheme=callback.scheme, netloc=callback.netloc
-                ).geturl()
-            image = api(
-                "POST",
-                "/api/sendImage",
-                {
-                    **base,
-                    "file": {
-                        "url": media_url,
-                        "mimetype": "image/png"
-                        if parts.path.lower().endswith(".png")
-                        else "image/jpeg",
-                        "filename": "preview.png"
-                        if parts.path.lower().endswith(".png")
-                        else "preview.jpg",
-                    },
-                    "caption": "Contoh gambar terkait informasi yang Kakak tanyakan.",
-                },
-                timeout=60,
-            )
-            replies.append(_reply_id(image))
-            update(row, reply_ids=json.dumps(replies))
-        except (requests.RequestException, ValueError) as error:
-            media_uncertain = isinstance(error, requests.RequestException)
-            media_error = f"Image delivery: {type(error).__name__}; text fallback used."
-            logger.warning("WAHA image delivery failed; sending text fallback.")
-    text = api(
-        "POST", "/api/sendText", {**base, "text": row["answer"], "linkPreview": True}
-    )
-    replies.append(_reply_id(text))
-    update(row, status="uncertain" if media_uncertain else "sent", reply_ids=json.dumps(replies), error=media_error)
+    def send_part(name, path, payload, timeout=30):
+        previous = (row.get("delivery_parts") or {}).get(name, {})
+        if previous.get("status") == "sent":
+            return "sent"
+        if previous.get("status") in ("sending", "uncertain"):
+            store.checkpoint_delivery_part(row, name, "uncertain", error="Previous send outcome unknown.")
+            return "uncertain"
+        if previous.get("status") in ("failed", "skipped"):
+            return previous["status"]
+        if not store.checkpoint_delivery_part(row, name, "sending"):
+            store.checkpoint_delivery_part(row, name, "skipped", error="Delivery disabled before send.")
+            return "skipped"
+        try:
+            result = api("POST", path, {**base, **payload}, timeout=timeout)
+            identifier = _reply_id(result)
+        except requests.RequestException:
+            store.checkpoint_delivery_part(row, name, "uncertain", error="Provider outcome unknown; inspect before retrying.")
+            return "uncertain"
+        except ValueError:
+            store.checkpoint_delivery_part(row, name, "failed", error="Provider rejected this delivery part.")
+            return "failed"
+        store.checkpoint_delivery_part(row, name, "sent", provider_id=identifier)
+        return "sent"
+
+    text = send_part("text", "/api/sendText", {"text": row["answer"], "linkPreview": True})
+    if text != "sent":
+        update(row, status="uncertain" if text == "uncertain" else "skipped" if text == "skipped" else "failed",
+               error="Text delivery " + text + "; image not submitted.")
+        return
+    selection = row.get("media_selection")
+    media_url = catalog_storage.public_url(selection["object_key"]) if selection else row.get("media_url")
+    image = None
+    if media_url:
+        from urllib.parse import urlsplit
+        parsed = urlsplit(media_url)
+        if parsed.scheme not in ("http", "https"):
+            store.checkpoint_delivery_part(row, "image", "failed", error="Invalid media URL.")
+            image = "failed"
+        else:
+            if selection:
+                mime = selection["mime_type"]
+                caption = selection["caption"]
+            else:
+                # Only pre-catalog legacy jobs may use knowledge URLs.
+                if store.catalog_snapshot()['enabled']:
+                    media_url = None
+                mime = "image/png" if parsed.path.lower().endswith(".png") else "image/jpeg"
+                caption = "Ilustrasi produk terkait pertanyaan Kakak."
+            if media_url:
+                image = send_part("image", "/api/sendImage", {
+                    "file": {"url": media_url, "mimetype": mime,
+                             "filename": (selection["asset_id"] if selection else "preview") + (".png" if mime == "image/png" else ".jpg")},
+                    "caption": caption,
+                }, timeout=60)
+    notice = None
+    if image == "failed" and selection and selection.get("explicit"):
+        notice = send_part("notice", "/api/sendText", {
+            "text": "Maaf Kak, gambar belum berhasil dikirim. Silakan minta kembali nanti ya.",
+            "linkPreview": False,
+        })
+    uncertain = "uncertain" in (image, notice)
+    update(row, status="uncertain" if uncertain else "sent",
+           reply_ids=row.get("reply_ids") or "[]",
+           error=("Image delivery " + image + "; text retained.") if image and image != "sent" else None)
 
 
 def _typing(row, action):
@@ -174,6 +197,7 @@ def process(row):
                     question=row["body"],
                     session_id=session_id,
                     channel="whatsapp",
+                    media_conversation_key="waha:" + row["session"] + ":" + row["sender"],
                 )
                 answer = plain_text(response.answer)
                 if response.error:
@@ -183,7 +207,12 @@ def process(row):
                     answer=answer,
                     media_url=response.media_url if not response.error else None,
                 )
-                update(row, answer=row["answer"], media_url=row["media_url"])
+                context = getattr(response, "media_context", None) or {}
+                selection = getattr(response, "media_selection", None) if not response.error else None
+                row["media_selection"] = selection
+                update(row, answer=row["answer"], media_url=row["media_url"], media_selection=selection,
+                       media_conversation_key=context.get("key"), media_epoch=context.get("epoch"),
+                       media_focus=context.get('next_focus'))
             if not store.begin_inbox_send(row["session"], row["message_id"], row.get("lease_token")):
                 return
         logger.info("WhatsApp phase=sending item=%s generation_ms=%.1f", item, (time.monotonic()-started)*1000)

@@ -5,13 +5,14 @@ from types import SimpleNamespace
 import pytest
 from langchain_core.documents import Document
 
-from app.admin import store
+from app.admin import catalog, store
 from app.backend import chain, vectorstore
 
 
 @pytest.fixture
 def conversation(monkeypatch):
     turns, prompts, searches = [], [], []
+    monkeypatch.setattr(catalog, "snapshot", lambda: {"enabled": False, "assets": [], "revision": 0})
     monkeypatch.setattr(store, "prompt_turns", lambda *args: list(turns))
     monkeypatch.setattr(store, "record_conversation", lambda session, channel, question, answer, *args, **kwargs: turns.append((question, answer)))
     monkeypatch.setattr(chain, "clear_session_history", lambda session: turns.clear())

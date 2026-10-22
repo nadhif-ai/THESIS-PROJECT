@@ -489,6 +489,8 @@ def export(evaluation_id: str):
 
 from app.admin.knowledge_routes import router as knowledge_router
 protected.include_router(knowledge_router)
+from app.admin.catalog_routes import router as catalog_router
+protected.include_router(catalog_router)
 admin_router.include_router(protected)
 
 
