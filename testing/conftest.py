@@ -19,6 +19,9 @@ def offline_boundary(monkeypatch, request):
         yield
         return
     from app.admin import store
+    from app.backend import product_intent, attachment_answer
+    monkeypatch.setattr(product_intent, 'extract', lambda *a, **kw: product_intent.ProductIntent(action='none', product_ids=[], view='hero', attributes=[], exact_visual=False, resolution='resolved', clarification='', changes_product=False))
+    monkeypatch.setattr(attachment_answer, 'consistent', lambda *a, **kw: True)
     from app.config.settings import get_settings
     from psycopg.conninfo import conninfo_to_dict
 

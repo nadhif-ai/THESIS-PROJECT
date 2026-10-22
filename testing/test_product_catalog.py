@@ -1,3 +1,10 @@
+def semantic(monkeypatch, action='show', product='roll-up-banner'):
+    from app.backend import product_intent
+    value = product_intent.ProductIntent(action=action, product_ids=[product], view='hero',
+        attributes=[], exact_visual=False, resolution='resolved', clarification='', changes_product=True)
+    monkeypatch.setattr(product_intent, 'extract', lambda *a, **kw: value)
+
+
 import pytest
 
 from app.admin import catalog
@@ -109,14 +116,17 @@ def test_shared_rag_preview_selects_catalog_not_legacy_url_and_honors_topic_cont
         return [(Document(page_content='Roll up banner tersedia.',metadata={'source':'products.txt','media_url':'https://unapproved.example/other.png'}),0.1)]
     monkeypatch.setattr(vectorstore,'similarity_search_with_score',retrieve)
     rag=chain.RAGChain()
+    semantic(monkeypatch)
     first=rag.run('Gambar roll up banner?', 'preview', channel='playground')
     assert first.media_selection['asset_id']=='roll-up-hero'
     assert 'unapproved.example' not in first.media_url
+    semantic(monkeypatch, 'none')
     followup=rag.run('Kalau 5 pcs?', 'preview',channel='playground')
     assert followup.media_selection is None
     assert followup.media_decision['reason']=='image_not_requested'
+    semantic(monkeypatch, 'none', 'x-banner')
     other=rag.run('Harga X-banner?', 'preview',channel='playground')
-    assert searches[-1]=='Harga X-banner?'
+    assert searches[-1]=='Harga X-banner?\nProduk yang dimaksud: x banner'
     assert other.media_decision['reason']=='image_not_requested'
     context=store.catalog_context('playground:preview')
     assert context['seen']==['roll-up-hero']
@@ -173,6 +183,7 @@ def test_authenticated_playground_coordinates_visual_status_with_factual_details
     from testing.test_prompt_settings import client, authorize
     seed_active(); catalog.save({**record(), 'description': 'UNTRUSTED_CATALOG_PRICE Rp 1'}, 0, 'operator')
     store.catalog_feature(True)
+    semantic(monkeypatch)
     captured = []
     def invoke(messages):
         captured.append(messages)
@@ -203,6 +214,7 @@ def test_generation_failure_suppresses_selected_image_and_focus(pg_live, monkeyp
     from app.admin import store
     from testing.test_global_knowledge import seed_active
     seed_active(); catalog.save(record(), 0, 'operator'); store.catalog_feature(True)
+    semantic(monkeypatch)
     def fail(messages):
         raise RuntimeError('Simulated provider failure')
     monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=fail))
@@ -225,4 +237,30 @@ def test_legacy_media_fallback_is_request_only_in_shared_rag(pg_live, monkeypatc
         (Document(page_content='Roll up banner tersedia.', metadata={'media_url': 'https://example.com/roll-up.png'}), .1)])
     rag = chain.RAGChain()
     assert rag.run('Harga roll up?', 'legacy', channel='playground').media_url is None
+    semantic(monkeypatch)
     assert rag.run('Kirim gambarnya', 'legacy', channel='playground').media_url == 'https://example.com/roll-up.png'
+
+
+def test_visual_attribute_backfill_preserves_dashboard_edits_and_replaced_images(pg_live, monkeypatch):
+    from app.admin import catalog_import, catalog_storage, store
+    from pathlib import Path
+    import json
+    seed = next(a for a in json.loads(Path('dataset/image-product/manifest.json').read_text())['assets']
+                if a['id'] == 'kartu-nama-glossy-doff-comparison')
+    asset = {**record(), 'asset_id':seed['id'], 'category_id':'id-card-kartu-nama',
+             'product_type':'kartu-nama', 'covered_product_types':['kartu-nama'],
+             'role':seed['role'], 'sha256':seed['image']['sha256'],
+             'object_key':seed['id']+'/'+seed['image']['sha256']+'.png',
+             'caption':'Reviewed caption.'}
+    catalog.save(asset, 0, 'operator')
+    with pg_live.admin_connection() as db:
+        db.execute("UPDATE chatbot.catalog_assets SET metadata=metadata-'visual_attributes'")
+    result = catalog_import.backfill_visual_attributes('dataset/image-product/manifest.json','operator')
+    assert result['updated'] == [seed['id']]
+    saved = catalog.snapshot()['assets'][0]
+    assert saved['visual_attributes'] == {'finish':['glossy','doff']}
+    assert saved['caption'] == 'Reviewed caption.'
+    assert catalog_import.backfill_visual_attributes('dataset/image-product/manifest.json','operator')['updated'] == []
+    edited = catalog.save({**saved,'visual_attributes':{'finish':[' Glossy ', 'glossy']}}, saved['revision'],'operator')
+    assert edited['visual_attributes'] == {'finish':['glossy']}
+    assert catalog_import.backfill_visual_attributes('dataset/image-product/manifest.json','operator')['updated'] == []

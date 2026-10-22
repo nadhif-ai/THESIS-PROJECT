@@ -135,11 +135,22 @@ export type Context = {
 export type Answer = {
   media_url?: string | null;
   media_selection?: {
-    asset_id: string;
+    asset_id?: string;
     alt_text: string;
     caption: string;
   } | null;
-  media_decision?: { reason: string; asset_id: string | null } | null;
+  media_decision?: {
+    reason: string;
+    asset_id: string | null;
+    product_ids?: string[];
+    intent_resolution?: string;
+    intent_latency_seconds?: number;
+    intent_model?: string;
+    intent_prompt_sha256?: string;
+    application_version?: string;
+    catalog_revision?: number;
+    answer_validation?: string;
+  } | null;
   answer: string;
   sources: string[];
   retrieval_context: Context[];

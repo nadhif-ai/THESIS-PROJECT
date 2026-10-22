@@ -229,7 +229,14 @@
       "product_type": "banner-spanduk",
       "related_asset_ids": [
         "banner-spanduk-hero"
-      ]
+      ],
+      "visual_attributes": {
+        "material": [
+          "china",
+          "korea",
+          "albatros"
+        ]
+      }
     },
     {
       "id": "stiker-meteran-hero",
@@ -414,7 +421,15 @@
       "product_type": "stiker-meteran",
       "related_asset_ids": [
         "stiker-meteran-hero"
-      ]
+      ],
+      "visual_attributes": {
+        "material": [
+          "china",
+          "ritrama",
+          "one way vision",
+          "transparan"
+        ]
+      }
     },
     {
       "id": "x-banner-hero",
@@ -1201,7 +1216,18 @@
       "product_type": "digital-print-a3",
       "related_asset_ids": [
         "digital-print-a3-plus-hero"
-      ]
+      ],
+      "visual_attributes": {
+        "material": [
+          "art paper",
+          "art carton",
+          "hvs",
+          "bc",
+          "linen",
+          "concorde",
+          "photo paper"
+        ]
+      }
     },
     {
       "id": "id-card-hero",
@@ -1466,7 +1492,13 @@
       "product_type": "kartu-nama",
       "related_asset_ids": [
         "kartu-nama-hero"
-      ]
+      ],
+      "visual_attributes": {
+        "finish": [
+          "glossy",
+          "doff"
+        ]
+      }
     },
     {
       "id": "brosur-flyer-hero",

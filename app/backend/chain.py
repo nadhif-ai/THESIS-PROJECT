@@ -1,3 +1,4 @@
+import os
 import logging
 import time
 from typing import Optional
@@ -404,6 +405,7 @@ class RAGChain:
                                usage={"prompt_tokens": 0, "completion_tokens": 0})
 
         active = None
+        empty_knowledge = False
         if self.settings.vector_store == "pinecone":
             from app.admin.global_knowledge import EMPTY_ANSWER
             if namespace:
@@ -411,14 +413,15 @@ class RAGChain:
             else:
                 from app.admin.kb_store import active_info
                 active = active_info()
-            if active is None or active["manifest"].get("empty"):
+            empty_knowledge = active is None or active["manifest"].get("empty")
+            if empty_knowledge and not media_context:
                 response = RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
                                    answer_source="Empty knowledge", sources=[],
                                    usage={"prompt_tokens": 0, "completion_tokens": 0})
                 store.record_conversation(session_id, channel, question, response.answer,
                                           usage=response.usage, latency=time.monotonic() - t_start)
                 return response
-            namespace = active["namespace"]
+            namespace = active["namespace"] if active else None
 
         # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
         # A numeric reply to a branch/quantity question belongs to that conversation.
@@ -427,7 +430,7 @@ class RAGChain:
             or history[-1].content == _MENU_TEXT
             or history[-1].content.endswith(_WELCOME_GREETING_TEXT)
         )
-        if cleaned_query in _MENU_MAP and menu_expected:
+        if cleaned_query in _MENU_MAP and menu_expected and not empty_knowledge:
             _, label = _MENU_MAP[cleaned_query]
             menu_dir = self.settings.structured_kb_dir
             menu_raw = None
@@ -471,7 +474,8 @@ class RAGChain:
             selected_version = active
             from app.backend.vectorstore import require_compatible_version
 
-            require_compatible_version(selected_version)
+            if not empty_knowledge:
+                require_compatible_version(selected_version)
             if selected_version:
                 namespace = selected_version["namespace"]
         tree = get_current_run_tree()
@@ -499,15 +503,29 @@ class RAGChain:
         from app.admin.prompt_settings import active_snapshot
 
         captured_prompt = prompt_config if prompt_config is not None else active_snapshot()
-        from app.backend.catalog_selection import image_request, products
-        requested_image = image_request(
-            question, product_context=bool(products(question, (catalog_data or {}).get('assets', []))
-                                           or (media_context or {}).get('focus') or history))
+        from app.backend import product_intent
+        from app.admin.catalog import PRODUCTS
+        intent_started = time.monotonic()
+        intent_history = bounded_history(store.prompt_turns(session_id, channel, max_age_hours=24)) if media_context and history_turns is None else history
+        visual_vocabulary = {}
+        for catalog_asset in (catalog_data or {}).get('assets', []):
+            for name, values in catalog_asset.get('visual_attributes', {}).items():
+                visual_vocabulary[name] = sorted(set(visual_vocabulary.get(name, []) + values))
+        intent = product_intent.extract(question, intent_history, (media_context or {}).get('focus', []),
+                                        visual_vocabulary=visual_vocabulary)
+        intent_latency = round(time.monotonic() - intent_started, 3)
+        requested_image = intent.resolution == 'resolved' and intent.action != 'none'
+        if empty_knowledge and not requested_image:
+            intent_usage = {k: intent._usage.get(k, 0) for k in ('prompt_tokens', 'completion_tokens')}
+            store.record_conversation(session_id, channel, question, EMPTY_ANSWER, usage=intent_usage,
+                                      latency=time.monotonic() - t_start)
+            return RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
+                               answer_source='Empty knowledge', sources=[],
+                               usage=intent_usage)
         search_question = retrieval_question(question, history)
-        if media_context:
-            current_products = products(question, catalog_data['assets'])
-            if current_products and current_products != media_context['focus']:
-                search_question = question
+        if intent.resolution == 'resolved' and intent.product_ids:
+            labels = ', '.join(PRODUCTS[p][0] for p in intent.product_ids)
+            search_question = question + '\nProduk yang dimaksud: ' + labels
         if requested_image:
             search_question += '\nHarga dan detail bahan, ukuran, serta pilihan produk yang diminta.'
         if tree:
@@ -516,7 +534,7 @@ class RAGChain:
 
         from app.backend.vectorstore import similarity_search_with_score
 
-        semantic_results = similarity_search_with_score(
+        semantic_results = [] if empty_knowledge else similarity_search_with_score(
             query=search_question,
             k=top_k,
             namespace=namespace,
@@ -528,7 +546,7 @@ class RAGChain:
 
         retrieved_docs = [doc for doc, _ in semantic_results]
 
-        if not retrieved_docs:
+        if not retrieved_docs and not empty_knowledge:
             logger.warning(
                 "[Session %s] Dokumen tidak ditemukan, cari tanpa filter.", session_id
             )
@@ -550,37 +568,48 @@ class RAGChain:
                     media_url = str(url).strip()
                     break
         media_selection = None
-        media_decision = {'reason': 'catalog_disabled', 'asset_id': None}
+        media_decision = {'reason': 'catalog_disabled', 'asset_id': None,
+                          'product_ids': intent.product_ids, 'intent_resolution': intent.resolution,
+                          'intent_latency_seconds': intent_latency, 'intent_model': self.settings.product_intent_model,
+                          'intent_prompt_sha256': product_intent.PROMPT_SHA256,
+                          'application_version': os.getenv('VERCEL_GIT_COMMIT_SHA', 'local')}
+        if media_url:
+            media_selection = {'kind': 'knowledge', 'explicit': True, 'reason': 'explicit_example',
+                               'alt_text': 'Gambar referensi produk dari knowledge.',
+                               'caption': 'Ilustrasi produk terkait pertanyaan Kakak.'}
         if media_context:
-            from app.backend.catalog_selection import select
+            from app.backend.product_image_selection import select
             from app.admin.catalog_storage import public_url
-            decision = select(question, catalog_data['assets'], [d.page_content for d in retrieved_docs],
-                              focus=media_context['focus'], seen=media_context['seen'])
+            decision = select(intent, catalog_data['assets'], focus=media_context['focus'])
             media_context['next_focus'] = decision['focus']
             asset = decision['asset']
-            media_decision = {'reason': decision['reason'], 'asset_id': asset['asset_id'] if asset else None,
-                              'catalog_revision': catalog_data['revision']}
+            media_decision = {**media_decision, 'reason': decision['reason'], 'asset_id': asset['asset_id'] if asset else None,
+                              'catalog_revision': catalog_data['revision'], 'product_ids': intent.product_ids,
+                              'intent_resolution': intent.resolution, 'intent_latency_seconds': intent_latency}
             if asset:
                 media_selection = {k: asset[k] for k in ('asset_id','revision','object_key','mime_type','caption','alt_text')}
+                media_selection['kind'] = 'catalog'
                 media_selection['explicit'] = decision['explicit']
                 media_selection['reason'] = decision['reason']
                 media_selection['catalog_revision'] = catalog_data['revision']
                 media_url = public_url(asset['object_key'])
         media_prompt = []
-        if requested_image:
+        if requested_image or intent.resolution != 'resolved':
             from langchain_core.messages import SystemMessage
             from app.admin.catalog import PRODUCTS
-            if media_selection:
+            if media_selection and media_selection.get('kind') == 'catalog':
                 labels = [PRODUCTS[p][0] for p in decision['focus']]
                 state = 'Ilustrasi katalog terpilih: ' + ', '.join(labels) + '.'
             elif media_url:
                 state = 'Gambar referensi dari knowledge tersedia untuk dilampirkan.'
             else:
                 state = 'Tidak ada gambar yang dipilih. Alasan: ' + media_decision['reason'] + '.'
+                if intent.resolution != 'resolved':
+                    state += ' Maksud/produk belum pasti. Jangan menyatakan gambar tidak tersedia di katalog. Jawab bagian yang jelas, lalu minta klarifikasi singkat bila perlu.'
             media_prompt = [SystemMessage(content=(
                 'STATUS LAMPIRAN TERVERIFIKASI (kontrol aplikasi, bukan sumber harga): ' + state +
                 ' Jika ilustrasi terpilih, aplikasi akan mengirim gambar dahulu, lalu jawaban teks Anda sebagai pesan terpisah. '
-                'Jangan mengatakan foto/tautan preview belum tersedia jika ilustrasi terpilih; jangan membuat URL atau mengklaim gambar sudah diterima. '
+                'Tulis hanya detail produk. Status lampiran dan keterangan ilustrasi ditambahkan aplikasi. Jangan membahas tersedia/tidaknya foto, menjanjikan pengiriman, membuat URL, atau mengklaim gambar sudah diterima. '
                 'Berikan harga dan detail produk relevan secara ringkas dari KONTEKS KNOWLEDGE, meskipun pelanggan hanya meminta gambar. '
                 'Jika harga pasti bergantung pada ukuran/bahan yang belum dipilih, jelaskan opsi yang tersedia atau tanyakan detail yang diperlukan; jangan menebak. '
                 'Jika tidak ada gambar terpilih, jelaskan keterbatasan yang sebenarnya atau klarifikasi produknya, tanpa menyiratkan ada lampiran. '
@@ -640,6 +669,36 @@ class RAGChain:
             )
             answer = "Maaf kak, terjadi kesalahan teknis saat memproses pertanyaan. Silakan coba lagi atau hubungi admin langsung ya"
 
+        validation_usage = {}
+        truncated_answer = not generation_error and getattr(response, 'response_metadata', {}).get('finish_reason') == 'length'
+        if not generation_error and (requested_image or intent.resolution != 'resolved'):
+            from app.backend import attachment_answer
+            if truncated_answer or not attachment_answer.consistent(answer, selected=bool(media_url),
+                    reason=media_decision['reason'], evidence=context_str, plan={
+                        'product_ids': intent.product_ids, 'view': intent.view,
+                        'exact_visual': intent.exact_visual,
+                        'verified_attributes': decision['asset'].get('visual_attributes', {}) if media_context and decision['asset'] else {}}, metrics=validation_usage):
+                answer = attachment_answer.fallback(bool(media_url), media_decision['reason'])
+                media_decision['answer_validation'] = 'safe_fallback'
+            else:
+                media_decision['answer_validation'] = 'passed'
+
+        answer_usage = dict(usage_dict, requests=1, model=model, cost_usd=None,
+                            finish_reason=getattr(response, 'response_metadata', {}).get('finish_reason') if not generation_error else 'error')
+        if not generation_error:
+            reported = getattr(response, 'response_metadata', {}).get('token_usage') or {}
+            if isinstance(reported.get('cost'), (int, float)):
+                answer_usage['cost_usd'] = reported['cost']
+        stage_usage = {'intent': intent._usage, 'answer': answer_usage, 'validation': validation_usage}
+        media_decision['model_usage'] = stage_usage
+        usage_dict = {key: sum(stage.get(key, 0) for stage in stage_usage.values())
+                      for key in ('prompt_tokens', 'completion_tokens')}
+        if media_selection:
+            media_selection['decision'] = dict(media_decision)
+        if not generation_error and (requested_image or intent.resolution != 'resolved'):
+            answer = attachment_answer.explanation(bool(media_url), media_decision['reason'],
+                [PRODUCTS[p][0] for p in intent.product_ids]) + '\n\n' + answer
+
         if generation_error:
             media_url = None
             media_selection = None
@@ -664,7 +723,7 @@ class RAGChain:
                 channel,
                 question,
                 answer,
-                usage_dict,
+                {**usage_dict, "image_decision": media_decision},
                 total_elapsed,
                 trace_id,
             )

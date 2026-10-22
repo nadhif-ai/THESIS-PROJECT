@@ -32,6 +32,7 @@ def import_manifest(path, approved_by):
             'product_type':asset['product_type'], 'covered_product_types':covered, 'role':asset['role'],
             'aliases':catalog.PRODUCTS.get(asset['product_type'],[]), 'description':asset['description_id'],
             'alt_text':asset['alt_text_id'], 'caption':'Ilustrasi produk; model dan finishing dikonfirmasi admin.',
+            'visual_attributes':asset.get('visual_attributes', {}),
             'depicted_variants':asset['depicted_variants'], 'source_only_variants':asset['source_only_variants'],
             'retrieval_keywords':asset['retrieval_keywords'], 'negative_retrieval_keywords':asset['negative_retrieval_keywords'],
             'is_ai_generated':True, 'provenance':{k:asset[k] for k in ('prompt','input_images','source_sections','manual_review_notes','review')}}
@@ -40,9 +41,29 @@ def import_manifest(path, approved_by):
     return result
 
 
+def backfill_visual_attributes(path, approved_by):
+    """Fill only pre-field records whose image and product identity still match the seed."""
+    manifest = json.loads(Path(path).read_text())
+    seeds = {a['id']: a for a in manifest['assets']}
+    result = {'updated': [], 'preserved': []}
+    for asset in catalog.snapshot()['assets']:
+        seed = seeds.get(asset['asset_id'])
+        if (not seed or 'visual_attributes' in asset or not seed.get('visual_attributes')
+                or not seed['review']['customer_release_approved']
+                or asset['sha256'] != seed['image']['sha256']
+                or asset['product_type'] != seed['product_type'] or asset['role'] != seed['role']):
+            result['preserved'].append(asset['asset_id'])
+            continue
+        catalog.save({**asset, 'visual_attributes':seed['visual_attributes']}, asset['revision'], approved_by)
+        result['updated'].append(asset['asset_id'])
+    return result
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--manifest', default='dataset/image-product/manifest.json')
     parser.add_argument('--approved-by', required=True)
+    parser.add_argument('--backfill-visual-attributes', action='store_true')
     options = parser.parse_args()
-    print(json.dumps(import_manifest(options.manifest, options.approved_by), indent=2))
+    operation = backfill_visual_attributes if options.backfill_visual_attributes else import_manifest
+    print(json.dumps(operation(options.manifest, options.approved_by), indent=2))

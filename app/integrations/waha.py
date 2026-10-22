@@ -119,12 +119,13 @@ def send_reply(row):
         return "sent"
 
     selection = row.get("media_selection")
-    media_url = catalog_storage.public_url(selection["object_key"]) if selection else row.get("media_url")
-    from app.backend.catalog_selection import image_request
-    explicit = bool(selection.get('explicit')) if selection else image_request(row.get('body', ''), product_context=True)
+    catalog_selection = selection if selection and selection.get("object_key") else None
+    media_url = catalog_storage.public_url(catalog_selection["object_key"]) if catalog_selection else row.get("media_url")
+    explicit = bool(selection and selection.get("explicit"))
     if not explicit:
         media_url = None
-    image = None
+    previous_image = (row.get('delivery_parts') or {}).get('image', {}).get('status')
+    image = previous_image if previous_image in ('sent', 'sending', 'uncertain') else None
     if media_url:
         from urllib.parse import urlsplit
         parsed = urlsplit(media_url)
@@ -132,7 +133,7 @@ def send_reply(row):
             store.checkpoint_delivery_part(row, "image", "failed", error="Invalid media URL.")
             image = "failed"
         else:
-            if selection:
+            if catalog_selection:
                 mime = selection["mime_type"]
                 caption = selection["caption"]
             else:
@@ -144,7 +145,7 @@ def send_reply(row):
             if media_url:
                 image = send_part("image", "/api/sendImage", {
                     "file": {"url": media_url, "mimetype": mime,
-                             "filename": (selection["asset_id"] if selection else "preview") + (".png" if mime == "image/png" else ".jpg")},
+                             "filename": (catalog_selection["asset_id"] if catalog_selection else "preview") + (".png" if mime == "image/png" else ".jpg")},
                     "caption": caption,
                 }, timeout=60)
     text = send_part("text", "/api/sendText", {"text": row["answer"], "linkPreview": True})
@@ -154,7 +155,8 @@ def send_reply(row):
             "text": "Maaf Kak, gambar belum berhasil dikirim. Silakan minta kembali nanti ya.",
             "linkPreview": False,
         })
-    uncertain = "uncertain" in (image, text, notice)
+    uncertain = "uncertain" in (image, text, notice) or any(
+        part.get("status") in ("sending", "uncertain") for part in (row.get("delivery_parts") or {}).values())
     status = "uncertain" if uncertain else "failed" if text == "failed" else "skipped" if text == "skipped" and image != "sent" else "sent"
     errors = [name + ' delivery ' + outcome + '.' for name, outcome in
               (('Image', image), ('Text', text), ('Notice', notice)) if outcome and outcome != 'sent']

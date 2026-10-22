@@ -54,6 +54,7 @@ class AssetEdit(BaseModel):
     alt_text: str = Field(min_length=1, max_length=400)
     caption: str = Field(min_length=1, max_length=240)
     depicted_variants: list[str] = Field(default_factory=list, max_length=40)
+    visual_attributes: dict[Literal['size', 'material', 'finish', 'type', 'shape'], list[str]] = Field(default_factory=dict)
     source_only_variants: list[str] = Field(default_factory=list, max_length=40)
     retrieval_keywords: list[str] = Field(default_factory=list, max_length=60)
     negative_retrieval_keywords: list[str] = Field(default_factory=list, max_length=60)
@@ -73,6 +74,11 @@ def validate(data):
     for key, value in fields.items():
         if isinstance(value, list) and any(not x.strip() or len(x) > 240 for x in value):
             raise ValueError('Catalog terms must contain 1–240 characters.')
+    for values in fields['visual_attributes'].values():
+        if len(values) > 20 or any(not v.strip() or len(v) > 100 for v in values):
+            raise ValueError('Verified visual attributes require up to 20 nonempty values of at most 100 characters.')
+    fields['visual_attributes'] = {key: list(dict.fromkeys(v.strip().casefold() for v in values))
+                                   for key, values in fields['visual_attributes'].items()}
     if re.search(r'\b(rp\.?|idr)\s*\d', fields['caption'], re.IGNORECASE):
         raise ValueError('Keep prices in the knowledge base, not image captions.')
     sha = data.get('sha256', '')

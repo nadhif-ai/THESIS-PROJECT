@@ -1,6 +1,6 @@
 # Product image catalog operations
 
-The original design is `docs/superpowers/specs/2026-10-22-context-aware-product-images-design.md`, superseded for request policy and delivery order by `docs/superpowers/specs/2026-10-22-request-only-product-images-spec.md`. Product facts and prices continue to use the active knowledge snapshot and existing Nemotron/Pinecone index.
+The original design is `docs/superpowers/specs/2026-10-22-context-aware-product-images-design.md`, superseded for request policy and delivery order by `docs/superpowers/specs/2026-10-22-request-only-product-images-spec.md`. Semantic intent and response consistency now follow `docs/superpowers/specs/2026-10-23-structured-product-image-intent-design.md`. Product facts and prices continue to use the active knowledge snapshot and existing Nemotron/Pinecone index.
 
 ## Provision and import
 
@@ -44,3 +44,23 @@ Each inbox item pins the selected asset revision/object and stores `text`, `imag
 - Disable or a bot-replies fence skips unsent image parts. A provider request already submitted cannot be recalled.
 
 For cleanup, retain public objects referenced by any active catalog record or pinned inbox selection. Remove only demonstrably unreferenced objects as explicit maintenance; never bulk-delete by an old filename prefix. Private expired staging uploads can be removed after their tickets expire. There is no automatic destructive cleanup job.
+
+## Semantic intent rollout (2026-10-23)
+
+The shared RAG pipeline interprets substantive turns using `PRODUCT_INTENT_MODEL` (default `openai/gpt-4.1`). The answering model remains independently configurable. Structured calls require native JSON schema through OpenRouter, require compatible provider parameters, have no automatic model retry, and validate canonical IDs with Pydantic. Do not change the Nemotron embedding or Pinecone index for catalog matching. Restart the backend after environment changes.
+
+The LLM resolves action, product, requested view and attributes; a deterministic selector chooses at most one enabled catalog asset. Nonvisual requests attach nothing. Repeats are allowed; comparison assets require visual comparison intent. Product identity does not depend on whether its name appears in the retrieved top-k passages. Explicit exact-appearance requests require verified visual attributes; unsupported comparisons are not substituted with another material.
+
+`visual_attributes` is optional metadata in the existing catalog JSONB. No schema migration is needed. Before deploying this resolver to an existing catalog, fill the four approved comparison records without overwriting dashboard changes:
+
+```sh
+venv/bin/python -m app.admin.catalog_import --backfill-visual-attributes --approved-by user-Q3-2026-10-22
+```
+
+This operation only fills records missing the field entirely, with the original approved checksum, product and role. Records with existing fields or replaced images are preserved for manual review in Catalog. Empty fields are conservative: exact visual matching is unavailable until an operator verifies the depicted attributes. Values describe illustration labels/appearance, not proof of real material, stock, dimensions, or price. The original selected image bytes and checksums are unchanged.
+
+Application text owns attachment availability and illustration qualification. Generated product details are checked against the pinned product/view, verified coverage and retrieved facts. A failed check uses controlled prose without invented prices. Failure to parse intent does not fall back to regex. Playground exposes resolved product, asset/catalog revision, model, prompt hash, app version, latency and answer-check outcome. Conversation usage JSON also retains the image decision and stage usage for subsequent diagnosis. The answer output budget is 2,048 tokens; visual-detail outputs ending at the provider token limit use controlled complete prose instead of partial prices. Total reported token usage includes intent, answering and consistency checking; failed/unreported provider usage is unknown, not an estimate of zero billing.
+
+For pending pre-upgrade jobs without an explicit pinned image decision, unsent legacy media is suppressed conservatively; available text is still sent. Existing image uncertainty remains visible even when the image is no longer eligible. New legacy knowledge-image requests carry their semantic decision in the checkpoint.
+
+WAHA GOWS supports the existing `POST /api/sendImage` request with a public URL, MIME type and filename; no extra intent-specific WAHA setting is required. Keep the session WORKING, public Storage URLs reachable from the WAHA host, and the existing webhook/worker configuration. Production deployment and a controlled WhatsApp receipt test remain separate from local Playground evidence. Sources: [WAHA media delivery](https://waha.devlike.pro/docs/how-to/send-messages/) and [OpenRouter structured outputs](https://openrouter.ai/docs/guides/features/structured-outputs).

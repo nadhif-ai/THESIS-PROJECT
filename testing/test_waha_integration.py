@@ -113,7 +113,7 @@ def test_failed_image_still_sends_text(client, monkeypatch):
     monkeypatch.setattr(waha, "api", api)
     with client.pg.admin_connection() as db:
         row = store.get_inbox("asia-chatbot", "test-message-1")
-    row.update(body="Minta gambar contoh", answer="File PDF Print.", media_url="https://example.com/sample.png")
+    row.update(body="Minta gambar contoh", answer="File PDF Print.", media_selection={"kind":"knowledge", "explicit":True}, media_url="https://example.com/sample.png")
     waha.send_reply(row)
     assert [path for path, _ in calls] == ["/api/sendImage", "/api/sendText", "/api/sendText"]
     assert calls[0][1]["file"]["mimetype"] == "image/png"
@@ -141,7 +141,7 @@ def test_image_timeout_retains_uncertainty_after_text_success(client,monkeypatch
     import requests
     signed_post(client,event())
     row=store.get_inbox('asia-chatbot','test-message-1')
-    row.update(body='Minta gambar contoh',answer='Prepared answer.',media_url='https://example.com/image.png')
+    row.update(body='Minta gambar contoh',answer='Prepared answer.',media_selection={'kind':'knowledge','explicit':True},media_url='https://example.com/image.png')
     calls=[]
     def api(method,path,payload,**kwargs):
         calls.append(path)

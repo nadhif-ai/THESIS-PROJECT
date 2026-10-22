@@ -1,7 +1,7 @@
 # Structured intent for requested product images
 
 Date: 23 October 2026, Asia/Jakarta.
-Status: conversational design approved; written specification awaiting user review.
+Status: approved and implemented locally; verification recorded in `docs/verification/structured-product-images-2026-10-23/README.md`. Production deployment and controlled WhatsApp receipt verification remain separate.
 
 ## Purpose and approved understanding
 

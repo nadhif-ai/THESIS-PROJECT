@@ -124,3 +124,16 @@ def test_old_automatic_selection_does_not_bypass_request_only_policy(pg_live, mo
     monkeypatch.setattr(waha, 'api', lambda method, path, payload, **kwargs: calls.append(path) or {'id': 'text'})
     waha.send_reply(row)
     assert calls == ['/api/sendText']
+
+
+def test_legacy_suppression_does_not_erase_uncertain_image_checkpoint(pg_live, monkeypatch):
+    row = prepared()
+    store.checkpoint_delivery_part(row, 'image', 'uncertain', error='Uncertain legacy submission.')
+    store.update_inbox('test','incoming',{'media_selection':None},row['lease_token'])
+    row['media_selection'] = None
+    row['media_url'] = 'https://example.com/old.png'
+    calls=[]
+    monkeypatch.setattr(waha,'api',lambda method,path,payload,**kw:calls.append(path) or {'id':'text'})
+    waha.send_reply(row)
+    assert calls == ['/api/sendText']
+    assert store.get_inbox('test','incoming')['status'] == 'uncertain'

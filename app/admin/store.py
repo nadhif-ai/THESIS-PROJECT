@@ -618,14 +618,16 @@ def conversations(channel=None, limit=200):
     return [dict(r, usage=json.loads(r["usage"] or "{}")) for r in rows]
 
 
-def prompt_turns(session_id, channel=None):
+def prompt_turns(session_id, channel=None, *, max_age_hours=None):
     boundary = get_setting("reset:" + session_id, 0)
     with _connection() as db:
         rows = db.execute(
             """SELECT question,answer FROM chatbot.conversations
             WHERE session_id=%s AND id>%s AND answer<>''
-            AND (%s::text IS NULL OR channel=%s) ORDER BY id DESC LIMIT 8""",
-            (session_id, boundary, channel, channel),
+            AND (%s::text IS NULL OR channel=%s)
+            AND (%s::integer IS NULL OR created_at::timestamptz >= now() - %s * interval '1 hour')
+            ORDER BY id DESC LIMIT 8""",
+            (session_id, boundary, channel, channel, max_age_hours, max_age_hours),
         ).fetchall()
     return [(r["question"], r["answer"]) for r in reversed(rows)]
 
@@ -969,7 +971,7 @@ def catalog_context(conversation_key, *, reset=False):
             (delivery_parts->'image'->>'status') IN ('sending','sent','uncertain')''',
             (conversation_key,epoch)).fetchall()
         return {'key': conversation_key, 'epoch': epoch, 'focus': focus,
-                'seen': preview_seen + [r['media_selection']['asset_id'] for r in rows if r['media_selection']], 'fresh': fresh}
+                'seen': preview_seen + [r['media_selection']['asset_id'] for r in rows if (r['media_selection'] or {}).get('asset_id')], 'fresh': fresh}
 
 
 def catalog_focus(context, focus, *, preview_asset=None):
@@ -999,7 +1001,7 @@ def checkpoint_delivery_part(row, part, state, *, provider_id=None, error=None):
             raise StateUnavailable('A submitted delivery part must not be sent again.')
         if state == 'sending' and not _bot_replies_enabled(db):
             return False
-        if state == 'sending' and part == 'image' and current['media_selection']:
+        if state == 'sending' and part == 'image' and (current['media_selection'] or {}).get('asset_id'):
             asset = db.execute('SELECT enabled FROM chatbot.catalog_assets WHERE asset_id=%s',
                                (current['media_selection']['asset_id'],)).fetchone()
             feature = db.execute('SELECT enabled FROM chatbot.catalog_state WHERE id=1').fetchone()

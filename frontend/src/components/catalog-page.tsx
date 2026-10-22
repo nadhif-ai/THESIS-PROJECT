@@ -55,6 +55,7 @@ export type CatalogAsset = {
   alt_text: string;
   caption: string;
   depicted_variants: string[];
+  visual_attributes?: Partial<Record<"size" | "material" | "finish" | "type" | "shape", string[]>>;
   source_only_variants: string[];
   retrieval_keywords: string[];
   negative_retrieval_keywords: string[];
@@ -90,6 +91,7 @@ const editable = [
   "alt_text",
   "caption",
   "depicted_variants",
+  "visual_attributes",
   "source_only_variants",
   "retrieval_keywords",
   "negative_retrieval_keywords",
@@ -377,7 +379,7 @@ export function CatalogPage() {
           <CardTitle>Preview a customer inquiry</CardTitle>
           <CardDescription>
             Uses active business knowledge and the same image selector as
-            WhatsApp. Repeat suppression uses this preview conversation only.
+            WhatsApp. Explicit image requests can be repeated in this preview conversation.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -391,7 +393,7 @@ export function CatalogPage() {
                   id="catalog-preview"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="Bedanya X-banner dan roll up?"
+                  placeholder="Lihat gambar perbandingan X-banner dan roll up dong"
                   required
                   maxLength={6000}
                 />
@@ -433,6 +435,20 @@ export function MediaPreview({ answer }: { answer: Answer }) {
         {answer.media_decision?.reason?.replaceAll("_", " ") ||
           "No image for this reply"}
       </p>
+      {answer.media_decision?.intent_resolution && (
+        <details className="help-copy">
+          <summary>Image selection details</summary>
+          <div className="mt-2 grid gap-1 break-all">
+            <p>Intent: {answer.media_decision.intent_resolution}</p>
+            <p>Product: {answer.media_decision.product_ids?.join(", ") || "Unresolved"}</p>
+            <p>Asset: {answer.media_decision.asset_id || "None"} · Catalog revision: {answer.media_decision.catalog_revision ?? "—"}</p>
+            <p>Intent model: {answer.media_decision.intent_model} · {answer.media_decision.intent_latency_seconds}s</p>
+            <p>Prompt: {answer.media_decision.intent_prompt_sha256?.slice(0, 12)}</p>
+            <p>App: {answer.media_decision.application_version}</p>
+            <p>Answer check: {answer.media_decision.answer_validation || "Not required"}</p>
+          </div>
+        </details>
+      )}
       {answer.media_selection && answer.media_url && (
         <figure>
           <img
@@ -717,6 +733,18 @@ function AssetEditor({
                   One term per line. Images do not establish exact stock or
                   prices.
                 </FieldDescription>
+              </Field>
+            ))}
+            {(["size", "material", "finish", "type", "shape"] as const).map((attribute) => (
+              <Field key={attribute}>
+                <FieldLabel htmlFor={"visual-" + attribute}>
+                  Verified visual {attribute}
+                </FieldLabel>
+                <Textarea id={"visual-" + attribute}
+                  value={(draft.visual_attributes?.[attribute] || []).join("\n")}
+                  onChange={(e) => change("visual_attributes", {...draft.visual_attributes,
+                    [attribute]: e.target.value.split("\n").filter((v) => v.trim())})} />
+                <FieldDescription>One verified value per line. Leave empty when the illustration cannot establish this property.</FieldDescription>
               </Field>
             ))}
             <Field orientation="horizontal">

@@ -29,7 +29,7 @@ def conversation(monkeypatch):
     monkeypatch.setattr(chain, "get_llm", lambda *args: SimpleNamespace(invoke=invoke))
     monkeypatch.setattr(vectorstore, "similarity_search_with_score", search)
     rag = chain.RAGChain.__new__(chain.RAGChain)
-    rag.settings = SimpleNamespace(vector_store="offline", semantic_top_k=4, openrouter_model="offline")
+    rag.settings = SimpleNamespace(vector_store="offline", semantic_top_k=4, openrouter_model="offline", product_intent_model="offline")
     return SimpleNamespace(rag=rag, turns=turns, prompts=prompts, searches=searches)
 
 
