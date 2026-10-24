@@ -28,6 +28,32 @@ def seed():
     store.publish("active")
 
 
+def test_configuration_failure_stops_after_first_metric_and_keeps_evidence(pg_live, monkeypatch):
+    from testing.evals.metrics import JudgeConfigurationError
+    seed()
+    module, calls = setup_runtime(monkeypatch)
+    measured = []
+    class RejectedMetric:
+        threshold = 0.7
+        __name__ = "Faithfulness"
+        def measure(self, case):
+            measured.append(case.input)
+            raise JudgeConfigurationError("Judge request rejected (HTTP 400). Check reasoning support.")
+    monkeypatch.setattr(module, "single_turn_metrics", lambda *args: [RejectedMetric()] * 4)
+    identifier = kb_store.create_evaluation({"dataset": "legacy"}, {
+        "configuration": {"openrouter_model": "answer/fixed", "eval_model": "judge/fixed", "semantic_top_k": 3},
+        "rows": [{"id": str(i), "question": "Question", "ground_truth": "Reference"} for i in range(2)],
+    })
+    assert durable_jobs.consume(identifier, 0)
+    assert durable_jobs.consume(identifier, 1)
+    assert not durable_jobs.consume(identifier, 2)
+    saved = store.job(identifier)
+    assert saved["status"] == "failed"
+    assert "HTTP 400" in saved["error"]
+    assert saved["result"]["cases"][0]["answer"] == "Synthetic answer"
+    assert len(calls) == len(measured) == 1
+
+
 def setup_runtime(monkeypatch):
     from app import dependencies
     from testing.evals import durable
@@ -63,6 +89,124 @@ def setup_runtime(monkeypatch):
         lambda: SimpleNamespace(prompt_fingerprint="fixed", run=answer),
     )
     return durable, calls
+
+
+def test_single_turn_retry_ignores_persisted_history_without_deleting_audit(pg_live, monkeypatch):
+    from copy import deepcopy
+    from langchain_core.documents import Document
+    from app import dependencies
+    from app.backend import chain, product_intent, vectorstore
+
+    seed()
+    module, _ = setup_runtime(monkeypatch)
+    calls, prompts, searches, intent_histories = [], [], [], []
+    rag = chain.RAGChain.__new__(chain.RAGChain)
+    rag.prompt_fingerprint = "fixed"
+    rag.settings = SimpleNamespace(
+        vector_store="offline", semantic_top_k=3,
+        openrouter_model="answer/fixed", product_intent_model="intent/fixed",
+    )
+
+    def invoke(messages):
+        prompts.append(messages)
+        return SimpleNamespace(content="Isolated answer")
+
+    def search(**kwargs):
+        searches.append(kwargs["query"])
+        return [(Document(page_content="Synthetic evidence", metadata={}), 0.1)]
+
+    neutral_intent = product_intent.extract
+
+    def extract(question, history, *args, **kwargs):
+        intent_histories.append([message.content for message in history])
+        return neutral_intent(question, history, *args, **kwargs)
+
+    def run(**kwargs):
+        calls.append(kwargs)
+        return rag.run(**kwargs)
+
+    monkeypatch.setattr(chain, "get_llm", lambda *args: SimpleNamespace(invoke=invoke))
+    monkeypatch.setattr(vectorstore, "similarity_search_with_score", search)
+    monkeypatch.setattr(product_intent, "extract", extract)
+    monkeypatch.setattr(dependencies, "get_rag_chain", lambda: SimpleNamespace(
+        prompt_fingerprint="fixed", run=run,
+    ))
+    row = {"id": "q1", "question": "Current isolated question", "ground_truth": "Reference"}
+    identifier = kb_store.create_evaluation(
+        {"dataset": "legacy"},
+        {"configuration": {"openrouter_model": "answer/fixed", "eval_model": "judge/fixed",
+                           "semantic_top_k": 3}, "rows": [row]},
+    )
+    assert durable_jobs.consume(identifier, 0)
+    before_answer = kb_store.work(identifier)["checkpoint"]
+    session_id = f"eval_{identifier}_{row['id']}"
+    stale_pair = ("Earlier interrupted question", "Earlier uncheckpointed answer")
+    store.record_conversation(session_id, "evaluation", *stale_pair)
+
+    # Both attempts start from the same checkpoint, while RAG independently saves its audit.
+    for _ in range(2):
+        state = deepcopy(before_answer)
+        module._answer(identifier, state, row)
+        assert state["record"]["answer"] == "Isolated answer"
+        assert state["phase"] == "scoring"
+
+    assert len(calls) == 2
+    assert all(call["history_turns"] == [] for call in calls)
+    assert all(call["session_id"] == session_id and call["channel"] == "evaluation" for call in calls)
+    assert searches == [row["question"], row["question"]]
+    assert intent_histories == [[], []]
+    assert all(
+        [(message.type, message.content) for message in prompt if message.type in ("human", "ai")]
+        == [("human", row["question"])] for prompt in prompts
+    )
+    assert store.prompt_turns(session_id, "evaluation") == [
+        stale_pair, (row["question"], "Isolated answer"), (row["question"], "Isolated answer"),
+    ]
+
+
+def test_scoring_retry_preserves_original_and_never_regenerates_answers(pg_live, monkeypatch):
+    from copy import deepcopy
+    seed()
+    module, calls = setup_runtime(monkeypatch)
+    monkeypatch.setattr(durable_jobs, "dispatch", lambda identifier: None)
+    source = {"id": "source-result", "dataset": "legacy", "judge": "judge/fixed", "model": "answer/fixed",
+              "knowledge_version": "original-snapshot", "evaluation_recipe": "rag-four-metrics-v1", "experiment_name": "original",
+              "cases": [{"id": "1", "input": "Question", "answer": "Saved answer", "expected_output": "Reference", "retrieval_context": [{"text": "Saved evidence"}], "metrics": [{"name": "Faithfulness", "score": None, "error": "BadRequestError"}, {"name": "Answer Relevancy", "score": 0.4, "reason": "Original verdict", "passed": False}]}]}
+    store.create_job_row("original-job", "evaluate", {})
+    store.set_job_state("original-job", "completed", source)
+    before = deepcopy(store.evaluation_result("source-result"))
+    class Metric:
+        def __init__(self, name): self.__name__ = name
+        threshold = 0.7
+        def measure(self, case):
+            assert self.__name__ == "Faithfulness", "An available score must not be judged again"
+            assert case.actual_output == "Saved answer"
+            assert case.retrieval_context == ["Saved evidence"]
+            self.score, self.reason = 0.8, "Scored saved evidence"
+        def is_successful(self): return True
+    monkeypatch.setattr(module, "single_turn_metrics", lambda *args: [Metric("Faithfulness"), Metric("Answer Relevancy")])
+    retry = module.submit_scoring_retry("source-result")["job_id"]
+    assert durable_jobs.consume(retry, 0)
+    assert durable_jobs.consume(retry, 1)
+    assert not durable_jobs.consume(retry, 2)
+    result = store.evaluation_result(retry)
+    assert result["rescore_of"] == "source-result"
+    assert result["knowledge_version"] == "original-snapshot"
+    assert result["averages"]["Faithfulness"] == 0.8
+    assert result["averages"]["Answer Relevancy"] == 0.4
+    assert not calls
+    assert store.evaluation_result("source-result") == before
+
+
+def test_scoring_retry_route_requires_authentication_and_valid_saved_evidence(pg_live):
+    from testing.test_prompt_settings import client, authorize
+    with client() as browser:
+        assert browser.post("/admin/api/evaluations/missing/rescore").status_code == 401
+        authorize(browser)
+        browser.headers.pop("X-CSRF-Token")
+        assert browser.post("/admin/api/evaluations/missing/rescore").status_code == 403
+        browser.headers["X-CSRF-Token"] = "prompt-test-csrf"
+        assert browser.post("/admin/api/evaluations/missing/rescore").status_code == 400
 
 
 def test_answer_and_each_metric_checkpoint_survive_worker_recreation(
@@ -314,6 +458,10 @@ def test_conversation_resumes_saved_pairs_with_a_four_pair_limit(pg_live, monkey
     assert kb_store.work(identifier)["checkpoint"]["phase"] == "scoring"
     assert len(calls) == 4 and len({call["session_id"] for call in calls}) == 1
     assert all(call["namespace"] == "kb-active" for call in calls)
+    for index, call in enumerate(calls):
+        assert call["history_turns"] == [
+            (f"Synthetic turn {turn + 1}", "Synthetic answer") for turn in range(index)
+        ]
 
 
 def test_reference_review_persists_without_writing_to_the_deployment(

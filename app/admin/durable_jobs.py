@@ -85,6 +85,7 @@ def consume(identifier, sequence):
             state,
             progress,
             result=result,
+            error=result.get("scoring_error") if done and result and row["kind"] == "evaluate" else None,
             done=done,
         )
         logger.info(

@@ -150,8 +150,15 @@ export type Answer = {
     application_version?: string;
     catalog_revision?: number;
     answer_validation?: string;
+    model_usage?: Record<string, {
+      model?: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      requests?: number;
+    }>;
   } | null;
   answer: string;
+  answer_source?: string;
   sources: string[];
   retrieval_context: Context[];
   usage: { prompt_tokens: number; completion_tokens: number };
@@ -190,6 +197,8 @@ export type Metric = {
 };
 export type EvaluationResult = {
   id: string;
+  rescore_of?: string;
+  scoring_error?: string;
   dataset: string;
   model: string;
   judge: string;
@@ -204,6 +213,7 @@ export type EvaluationResult = {
   deepeval_version?: string;
   experiment_url?: string;
   reporting_error?: string;
+  reporting_note?: string;
   averages?: Record<string, number | null>;
   cases: {
     id: string;
@@ -215,6 +225,7 @@ export type EvaluationResult = {
     turns?: { role: string; content: string }[];
     metrics: Metric[];
     trace_url?: string;
+    retrieval_context?: { text: string; metadata?: Record<string, unknown> }[];
     error?: string;
   }[];
 };
@@ -242,6 +253,7 @@ export type Job = {
     dataset?: string;
     limit?: number;
     evaluation_id?: string;
+    rescore_of?: string;
   };
   has_result?: boolean;
   result_case_count?: number | null;
@@ -297,6 +309,7 @@ export type Conversation = {
 export type Providers = {
   openrouter_model: string;
   eval_model: string;
+  product_intent_model: string;
   semantic_top_k: number;
   embedding_model: string;
   dimension: number;

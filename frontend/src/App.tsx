@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import type { CSSProperties, FormEvent, ReactNode, RefObject } from "react";
 import {
@@ -27,9 +27,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { ReplyText, GenerationDetails, Typing } from "@/components/playground-reply";
 import brandMark from "@/assets/brand-mark.png";
 import printingDesk from "@/assets/printing-desk.jpg";
 import { api, ApiError, jsonBody, setCsrf } from "@/lib/api";
+import { dashboardPriorities } from "@/lib/dashboard-priorities";
 import { adminPagePath, readAdminPage } from "@/lib/admin-navigation";
 import { replyProcessing } from "@/lib/whatsapp-status";
 import {
@@ -41,7 +43,7 @@ import { prefetchResource, useResource } from "@/hooks/use-resource";
 import { KnowledgePage } from "@/components/knowledge-page";
 import { CatalogPage, MediaPreview } from "@/components/catalog-page";
 import { EvaluationMath, EvaluationMethodGuide, MetricMath } from "@/components/evaluation-math";
-import { evaluationView, QA_METRICS } from "@/lib/evaluation-metrics";
+import { evaluationView, metricEvidence, percentage, QA_METRICS } from "@/lib/evaluation-metrics";
 import type { KnowledgeCatalog } from "@/components/knowledge-page";
 import type {
   AdminSession,
@@ -153,8 +155,6 @@ const date = (value: string) =>
     hour: "2-digit",
     minute: "2-digit",
   });
-const percentage = (value?: number | null) =>
-  value == null ? "Not scored" : `${Math.round(value * 100)}%`;
 const descriptions: Record<string, string> = {
   Catalog: "Manage approved product illustrations and preview when they appear in replies.",
   Dashboard:
@@ -489,22 +489,53 @@ type Overview = {
   jobs: Job[];
 };
 function Dashboard({ navigate }: { navigate: (page: string) => void }) {
-  const { data, error, reload } = useResource<Overview>("/overview", true);
+  const { data, error, reload, refreshing, updatedAt } = useResource<Overview>("/overview", true);
+  const knowledge = useResource<KnowledgeCatalog>("/knowledge", true);
+  const whatsapp = useResource<WhatsAppStatus>("/whatsapp/status", true);
   if (error && !data) return <ErrorNotice error={error} retry={reload} />;
   if (!data)
     return <Loading label="Loading active knowledge and recent activity…" />;
   const activeJobs = data.jobs.filter((job) =>
     ["queued", "running"].includes(job.status),
   );
+  const priorities = dashboardPriorities({ published: data.published, jobs: data.jobs, knowledge: knowledge.data, whatsapp: whatsapp.data });
+  const next = priorities[0];
   return (
-    <div className="page-section">
+    <div className="page-section dashboard-page">
       {error && <ErrorNotice error={error} retry={reload} />}
+      {whatsapp.error && <ErrorNotice error={`WhatsApp readiness could not be refreshed. ${whatsapp.error}`} retry={whatsapp.reload} />}
+      {!whatsapp.data && !whatsapp.error && <p role="status" className="help-copy">Checking WhatsApp readiness…</p>}
+      <section className="dashboard-next" aria-labelledby="dashboard-next-title">
+        <div>
+          <h2 id="dashboard-next-title">{next?.title || "Review customer guidance"}</h2>
+          <p>{next?.detail || "Test a customer question against active knowledge, then inspect its supporting evidence."}</p>
+        </div>
+        <Button onClick={() => navigate(next?.page || "Playground")}>
+          {next?.action || "Test a customer question"}
+        </Button>
+      </section>
+      {priorities.length > 1 && (
+        <ul className="dashboard-review-list" aria-label="Other conditions to review">
+          {priorities.slice(1).map(item => <li key={item.title}>
+            <CircleAlert aria-hidden="true" />
+            <div><h3>{item.title}</h3><p>{item.detail}</p></div>
+            <Button variant="outline" size="sm" onClick={() => navigate(item.page)}>{item.action}</Button>
+          </li>)}
+        </ul>
+      )}
+      <div className="dashboard-check-time">
+        <p className="help-copy">{error ? "Last successful overview" : "Overview checked"} {updatedAt ? date(updatedAt) : "Not recorded"}. Updates automatically.</p>
+        <Button size="sm" variant="ghost" disabled={refreshing} onClick={reload}>
+          <RefreshCcw data-icon="inline-start" />{refreshing ? "Refreshing…" : "Refresh overview"}
+        </Button>
+      </div>
       <section className="overview-proof" aria-label="Active knowledge">
         <div>
-          <h2>Knowledge available to customer replies</h2>
+          <h2>Knowledge readiness</h2>
+          <p className="help-copy mb-3">The active snapshot used by WhatsApp and Playground.</p>
           <div className="proof-record">
             <Badge variant="outline">
-              {data.published?.chunk_count
+              {data.published?.compatible === false ? "Reindexing required" : data.published?.chunk_count
                 ? "Knowledge active"
                 : "Knowledge empty"}
             </Badge>
@@ -523,9 +554,20 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
             </span>
           </div>
         </div>
-        <Button onClick={() => navigate("Playground")}>
-          Test a customer question
+        <Button variant="outline" onClick={() => navigate("Knowledge")}>
+          Manage knowledge
         </Button>
+        <div className="dashboard-knowledge-state">
+          {knowledge.error ? <ErrorNotice error={knowledge.error} retry={knowledge.reload} />
+            : !knowledge.data ? <p role="status" className="help-copy">Checking source changes…</p>
+            : <p className="help-copy">{knowledge.data.sync_job
+              ? data.published?.chunk_count
+                ? "Sync in progress. The previous snapshot remains active until its replacement is verified."
+                : "Sync in progress. Customer knowledge becomes available after verification and activation."
+              : knowledge.data.pending
+                ? "Unsynchronized source changes are excluded from customer replies."
+                : "No source changes waiting to sync."}</p>}
+        </div>
       </section>
       {activeJobs.length > 0 && (
         <Panel
@@ -537,27 +579,6 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
           ))}
         </Panel>
       )}
-      <div className="stat-strip">
-        <div>
-          <span>Recorded WhatsApp replies</span>
-          <strong>{data.whatsapp_messages}</strong>
-        </div>
-        <div>
-          <span>Replies across all channels</span>
-          <strong>{data.conversations}</strong>
-        </div>
-        <div>
-          <span>Average recorded response</span>
-          <strong>
-            {data.average_latency != null
-              ? `${data.average_latency}s`
-              : "Not recorded"}
-          </strong>
-        </div>
-      </div>
-      <p className="help-copy">
-        Activity totals and response time use all stored replies.
-      </p>
       <div className="overview-columns">
         <div className="page-section">
           <WhatsAppConnection compact />
@@ -574,6 +595,12 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
               </Button>
             }
           >
+            <dl className="dashboard-activity-context">
+              <div><dt>WhatsApp replies</dt><dd>{data.whatsapp_messages.toLocaleString()}</dd></div>
+              <div><dt>All channels</dt><dd>{data.conversations.toLocaleString()}</dd></div>
+              <div><dt>Average response</dt><dd>{data.average_latency != null ? `${data.average_latency}s` : "Not recorded"}</dd></div>
+            </dl>
+            <p className="help-copy mb-4">Totals and response time use all stored replies.</p>
             {data.recent.length ? (
               <Table className="recent-conversations-table">
                 <TableHeader>
@@ -587,7 +614,7 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
                   {data.recent.slice(0, 5).map((r) => (
                     <TableRow key={r.id}>
                       <TableCell className="max-w-60 truncate">
-                        {r.question}
+                        <span title={r.question}>{r.question}</span>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{r.channel}</Badge>
@@ -605,6 +632,7 @@ function Dashboard({ navigate }: { navigate: (page: string) => void }) {
                 description="Ask a question in the playground or connect WhatsApp."
               />
             )}
+            {data.recent.length === 0 && <Button variant="outline" className="mt-4" onClick={() => navigate("Playground")}>Try a customer question</Button>}
           </Panel>
         </div>
         <LatestEvaluation summary={data.latest_evaluation} activeVersion={data.published?.id} />
@@ -657,6 +685,7 @@ function LatestEvaluation({ summary, activeVersion }: {
 }
 
 function Playground() {
+  const evidence = useRef<HTMLDivElement>(null);
   const { data, error, reload } = useResource<KnowledgeCatalog>(
     "/knowledge",
     true,
@@ -761,7 +790,7 @@ function Playground() {
                                   : "Asia Visual Grafika"}
                               </MessageHeader>
                               {row.response && (
-                                <MediaPreview answer={row.response} />
+                                <MediaPreview answer={row.response} diagnostics={false} />
                               )}
                               <Bubble
                                 variant={
@@ -769,23 +798,28 @@ function Playground() {
                                 }
                               >
                                 <BubbleContent>
-                                  <p className="whitespace-pre-wrap">
-                                    {row.role === "assistant"
-                                      ? displayAnswer(row.text)
-                                      : row.text}
-                                  </p>
+                                  {row.role === "assistant" ? (
+                                    <ReplyText text={displayAnswer(row.text)} />
+                                  ) : <p className="whitespace-pre-wrap">{row.text}</p>}
                                 </BubbleContent>
                               </Bubble>
                               {row.response && (
-                                <MessageFooter>
+                                <MessageFooter className="playground-message-footer">
+                                  <GenerationDetails answer={row.response} />
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setInspect(row.response!)}
+                                    onClick={() => {
+                                      setInspect(row.response!);
+                                      if (window.matchMedia("(max-width: 1023px)").matches) {
+                                        evidence.current?.scrollIntoView({ block: "start" });
+                                        evidence.current?.focus({ preventScroll: true });
+                                      }
+                                    }}
                                   >
                                     Inspect{" "}
                                     {row.response.retrieval_context.length}{" "}
-                                    sources · {row.response.latency_seconds}s
+                                    sources
                                   </Button>
                                 </MessageFooter>
                               )}
@@ -796,12 +830,13 @@ function Playground() {
                     )}
                     {busy && (
                       <MessageScrollerItem messageId="pending">
-                        <div className="flex items-center gap-2 p-3">
-                          <Spinner />
-                          <span className="help-copy">
-                            Finding business knowledge and writing a reply…
-                          </span>
-                        </div>
+                        <Message align="start">
+                          <MessageContent>
+                            <MessageHeader>Asia Visual Grafika</MessageHeader>
+                            <Bubble variant="muted"><BubbleContent><Typing /></BubbleContent></Bubble>
+                            <span className="help-copy">Preparing a reply…</span>
+                          </MessageContent>
+                        </Message>
                       </MessageScrollerItem>
                     )}
                   </MessageScrollerContent>
@@ -847,7 +882,7 @@ function Playground() {
             </p>
           </CardFooter>
         </Card>
-        <Card className="flex min-h-0 flex-col">
+        <Card ref={evidence} tabIndex={-1} className="flex min-h-0 flex-col">
           <CardHeader>
             <CardTitle>Behind the answer</CardTitle>
             <CardDescription>
@@ -883,6 +918,15 @@ function Playground() {
                     </Button>
                   )}
                 </div>
+                {inspect.media_decision && (
+                  <details className="source-passage">
+                    <summary>Image selection details</summary>
+                    <MediaPreview answer={{ ...inspect, media_url: null, media_selection: null }} />
+                  </details>
+                )}
+                <p className="help-copy">
+                  {inspect.retrieval_context.length} retrieved passages. Review their content to judge whether they support the answer.
+                </p>
                 {inspect.retrieval_context.map((chunk, i) => (
                   <details className="source-passage" key={i} open={i === 0}>
                     <summary>
@@ -891,11 +935,11 @@ function Playground() {
                         {String(chunk.metadata.source || "Knowledge passage")}
                       </span>
                       <span className="source-score">
-                        {percentage(chunk.similarity)}
+                        {Number.isFinite(chunk.similarity) ? `Similarity ${chunk.similarity.toFixed(3)}` : "Similarity unavailable"}
                       </span>
                     </summary>
                     <p className="help-copy">
-                      Cosine similarity · higher is closer
+                      Cosine similarity measures closeness to your question, not answer accuracy.
                     </p>
                     <p className="passage-text">{chunk.text}</p>
                   </details>
@@ -1126,21 +1170,23 @@ function ProvidersPage() {
       {error && <ErrorNotice error={error} retry={reload} />}
       <div className="page-section">
         <Panel
-          title="Answering and evaluation"
-          description="Choose models independently and control retrieval."
+          title="Models and retrieval"
+          description="Choose separate models for replies, evaluation scoring, and product intent."
         >
           <form onSubmit={save} className="flex flex-col gap-6">
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="answer-model">Answering model</FieldLabel>
-                <Input
+                <NativeSelect
                   id="answer-model"
                   value={form.openrouter_model}
                   onChange={(e) =>
                     setForm({ ...form, openrouter_model: e.target.value })
                   }
                   required
-                />
+                >
+                  {[...new Set([data?.openrouter_model || form.openrouter_model, "openai/gpt-6-luna", "anthropic/claude-haiku-5.5", "minimax/minimax-m3.1-flash"])].map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
+                </NativeSelect>
                 <FieldDescription>
                   OpenRouter model identifier used for customer replies.
                 </FieldDescription>
@@ -1149,17 +1195,27 @@ function ProvidersPage() {
                 <FieldLabel htmlFor="judge-model">
                   Evaluation scoring model
                 </FieldLabel>
-                <Input
+                <NativeSelect
                   id="judge-model"
                   value={form.eval_model}
                   onChange={(e) =>
                     setForm({ ...form, eval_model: e.target.value })
                   }
                   required
-                />
+                >
+                  {[...new Set([data?.eval_model || form.eval_model, "deepseek/deepseek-v4.1-flash", "z-ai/glm-5.3-flash", "anthropic/claude-haiku-5.5"])].map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
+                </NativeSelect>
                 <FieldDescription>
                   DeepEval uses this model to score answers.
                 </FieldDescription>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="intent-model">Intent model</FieldLabel>
+                <NativeSelect id="intent-model" value={form.product_intent_model || ""} onChange={(event) => setForm({ ...form, product_intent_model: event.target.value })} required>
+                  {!form.product_intent_model && <NativeSelectOption value="" disabled>Choose an intent model</NativeSelectOption>}
+                  {[...new Set([data?.product_intent_model || form.product_intent_model, "z-ai/glm-5.3-flash", "openai/gpt-oss-20b"])].filter(Boolean).map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
+                </NativeSelect>
+                <FieldDescription>Identifies product and image requests before the answering model replies.</FieldDescription>
               </Field>
               <Field>
                 <FieldLabel htmlFor="top-k">Retrieved passages</FieldLabel>
@@ -1575,7 +1631,9 @@ function JobProgress({ job }: { job: Job }) {
   const labels: Record<string, string> = {
     queued: "Waiting for the background worker",
     preparing: "Preparing captured knowledge and references",
-    answering: "Generating the current case answer",
+    answering: job.payload?.rescore_of
+      ? "Reusing saved answers and retrieval evidence"
+      : "Generating the current case answer",
     indexing: "Synchronizing knowledge passages",
     prepare: "Preparing the captured source list",
     embed: "Embedding and upserting passages",
@@ -1589,7 +1647,7 @@ function JobProgress({ job }: { job: Job }) {
     running: "The worker is processing this task",
     completed: "Results saved",
     failed: "Task failed",
-    interrupted: "Task interrupted by a backend restart",
+    interrupted: "Execution stopped before the next checkpoint",
   };
   return (
     <section
@@ -1637,7 +1695,7 @@ function JobProgress({ job }: { job: Job }) {
               ) : (
                 <Circle />
               )}
-              {["Prepare", "Answer", "Score", "Report"][index]}
+              {["Prepare", job.payload?.rescore_of ? "Reuse" : "Answer", "Score", "Report"][index]}
             </li>
           ))}
         </ol>
@@ -1724,12 +1782,13 @@ function JobAction({
             View progress
           </Button>
         )}
+        {job.result_case_count != null && inspect && <Button variant="ghost" size="sm" data-run={job.id} aria-label={`Inspect result for run ${job.id}`} onClick={() => inspect(job)}>Inspect result</Button>}
       </div>
     );
   if (job.result_case_count != null && inspect)
     return (
-      <Button variant="ghost" size="sm" onClick={() => inspect(job)}>
-        Inspect results
+      <Button variant="ghost" size="sm" data-run={job.id} aria-label={`Inspect result for run ${job.id}`} onClick={() => inspect(job)}>
+        Inspect result
       </Button>
     );
   if (select)
@@ -1764,7 +1823,7 @@ function JobTable({
         {jobs.map((job) => (
           <li key={job.id} className="job-mobile-item">
             <div className="job-mobile-heading">
-              <strong>{jobName(job.kind)}</strong>
+              <strong>{jobName(job.kind)} · {job.id.slice(0, 8)}</strong>
               <Status value={job.status} />
             </div>
             <div className="job-mobile-meta">
@@ -1788,7 +1847,7 @@ function JobTable({
         <TableBody>
           {jobs.map((job) => (
             <TableRow key={job.id}>
-              <TableCell className="capitalize">{jobName(job.kind)}</TableCell>
+              <TableCell><span className="block font-medium">{jobName(job.kind)}</span><span className="help-copy">{job.id.slice(0, 8)}</span></TableCell>
               <TableCell>
                 <Status value={job.status} />
               </TableCell>
@@ -1834,18 +1893,99 @@ function Evaluations() {
     [busy, setBusy] = useState(false),
     [selectedJobId, setSelectedJobId] = useState(""),
     [resultFilter, setResultFilter] = useState("all");
+  const [historyStatus, setHistoryStatus] = useState(() => new URLSearchParams(window.location.search).get("status") || "all");
+  const [historyKind, setHistoryKind] = useState(() => new URLSearchParams(window.location.search).get("task") || "all");
+  const returnPosition = useRef<{ scroll: number; run: string } | null>(window.history.state?.evaluationReturn || null);
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+  const datasetTrigger = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    const previousRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    const change = () => {
+      const params = new URLSearchParams(window.location.search);
+      setResultJobId(params.get("run") || "");
+      setHistoryStatus(params.get("status") || "all");
+      setHistoryKind(params.get("task") || "all");
+    };
+    window.addEventListener("popstate", change);
+    return () => {
+      window.removeEventListener("popstate", change);
+      window.history.scrollRestoration = previousRestoration;
+    };
+  }, []);
+  useLayoutEffect(() => {
+    if (resultJobId) {
+      resultHeading.current?.focus({ preventScroll: true });
+      window.scrollTo(0, 0);
+    } else if (returnPosition.current) {
+      const { scroll, run } = returnPosition.current;
+      document.querySelectorAll<HTMLButtonElement>("button[data-run]").forEach((button) => {
+        if (button.dataset.run === run && button.getClientRects().length) button.focus({ preventScroll: true });
+      });
+      window.scrollTo(0, scroll);
+    }
+  }, [resultJobId]);
+  function filterHistory(key: string, value: string) {
+    const url = new URL(window.location.href);
+    if (value === "all") url.searchParams.delete(key);
+    else url.searchParams.set(key, value);
+    window.history.replaceState(window.history.state, "", url);
+    if (key === "status") setHistoryStatus(value);
+    else setHistoryKind(value);
+  }
+  function inspectResult(job: Pick<Job, "id">) {
+    returnPosition.current = { scroll: window.scrollY, run: job.id };
+    window.history.replaceState({ ...window.history.state, evaluationReturn: returnPosition.current }, "");
+    const url = new URL(window.location.href);
+    url.searchParams.set("run", job.id);
+    window.history.pushState({ evaluationResult: true, evaluationReturn: returnPosition.current }, "", url);
+    setResultFilter("all");
+    setResultJobId(job.id);
+  }
+  function backToHistory() {
+    if (window.history.state?.evaluationResult) window.history.back();
+    else {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("run");
+      window.history.replaceState(window.history.state, "", url);
+      setResultJobId("");
+    }
+  }
   const resultResource = useResource<Job>(
-    resultJobId ? `/jobs/${resultJobId}` : null,
-    false,
+    resultJobId ? `/jobs/${encodeURIComponent(resultJobId)}` : null,
+    true,
   );
   const savedResult = resultResource.data?.result;
-  const result = savedResult ? evaluationView(savedResult) : undefined;
+  const result = savedResult && Array.isArray(savedResult.cases) ? evaluationView(savedResult) : undefined;
+  const evidence = result ? Object.keys(result.averages || {}).map((name) => metricEvidence(result, name)) : [];
+  const scoredMetrics = evidence.reduce((total, item) => total + item.scored, 0);
+  const failedMetrics = evidence.reduce((total, item) => total + item.errors, 0);
+  async function retryScoring() {
+    if (!result || busy) return;
+    setBusy(true);
+    try {
+      const job = await api<{ job_id: string }>(`/evaluations/${encodeURIComponent(result.id)}/rescore`, { method: "POST" });
+      const url = new URL(window.location.href);
+      url.searchParams.set("run", job.job_id);
+      window.history.replaceState(window.history.state, "", url);
+      setResultJobId(job.job_id);
+      setResultFilter("all");
+      resources.reload();
+      toast.success("Scoring retry queued. Saved answers and references are preserved.");
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally { setBusy(false); }
+  }
   const reviewData = datasetKind === "audited" ? qa.data : dataset.data;
   const evaluationJobs = (resources.data || []).filter((job) =>
     ["evaluate", "generate", "report"].includes(job.kind),
   );
   const activeJobs = evaluationJobs.filter((job) =>
     ["queued", "running"].includes(job.status),
+  );
+  const filteredJobs = evaluationJobs.filter((job) =>
+    (historyStatus === "all" || job.status === historyStatus) &&
+    (historyKind === "all" || job.kind === historyKind),
   );
   const focusedJob = evaluationJobs.find((job) => job.id === selectedJobId);
   const visibleJobs = activeJobs.length
@@ -1859,7 +1999,8 @@ function Evaluations() {
     (kind === "audited" ? qa.data?.reviewed : dataset.data?.reviewed);
   const needsAttention = (row: EvaluationResult["cases"][number]) =>
     !!row.error ||
-    row.metrics.some((metric) => metric.error || metric.status === "unavailable" || metric.passed === false);
+    row.metrics.length === 0 ||
+    row.metrics.some((metric) => metric.error || metric.status === "unavailable" || metric.score == null || metric.passed === false);
   const resultCases =
     result?.cases.filter(
       (row) => resultFilter === "all" || needsAttention(row),
@@ -1885,7 +2026,8 @@ function Evaluations() {
     }
   };
   return (
-    <div className="flex flex-col gap-6">
+    <div className="evaluations-workspace">
+      <div hidden={!!resultJobId} className="evaluation-overview">
       {[resources, knowledge, dataset, qa, providers].map((resource, index) =>
         resource.error ? (
           <ErrorNotice
@@ -1909,13 +2051,13 @@ function Evaluations() {
           ))}
         </Panel>
       )}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="evaluation-setup">
         <Panel
           title="Run an evaluation"
           description="The current synchronized knowledge is captured when you start. This run calls your configured model APIs."
         >
           {!knowledge.data ? (
-            <Loading label="Loading active knowledge…" />
+            !knowledge.error && <Loading label="Loading active knowledge…" />
           ) : (
             <form
               onSubmit={(event) => {
@@ -2028,12 +2170,13 @@ function Evaluations() {
             </form>
           )}
         </Panel>
+        <div className="evaluation-references">
         <Panel
           title="Conversation scenarios"
           description="Generate candidates from business knowledge, then review their expected outcomes."
         >
           {!dataset.data ? (
-            <Loading label="Loading conversation references…" />
+            !dataset.error && <Loading label="Loading conversation references…" />
           ) : (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
@@ -2077,7 +2220,8 @@ function Evaluations() {
               ) : (
                 <Button
                   variant="outline"
-                  onClick={() => {
+                  onClick={(event) => {
+                    datasetTrigger.current = event.currentTarget;
                     setDatasetKind("conversations");
                     setDatasetOpen(true);
                   }}
@@ -2088,13 +2232,12 @@ function Evaluations() {
             </div>
           )}
         </Panel>
-      </div>
       <Panel
         title="QA reference review"
         description="Review required facts and clarification guidance before comparing chunking configurations."
       >
         {!qa.data ? (
-          <Loading label="Loading QA references…" />
+          !qa.error && <Loading label="Loading QA references…" />
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-3">
@@ -2107,7 +2250,8 @@ function Evaluations() {
               />
               <Button
                 variant="outline"
-                onClick={() => {
+                onClick={(event) => {
+                  datasetTrigger.current = event.currentTarget;
                   setDatasetKind("audited");
                   setDatasetOpen(true);
                 }}
@@ -2122,20 +2266,36 @@ function Evaluations() {
           </>
         )}
       </Panel>
+        </div>
+      </div>
       <Panel
         title="Evaluation history"
         description="Inspect case scores, download results, and open the corresponding LangSmith experiment."
       >
         <EvaluationMethodGuide />
+        <div className="evaluation-history-filters">
+          <Field><FieldLabel htmlFor="history-status">Run status</FieldLabel>
+            <NativeSelect id="history-status" value={historyStatus} onChange={(event) => filterHistory("status", event.target.value)}>
+              <NativeSelectOption value="all">All statuses</NativeSelectOption>
+              {["completed", "failed", "interrupted", "queued", "running"].map((status) => <NativeSelectOption key={status} value={status}>{status[0].toUpperCase() + status.slice(1)}</NativeSelectOption>)}
+            </NativeSelect>
+          </Field>
+          <Field><FieldLabel htmlFor="history-kind">Task type</FieldLabel>
+            <NativeSelect id="history-kind" value={historyKind} onChange={(event) => filterHistory("task", event.target.value)}>
+              <NativeSelectOption value="all">All evaluation work</NativeSelectOption>
+              <NativeSelectOption value="evaluate">Evaluation</NativeSelectOption>
+              <NativeSelectOption value="generate">Dataset generation</NativeSelectOption>
+              <NativeSelectOption value="report">Reporting</NativeSelectOption>
+            </NativeSelect>
+          </Field>
+          <p className="help-copy" role="status">{resources.data ? `${filteredJobs.length} of ${evaluationJobs.length} runs` : "Loading runs…"}</p>
+        </div>
         {!resources.data ? (
-          <Loading label="Loading evaluation history…" />
-        ) : evaluationJobs.length ? (
+          !resources.error && <Loading label="Loading evaluation history…" />
+        ) : filteredJobs.length ? (
           <JobTable
-            jobs={evaluationJobs}
-            inspect={(job) => {
-              setResultJobId(job.id);
-              setResultFilter("all");
-            }}
+            jobs={filteredJobs}
+            inspect={inspectResult}
             select={(job) => {
               setSelectedJobId(job.id);
               window.scrollTo({ top: 0, behavior: "instant" });
@@ -2143,25 +2303,32 @@ function Evaluations() {
           />
         ) : (
           <NoItems
-            title="No evaluation runs yet"
-            description="Run the original questions to establish an answer quality reference."
+            title={evaluationJobs.length ? "No runs match these filters" : "No evaluation runs yet"}
+            description={evaluationJobs.length ? "Choose another status or task type to see saved runs." : "Run the original questions to establish an answer quality reference."}
             icon={FlaskConical}
           />
         )}
       </Panel>
+      </div>
+      {resultJobId && <header className="evaluation-result-heading">
+        <Button variant="outline" className="self-start" onClick={backToHistory}>Back to evaluation history</Button>
+        <div><h2 ref={resultHeading} tabIndex={-1}>Run {resultJobId.slice(0, 8)}</h2><p className="help-copy break-words">{resultJobId}</p></div>
+        {resultResource.data && <div className="flex flex-wrap items-center gap-3"><Status value={resultResource.data.status} /><span className="help-copy">Started {date(resultResource.data.created_at)}</span></div>}
+      </header>}
       {resultResource.error && (
         <ErrorNotice
           error={resultResource.error}
           retry={resultResource.reload}
         />
       )}
-      {resultJobId && !result && !resultResource.error && (
+      {resultJobId && !resultResource.data && !resultResource.error && (
         <Loading label="Loading saved evaluation results…" />
       )}
+      {resultJobId && resultResource.data && !result && <Panel title="No saved evaluation result" description="This task has not saved case results. Review its progress and any errors before starting another run."><JobProgress job={resultResource.data} /></Panel>}
       {result && (
         <Panel
-          title="Evaluation results"
-          description={`${result.cases.length} cases · ${result.model} · Judge: ${result.judge}${result.chunking ? ` · Chunking ${result.chunking.chunk_size}/${result.chunking.chunk_overlap}` : " · Historical configuration"}`}
+          title="Recorded quality metrics"
+          description={`${result.cases.length} recorded cases${result.chunking ? ` · Chunking ${result.chunking.chunk_size}/${result.chunking.chunk_overlap}` : " · Historical configuration"}`}
           action={
             <Button variant="outline" size="sm" asChild>
               <a href={`/admin/api/evaluations/${result.id}/export`} download>
@@ -2170,16 +2337,43 @@ function Evaluations() {
             </Button>
           }
         >
-          <div className="flex flex-wrap gap-4">
-            {Object.entries(result.averages || {}).map(([name, score]) => (
+          {failedMetrics > 0 && <Alert variant="destructive" className="mb-6">
+            <AlertTitle>{scoredMetrics === 0 ? "Scoring failed for this run" : "Only part of this run was scored"}</AlertTitle>
+            <AlertDescription>
+              <p>{failedMetrics} metric requests failed. A completed job means processing ended; it does not mean the judge produced valid scores.</p>
+              {result.scoring_error && <p>{result.scoring_error}</p>}
+              {["legacy", "audited"].includes(result.dataset) && result.cases.every((row) => row.answer && row.expected_output && !row.error) && <>
+                <p>Retry scoring keeps available scores and uses the original saved answers, contexts, references and judge for missing or failed metrics. It creates a new run and calls the scoring API.</p>
+                <Button variant="outline" disabled={busy || ["queued", "running"].includes(resultResource.data?.status || "")} onClick={() => void retryScoring()}>{busy && <Spinner data-icon="inline-start" />}Retry scoring</Button>
+              </>}
+            </AlertDescription>
+          </Alert>}
+          {result.rescore_of && <p className="help-copy mb-5">Scoring retry of run {result.rescore_of}. Original answers and retrieval evidence were reused.</p>}
+          {result.reporting_note && <p className="help-copy mb-5">{result.reporting_note}</p>}
+          <dl className="evaluation-provenance">
+            <div><dt>Dataset</dt><dd>{result.dataset}</dd></div>
+            <div><dt>Knowledge snapshot</dt><dd>{result.knowledge_version || "Not recorded"}</dd></div>
+            <div><dt>Answering model</dt><dd>{result.model || "Not recorded"}</dd></div>
+            <div><dt>Scoring model</dt><dd>{result.judge || "Not recorded"}</dd></div>
+          </dl>
+          <p className="help-copy mb-4">Scores average only the cases with a recorded score. Missing scores remain unavailable.</p>
+          <div className="evaluation-metrics">
+            {Object.entries(result.averages || {}).map(([name, score]) => {
+              const stats = metricEvidence(result, name);
+              return (
               <div className="evaluation-average" key={name}>
-                <strong>{percentage(score)}</strong>
+                <strong>{score == null && stats.errors ? "Scoring failed" : percentage(score)}</strong>
                 <span>{name}</span>
-                <span>{result.cases.filter((row) => row.metrics.some((metric) => metric.name === name && metric.score != null)).length}/{result.cases.length} case scores</span>
+                <span>{stats.scored}/{stats.total} case scores · {stats.errors} errors</span>
+                {stats.borderline > 0 && <span>{stats.borderline} borderline verdicts counted as accepted. Review the case evidence.</span>}
+                {stats.standardError !== null && <span>Standard error: {(stats.standardError * 100).toFixed(1)} percentage points</span>}
+                {stats.interval && <span>Approx. 95% interval: {percentage(stats.interval[0])}–{percentage(stats.interval[1])}</span>}
               </div>
-            ))}
+            );})}
           </div>
+          <p className="help-copy mt-3">These are benchmark means, not confidence that an answer is correct. {result.cases.length < 30 ? "Small benchmark: use more independently reviewed cases before drawing broad conclusions. " : "Intervals assume independent, representative cases and exclude judge calibration uncertainty. "}Missing scores can bias the mean. Validate judge decisions against human review.</p>
           <EvaluationMath result={result} />
+          <h3 className="evaluation-evidence-title">Case evidence</h3>
           <Field className="mt-5 max-w-xs">
             <FieldLabel htmlFor="result-filter">Cases to inspect</FieldLabel>
             <NativeSelect
@@ -2235,7 +2429,7 @@ function Evaluations() {
             {resultCases.map((row) => (
               <details className="evaluation-case" key={row.id}>
                 <summary>
-                  <span>{row.input || row.scenario || row.id}</span>
+                  <span><small className="evaluation-case-id">Case {row.id}</small>{row.input || row.scenario || "Question not recorded"}</span>
                   <Badge variant="outline">
                     {row.error
                       ? "Answer error"
@@ -2248,15 +2442,20 @@ function Evaluations() {
                           : `${row.metrics.filter((metric) => metric.passed).length}/${row.metrics.filter((metric) => metric.passed != null).length} threshold checks passed`}
                   </Badge>
                 </summary>
-                {row.answer && (
-                  <p className="passage-text">{displayAnswer(row.answer)}</p>
-                )}
+                <div className="evaluation-answer-reference">
+                  <section><h4>Recorded answer</h4><p className="passage-text">{row.answer ? displayAnswer(row.answer) : row.turns?.length ? "See the recorded conversation below." : "No answer was recorded for this case."}</p></section>
                 {(row.expected_output || row.expected_outcome) && (
-                  <div className="metric-detail">
-                    <strong>Reference answer / expected outcome</strong>
+                  <section>
+                    <h4>Reference answer / expected outcome</h4>
                     <p>{row.expected_output || row.expected_outcome}</p>
-                  </div>
+                  </section>
                 )}
+                </div>
+                {row.trace_url && <Button variant="outline" size="sm" asChild><a href={row.trace_url} target="_blank" rel="noreferrer">Open case trace<ArrowUpRight data-icon="inline-end" /></a></Button>}
+                {!!row.retrieval_context?.length && <details className="metric-detail evaluation-passages">
+                  <summary>Retrieved evidence ({row.retrieval_context.length} passages)</summary>
+                  <ol>{row.retrieval_context.map((passage, index) => <li key={index}><h4>Passage {index + 1}{passage.metadata?.source ? ` · ${String(passage.metadata.source)}` : ""}</h4><p>{passage.text}</p></li>)}</ol>
+                </details>}
                 {row.turns && (
                   <div className="flex flex-col gap-4 mt-4">
                     {row.turns.map((turn, index) => (
@@ -2294,7 +2493,8 @@ function Evaluations() {
                           : percentage(metric.score)}
                       </Badge>
                     </summary>
-                    <p>{metric.reason || metric.error}</p>
+                    <p>{metric.reason || metric.error || "No scoring explanation was recorded."}</p>
+                    {metric.threshold != null && <p>Pass threshold: {percentage(metric.threshold)} · {metric.passed == null ? "No threshold verdict" : metric.passed ? "Passed" : "Below threshold"}</p>}
                     <MetricMath metric={metric} />
                   </details>
                 ))}
@@ -2309,7 +2509,7 @@ function Evaluations() {
                 }
                 description={
                   resultFilter === "attention"
-                    ? "Every scored metric in this run passed its configured threshold and no answer or scoring errors were recorded."
+                    ? "All recorded case metrics have scores, with no failed thresholds or answer and scoring errors."
                     : "This run did not record case results. Inspect its progress and error details before starting another run."
                 }
                 icon={Check}
@@ -2320,7 +2520,10 @@ function Evaluations() {
       )}
       {reviewData && (
         <Dialog open={datasetOpen} onOpenChange={setDatasetOpen}>
-          <DialogContent className="sm:max-w-4xl">
+          <DialogContent className="sm:max-w-4xl" onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            datasetTrigger.current?.focus();
+          }}>
             <DialogHeader>
               <DialogTitle>
                 {datasetKind === "audited"
@@ -2658,8 +2861,10 @@ function Workspace() {
     setAuth(null);
   };
   const navigate = (name: string) => {
-    if (window.location.pathname !== adminPagePath(name))
+    if (window.location.pathname !== adminPagePath(name) || window.location.search) {
       window.history.pushState(null, "", adminPagePath(name));
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }
     setPage(name);
     window.scrollTo(0, 0);
   };
@@ -2669,7 +2874,7 @@ function Workspace() {
       const name = readPage();
       if (window.location.pathname !== "/admin/login")
         window.history.replaceState(
-          null,
+          window.history.state,
           "",
           adminPagePath(name) + window.location.search,
         );

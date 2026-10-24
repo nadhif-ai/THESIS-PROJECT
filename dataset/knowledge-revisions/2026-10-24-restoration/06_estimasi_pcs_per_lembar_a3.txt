@@ -1,0 +1,94 @@
+# STIKER A3+: PROSES KISS CUT DAN ESTIMASI POTONG MANUAL
+CV. Asia Visual Grafika — Panduan Proses Kiss Cut dan Potong Manual
+-----------------------------------------------------------------------
+
+## PROSES KISS CUT MESIN (CUTTING PLOTTER)
+
+- Area Efektif: 29 cm × 42 cm (disisakan ruang 1–2 cm untuk tanda registrasi sensor mesin).
+- Pemotongan setengah putus (kertas backing tetap utuh).
+Jumlah pcs Kiss Cut mengikuti tabel acuan resmi pada 03_panduan_berkas_siap_cetak.txt; jangan memakai grid area efektif untuk menggantikan tabel acuan tersebut.
+
+---
+
+## PANDUAN ESTIMASI POTONG MANUAL PER LEMBAR A3+
+
+PRODUK INI ADALAH: Panduan estimasi jumlah pcs stiker untuk metode Potong Manual Karter pada 1 lembar A3+.
+Untuk Kiss Cut, gunakan tabel acuan resmi pada 03_panduan_berkas_siap_cetak.txt. Angka potong manual tidak berlaku untuk Kiss Cut.
+Berlaku untuk semua jenis cetakan lembaran A3+: Stiker Cromo, Stiker Vinyl, Stiker Transparan.
+BUKAN untuk stiker meteran gulungan per m².
+
+Metode Potong Manual (Karter / Cutter):
+- Area Efektif: 31 cm × 47 cm (area maksimal kertas A3+ fisik).
+- Pemotongan lurus putus tembus. Cocok untuk stiker bentuk persegi atau persegi panjang.
+
+Rumus perhitungan jumlah pcs per lembar:
+• Jumlah Kolom = floor(Lebar Area ÷ Lebar Stiker)
+• Jumlah Baris = floor(Tinggi Area ÷ Tinggi Stiker)
+• Total Pcs per Lembar = Jumlah Kolom × Jumlah Baris
+
+Contoh pertanyaan kategori ini: "stiker 5x5 potong manual dapat berapa pcs", "estimasi stiker tanpa kiss cut per lembar".
+
+---
+
+## TABEL POTONG MANUAL STIKER PERSEGI (SAMA SISI)
+
+Jumlah pcs per 1 lembar A3+ untuk Potong Manual Karter (31×47 cm):
+
+• Ukuran 1 cm × 1 cm: Potong Manual = 1.457 pcs.
+• Ukuran 1,5 cm × 1,5 cm: Potong Manual = 620 pcs.
+• Ukuran 2 cm × 2 cm: Potong Manual = 345 pcs.
+• Ukuran 2,5 cm × 2,5 cm: Potong Manual = 216 pcs.
+• Ukuran 3 cm × 3 cm: Potong Manual = 150 pcs.
+• Ukuran 3,5 cm × 3,5 cm: Potong Manual = 104 pcs.
+• Ukuran 4 cm × 4 cm: Potong Manual = 77 pcs.
+• Ukuran 4,5 cm × 4,5 cm: Potong Manual = 60 pcs.
+• Ukuran 5 cm × 5 cm: Potong Manual = 54 pcs.
+• Ukuran 5,5 cm × 5,5 cm: Potong Manual = 40 pcs.
+• Ukuran 6 cm × 6 cm: Potong Manual = 35 pcs.
+• Ukuran 6,5 cm × 6,5 cm: Potong Manual = 28 pcs.
+• Ukuran 7 cm × 7 cm: Potong Manual = 24 pcs.
+• Ukuran 7,5 cm × 7,5 cm: Potong Manual = 24 pcs.
+• Ukuran 8 cm × 8 cm: Potong Manual = 15 pcs.
+• Ukuran 8,5 cm × 8,5 cm: Potong Manual = 15 pcs.
+• Ukuran 9 cm × 9 cm: Potong Manual = 15 pcs.
+• Ukuran 9,5 cm × 9,5 cm: Potong Manual = 12 pcs.
+• Ukuran 10 cm × 10 cm: Potong Manual = 12 pcs.
+• Ukuran 11 cm × 11 cm: Potong Manual = 8 pcs.
+• Ukuran 12 cm × 12 cm: Potong Manual = 6 pcs.
+• Ukuran 13 cm × 13 cm: Potong Manual = 6 pcs.
+• Ukuran 14 cm × 14 cm: Potong Manual = 6 pcs.
+• Ukuran 15 cm × 15 cm: Potong Manual = 6 pcs.
+
+---
+
+## TABEL POTONG MANUAL STIKER PERSEGI PANJANG & KUSTOM
+
+Jumlah pcs per 1 lembar A3+ untuk Potong Manual Karter (31×47 cm):
+
+• Ukuran 2 cm × 3 cm: Potong Manual = 230 pcs.
+• Ukuran 2 cm × 4 cm: Potong Manual = 165 pcs.
+• Ukuran 2 cm × 5 cm: Potong Manual = 138 pcs.
+• Ukuran 3 cm × 4 cm: Potong Manual = 110 pcs.
+• Ukuran 3 cm × 5 cm: Potong Manual = 90 pcs.
+• Ukuran 3 cm × 6 cm: Potong Manual = 75 pcs.
+• Ukuran 4 cm × 5 cm: Potong Manual = 66 pcs.
+• Ukuran 4 cm × 6 cm: Potong Manual = 55 pcs.
+• Ukuran 4 cm × 7 cm: Potong Manual = 44 pcs.
+• Ukuran 5 cm × 6 cm: Potong Manual = 45 pcs.
+• Ukuran 5 cm × 7 cm: Potong Manual = 36 pcs.
+• Ukuran 5 cm × 8 cm: Potong Manual = 30 pcs.
+• Ukuran 5 cm × 9 cm: Potong Manual = 30 pcs.
+• Ukuran 5 cm × 10 cm: Potong Manual = 27 pcs.
+• Ukuran 6 cm × 7 cm: Potong Manual = 30 pcs.
+• Ukuran 6 cm × 8 cm: Potong Manual = 25 pcs.
+• Ukuran 7 cm × 10 cm: Potong Manual = 18 pcs.
+• Ukuran 10 cm × 15 cm: Potong Manual = 9 pcs.
+
+---
+
+## CATATAN PENTING ESTIMASI PCS STIKER & KETENTUAN CUTTING
+
+1. Estimasi jumlah pcs di atas merupakan perkiraan maksimum berdasarkan susunan grid lurus pada bidang cetak efektif.
+2. Pemotongan Potong Manual Karter: HANYA BISA untuk bentuk KOTAK / PERSEGI yang mengikuti garis potong (crop marks / kris) hasil dari layout cetak.
+4. Biaya Ongkos Potong Ukuran Selain Standar A3/A4/A5/A6 pada Kertas A3+: Dikenakan biaya Rp 25.000 ke atas (tergantung banyaknya jumlah lembaran).
+5. Untuk kepastian jumlah pcs dan biaya yang tepat sesuai file desain milik Kakak, silakan konsultasikan atau kirimkan file desain langsung ke admin toko.

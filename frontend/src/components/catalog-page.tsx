@@ -427,15 +427,15 @@ export function CatalogPage() {
   );
 }
 
-export function MediaPreview({ answer }: { answer: Answer }) {
+export function MediaPreview({ answer, diagnostics = true }: { answer: Answer; diagnostics?: boolean }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="help-copy">
+      {diagnostics && <p className="help-copy">
         Image decision:{" "}
         {answer.media_decision?.reason?.replaceAll("_", " ") ||
           "No image for this reply"}
-      </p>
-      {answer.media_decision?.intent_resolution && (
+      </p>}
+      {diagnostics && answer.media_decision?.intent_resolution && (
         <details className="help-copy">
           <summary>Image selection details</summary>
           <div className="mt-2 grid gap-1 break-all">

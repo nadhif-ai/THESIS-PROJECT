@@ -1,0 +1,93 @@
+{
+  "status": "activated",
+  "confirmation": {
+    "source": "user confirmed in chat 24 Oct 2026",
+    "facts": [
+      "Kiss Cut machine effective area is 29 cm × 42 cm.",
+      "A 1–2 cm allowance is reserved for machine registration/sensor marks.",
+      "Kiss Cut is a half-cut with the backing left intact."
+    ],
+    "interpretation_limit": "Confirmation concerns these three process facts, not the removed conflicting grid-derived Kiss Cut capacities or broad custom-shape capability."
+  },
+  "base_snapshot": "kb-e622863bb58d4137b4e8bf7cf62a186e",
+  "base_source_revision": 16,
+  "base_passages": 141,
+  "base_state_last_read_only_verified_at_utc": "2026-10-24T03:41:29.486356+00:00",
+  "base_state_at_that_verification": {
+    "revision": 16,
+    "applied_revision": 16,
+    "pending": false,
+    "sync_job": null
+  },
+  "pre_activation_requirement": "Historical preparation gate, satisfied: c221 scoring-postflight captured all40scores at03:55:03UTC before replacements; basehashes/rev16/namespace/no-pending verified, then normal private Replace and atomic Sync completed.",
+  "activated_snapshot": "kb-84668f0b823a402cbe360c2c711bd766",
+  "activated_revision": 18,
+  "scope": "Restore only the three user-confirmed Kiss Cut process facts in a standalone source06 section, update its title to match the combined scope, and correct the source02 cross-reference. Preserve all existing manual text and tariff values; continue directing official Kiss Cut capacities to unchanged source03.",
+  "chunking": {
+    "chunk_size": 1000,
+    "chunk_overlap": 100,
+    "preprocessing": "sections-v2"
+  },
+  "changes": [
+    {
+      "name": "02_spesifikasi_bahan_dan_finishing.txt",
+      "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+      "before_artifact": "/tmp/rag-knowledge-before/02_spesifikasi_bahan_dan_finishing.txt",
+      "before_sha256": "448fc0a469256712acda22d22aea4a674210b828a3e0761260ed5ee38d4a7352",
+      "after_artifact": "dataset/knowledge-revisions/2026-10-24-restoration/02_spesifikasi_bahan_dan_finishing.txt",
+      "after_sha256": "2298e1e3098d0dfb26a1db744117fea5de154cdc23b372951fe608822d577920",
+      "before_chunk_count": 29,
+      "after_chunk_count": 29,
+      "max_after_chunk_characters": 999
+    },
+    {
+      "name": "06_estimasi_pcs_per_lembar_a3.txt",
+      "source_id": "aea30213c78a4e5d819d2ae2dd199069",
+      "before_artifact": "dataset/knowledge-revisions/2026-10-24/06_estimasi_pcs_per_lembar_a3.txt",
+      "before_sha256": "1f9e13352fdf7909b68e5f84a54adb0f266aec63ee398f61f0c7b433a52971ed",
+      "after_artifact": "dataset/knowledge-revisions/2026-10-24-restoration/06_estimasi_pcs_per_lembar_a3.txt",
+      "after_sha256": "41842e8490846877ed94bf221015ee342da99e16b1aba325f12e7e8358db6e62",
+      "before_chunk_count": 7,
+      "after_chunk_count": 8,
+      "max_after_chunk_characters": 997
+    }
+  ],
+  "fact_conservation": {
+    "source02_exactly_one_cross_reference_line_replaced": true,
+    "source02_all_remaining_text_byte_identical": true,
+    "source02_remainder_sha256": "505c2ade4ea3869639c0dde1ee09864de6302e8c518b8c95dac91ab37b610c98",
+    "source06_manual_section_to_eof_byte_identical": true,
+    "source06_manual_section_to_eof_sha256": "e17c0e0f81ecae1390156abe6dd6383702db0a219aff0583bc9330ebcbf55c7d",
+    "manual_size_capacity_pairs_before": 42,
+    "manual_size_capacity_pairs_after": 42,
+    "manual_pairs_exact_ordered_match": true,
+    "manual_square_pairs": 24,
+    "manual_rectangular_pairs": 18,
+    "source06_tariff_lines_exact_ordered_match": true,
+    "source06_no_conflicting_kiss_cut_capacity_column": true,
+    "official_kiss_cut_capacity_authority": "03_panduan_berkas_siap_cetak.txt (unchanged SHA256 10b06892b01ddbae064bef3c52d0127fe7fe797ccbd2c28c04c14c6dd81bb19d)",
+    "sop01_and_all_other_source_files_unmodified_by_this_preparation": true
+  },
+  "offline_split_proof": {
+    "mode": "offline_no_api_or_database_access",
+    "splitter": "app.admin.chunking.split_document",
+    "estimated_total_passages_after_activation": 142,
+    "estimate_limit": "The offline estimate assumed all other sources and1000/100 sections-v2 stayed unchanged; subsequent completed Sync independently verified142passages, as recorded in activated_passages and activation evidence.",
+    "restored_process_chunk_count": 1,
+    "restored_process_chunk_characters": 407,
+    "restored_process_chunk_sha256": "e006910f19063c7119ea9dbfa84c3782560d0e5403570beb61ff5ebabd6078f4",
+    "restored_process_chunk_text": "STIKER A3+: PROSES KISS CUT DAN ESTIMASI POTONG MANUAL > PROSES KISS CUT MESIN (CUTTING PLOTTER)\n\n- Area Efektif: 29 cm × 42 cm (disisakan ruang 1–2 cm untuk tanda registrasi sensor mesin).\n- Pemotongan setengah putus (kertas backing tetap utuh).\nJumlah pcs Kiss Cut mengikuti tabel acuan resmi pada 03_panduan_berkas_siap_cetak.txt; jangan memakai grid area efektif untuk menggantikan tabel acuan tersebut.",
+    "restored_process_chunk_metadata": {
+      "source": "06_estimasi_pcs_per_lembar_a3.txt",
+      "source_id": "aea30213c78a4e5d819d2ae2dd199069",
+      "section_1": "STIKER A3+: PROSES KISS CUT DAN ESTIMASI POTONG MANUAL",
+      "section_2": "PROSES KISS CUT MESIN (CUTTING PLOTTER)"
+    },
+    "all_three_confirmed_facts_and_official_capacity_reference_in_one_chunk": true,
+    "all_prepared_chunks_within_1000_characters": true
+  },
+  "mutations_performed": "Two source replacements through existing private upload/finish services, followed by normal verified atomic Sync. Original snapshots retained. No schema/ACL/runtime change.",
+  "activated_passages": 142,
+  "activated_at": "2026-10-24T04:01:49.697084+00:00",
+  "sync_job_id": "84668f0b823a402cbe360c2c711bd766"
+}

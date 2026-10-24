@@ -1,11 +1,16 @@
+import asyncio
 import logging
 import math
 import time
+from concurrent.futures import ThreadPoolExecutor
+from contextvars import copy_context
 from functools import lru_cache
 
+import httpx
 import requests
 from langchain_core.embeddings import Embeddings
 from langchain_openai import ChatOpenAI
+from openai import AsyncOpenAI
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -99,17 +104,22 @@ def get_llm(model: str | None = None, *, structured=False, timeout=45) -> ChatOp
     """
     settings = get_settings()
 
-    logger.info(f"Initializing LLM: {settings.openrouter_model} via OpenRouter")
+    selected_model = model or settings.openrouter_model
+    bounded_reasoning = structured and selected_model in {"openai/gpt-oss-20b", "z-ai/glm-5.3-flash"}
+    structured_parameters = {"provider": {"require_parameters": True}}
+    if bounded_reasoning:
+        structured_parameters["reasoning"] = {"effort": "low"}
+    logger.info("Initializing LLM: %s via OpenRouter", selected_model)
 
     llm = ChatOpenAI(
-        model=model or settings.openrouter_model,
+        model=selected_model,
         api_key=settings.openrouter_api_key,
         base_url=settings.openrouter_base_url,
         temperature=0.0,
-        max_tokens=2048,
+        max_tokens=4096 if bounded_reasoning else 2048,
         request_timeout=timeout,
         max_retries=0 if structured else 1,
-        extra_body={"provider": {"require_parameters": True}} if structured else None,
+        extra_body=structured_parameters if structured else None,
         default_headers={
             "HTTP-Referer": "https://printing-rag-chatbot.local",
             "X-Title": "Digital Printing RAG Chatbot",
@@ -120,11 +130,47 @@ def get_llm(model: str | None = None, *, structured=False, timeout=45) -> ChatOp
     return llm
 
 
-def structured_response(schema, messages, *, timeout):
+async def _structured_result(model, schema, messages, timeout):
+    # Cached async transports cannot be shared between these per-call event loops.
+    async with asyncio.timeout(timeout):
+        async with httpx.AsyncClient(timeout=timeout) as transport:
+            async with AsyncOpenAI(
+                api_key=model.openai_api_key.get_secret_value(),
+                base_url=model.openai_api_base,
+                organization=model.openai_organization,
+                timeout=timeout,
+                max_retries=model.max_retries,
+                default_headers=model.default_headers,
+                default_query=model.default_query,
+                http_client=transport,
+            ) as client:
+                owned_model = model.model_copy(update={
+                    "root_async_client": client,
+                    "async_client": client.chat.completions,
+                    "http_async_client": transport,
+                })
+                return await owned_model.with_structured_output(
+                    schema, method="json_schema", strict=True, include_raw=True,
+                ).ainvoke(messages)
+
+
+def structured_response(schema, messages, *, timeout, model=None):
     """One provider-constrained structured call, retaining reported usage for diagnostics."""
-    model = get_llm(get_settings().product_intent_model, structured=True, timeout=timeout)
-    result = model.with_structured_output(schema, method='json_schema', strict=True,
-                                         include_raw=True).invoke(messages)
+    from app.admin import store
+
+    selected_model = model or store.get_setting("product_intent_model", get_settings().product_intent_model)
+    model = get_llm(selected_model, structured=True, timeout=timeout)
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        result = asyncio.run(_structured_result(model, schema, messages, timeout))
+    else:
+        # Join the bounded async call; a thread timeout would leave its HTTP request alive.
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            result = executor.submit(
+                copy_context().run, asyncio.run,
+                _structured_result(model, schema, messages, timeout),
+            ).result()
     if result.get('parsing_error') or result.get('parsed') is None:
         raise ValueError('Invalid structured provider response')
     raw = result['raw']

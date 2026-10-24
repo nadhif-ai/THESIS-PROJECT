@@ -344,6 +344,7 @@ class RAGChain:
         channel: str = "api",
         top_k: Optional[int] = None,
         model: Optional[str] = None,
+        intent_model: Optional[str] = None,
         prompt_config: Optional[dict] = None,
         history_turns: Optional[list] = None,
         media_conversation_key: Optional[str] = None,
@@ -511,10 +512,12 @@ class RAGChain:
         for catalog_asset in (catalog_data or {}).get('assets', []):
             for name, values in catalog_asset.get('visual_attributes', {}).items():
                 visual_vocabulary[name] = sorted(set(visual_vocabulary.get(name, []) + values))
+        intent_model = intent_model or store.get_setting("product_intent_model", self.settings.product_intent_model)
         intent = product_intent.extract(question, intent_history, (media_context or {}).get('focus', []),
-                                        visual_vocabulary=visual_vocabulary)
+                                        visual_vocabulary=visual_vocabulary, model=intent_model)
         intent_latency = round(time.monotonic() - intent_started, 3)
         requested_image = intent.resolution == 'resolved' and intent.action != 'none'
+        media_response = requested_image or intent.resolution == 'failed' or (intent.action != 'none' and intent.resolution != 'resolved')
         if empty_knowledge and not requested_image:
             intent_usage = {k: intent._usage.get(k, 0) for k in ('prompt_tokens', 'completion_tokens')}
             store.record_conversation(session_id, channel, question, EMPTY_ANSWER, usage=intent_usage,
@@ -522,10 +525,11 @@ class RAGChain:
             return RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
                                answer_source='Empty knowledge', sources=[],
                                usage=intent_usage)
-        search_question = retrieval_question(question, history)
+        retrieval_history = [] if intent.resolution == 'resolved' and intent.changes_product else history
+        search_question = retrieval_question(question, retrieval_history)
         if intent.resolution == 'resolved' and intent.product_ids:
             labels = ', '.join(PRODUCTS[p][0] for p in intent.product_ids)
-            search_question = question + '\nProduk yang dimaksud: ' + labels
+            search_question += '\nProduk yang dimaksud: ' + labels
         if requested_image:
             search_question += '\nHarga dan detail bahan, ukuran, serta pilihan produk yang diminta.'
         if tree:
@@ -570,7 +574,7 @@ class RAGChain:
         media_selection = None
         media_decision = {'reason': 'catalog_disabled', 'asset_id': None,
                           'product_ids': intent.product_ids, 'intent_resolution': intent.resolution,
-                          'intent_latency_seconds': intent_latency, 'intent_model': self.settings.product_intent_model,
+                          'intent_latency_seconds': intent_latency, 'intent_model': intent_model,
                           'intent_prompt_sha256': product_intent.PROMPT_SHA256,
                           'application_version': os.getenv('VERCEL_GIT_COMMIT_SHA', 'local')}
         if media_url:
@@ -594,7 +598,7 @@ class RAGChain:
                 media_selection['catalog_revision'] = catalog_data['revision']
                 media_url = public_url(asset['object_key'])
         media_prompt = []
-        if requested_image or intent.resolution != 'resolved':
+        if media_response:
             from langchain_core.messages import SystemMessage
             from app.admin.catalog import PRODUCTS
             if media_selection and media_selection.get('kind') == 'catalog':
@@ -671,7 +675,7 @@ class RAGChain:
 
         validation_usage = {}
         truncated_answer = not generation_error and getattr(response, 'response_metadata', {}).get('finish_reason') == 'length'
-        if not generation_error and (requested_image or intent.resolution != 'resolved'):
+        if not generation_error and media_response:
             from app.backend import attachment_answer
             if truncated_answer or not attachment_answer.consistent(answer, selected=bool(media_url),
                     reason=media_decision['reason'], evidence=context_str, plan={
@@ -695,7 +699,7 @@ class RAGChain:
                       for key in ('prompt_tokens', 'completion_tokens')}
         if media_selection:
             media_selection['decision'] = dict(media_decision)
-        if not generation_error and (requested_image or intent.resolution != 'resolved'):
+        if not generation_error and media_response and intent.resolution != 'failed':
             answer = attachment_answer.explanation(bool(media_url), media_decision['reason'],
                 [PRODUCTS[p][0] for p in intent.product_ids]) + '\n\n' + answer
 
