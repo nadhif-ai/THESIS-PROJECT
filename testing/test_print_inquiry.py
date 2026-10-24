@@ -55,6 +55,20 @@ def test_approval_preserves_specifications_and_retrieves_next_step_information(c
     assert "alamat" in conversation.searches[0] and "admin" in conversation.searches[0]
 
 
+def test_resolved_product_keeps_customer_dimensions_and_quantity_in_retrieval(conversation, monkeypatch):
+    from app.backend import product_intent
+
+    intent = product_intent.ProductIntent(action='none', product_ids=['stiker-a3-kiss-cut'],
+        view='hero', attributes=[], exact_visual=False, resolution='resolved',
+        clarification='', changes_product=False)
+    monkeypatch.setattr(product_intent, 'extract', lambda *args, **kwargs: intent)
+    conversation.turns.append(("Stiker 5 x 5 cm sebanyak 100 pcs", "Bahannya mau cromo atau vinyl?"))
+    conversation.rag.run("Vinyl saja", "customer", channel="whatsapp")
+    query = conversation.searches[0]
+    assert "Vinyl saja" in query and "stiker a3" in query
+    assert "5 x 5 cm" in query and "100 pcs" in query
+
+
 def test_numeric_branch_answer_does_not_open_category_menu(conversation):
     conversation.turns.append(("Mau pesan stiker", "Pilih cabang: 1. Cabang A atau 2. Cabang B?"))
     result = conversation.rag.run("2", "customer")

@@ -12,6 +12,108 @@ from testing.test_product_catalog import record
 from testing.test_prompt_settings import client, authorize
 
 
+@pytest.mark.parametrize("resolution", ["unsupported", "ambiguous"])
+def test_nonvisual_questions_do_not_inherit_image_unavailability_text(pg_live, monkeypatch, resolution):
+    from app.backend import product_intent, attachment_answer
+    seed_active()
+    intent = product_intent.ProductIntent(action='none', product_ids=[], view='hero', attributes=[],
+        exact_visual=False, resolution=resolution, clarification='', changes_product=False)
+    monkeypatch.setattr(product_intent, 'extract', lambda *args, **kwargs: intent)
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score', lambda **kwargs: [])
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=lambda messages: SimpleNamespace(content='Jawaban informasi toko.')))
+    monkeypatch.setattr(attachment_answer, 'consistent', lambda *args, **kwargs: pytest.fail('A nonvisual answer must not enter attachment validation'))
+    result = chain.RAGChain().run('Apa informasi toko ini?', 'ordinary-question', channel='playground')
+    assert result.answer == 'Jawaban informasi toko.'
+    assert result.media_url is None
+
+
+@pytest.mark.parametrize("channel", ["evaluation", "playground"])
+@pytest.mark.parametrize("question, answer", [
+    ("Di mana alamat gerai Pamulang?", "Gerai Pamulang berada di Jl. Pajajaran No. 38."),
+    ("Berapa uang muka minimum sebelum dicetak?", "Uang muka minimum adalah 60% sebelum berkas masuk antrean cetak."),
+])
+def test_failed_intent_preserves_factual_answer_without_publishing_image_status(pg_live, monkeypatch, channel, question, answer):
+    from app.backend import product_intent, attachment_answer
+
+    seed_active()
+    monkeypatch.setattr(product_intent, "structured_response", lambda *args, **kwargs: ({
+        "action": "none", "product_ids": [], "view": "hero", "attributes": [],
+        "exact_visual": False, "resolution": "failed", "clarification": "",
+        "changes_product": False,
+    }, {}))
+    monkeypatch.setattr(product_intent, "extract", real_extract)
+    monkeypatch.setattr(vectorstore, "similarity_search_with_score", lambda **kwargs: [
+        (Document(page_content=answer, metadata={"source": "sop.txt"}), .1)])
+    monkeypatch.setattr(chain, "get_llm", lambda *args: SimpleNamespace(
+        invoke=lambda messages: SimpleNamespace(content=answer)))
+    guarded = []
+
+    def check(text, **kwargs):
+        guarded.append((text, kwargs))
+        return False
+
+    monkeypatch.setattr(attachment_answer, "consistent", check)
+    result = chain.RAGChain().run(question, "failed-factual-intent", channel=channel)
+
+    assert guarded == []
+    assert result.media_url is None and result.media_selection is None
+    assert result.media_decision["intent_resolution"] == "ambiguous"
+    assert "answer_validation" not in result.media_decision
+    assert result.answer == answer
+
+
+def test_provider_schema_reserves_failed_resolution_for_application(monkeypatch):
+    from app.backend import product_intent
+
+    sent = []
+
+    def provider(schema, *args, **kwargs):
+        sent.append(schema)
+        return {"action": "none", "product_ids": [], "view": "hero", "attributes": [],
+                "exact_visual": False, "resolution": "unsupported", "clarification": "",
+                "changes_product": False}, {}
+
+    monkeypatch.setattr(product_intent, "structured_response", provider)
+    intent = real_extract("Berapa jam layanan toko?", [])
+
+    assert intent.action == "none" and intent.resolution == "unsupported"
+    assert "failed" not in sent[0]["properties"]["resolution"]["enum"]
+    assert product_intent.failed_intent().resolution == "failed"
+    assert "failed" in product_intent.ProductIntent.model_json_schema()["properties"]["resolution"]["enum"]
+
+
+def test_provider_failed_visual_intent_remains_ambiguous_and_guarded(pg_live, monkeypatch):
+    from app.backend import product_intent, attachment_answer
+
+    seed_active()
+    catalog.save(record(), 0, "operator")
+    store.catalog_feature(True)
+    monkeypatch.setattr(product_intent, "structured_response", lambda *args, **kwargs: ({
+        "action": "show", "product_ids": ["roll-up-banner"], "view": "hero", "attributes": [],
+        "exact_visual": False, "resolution": "failed", "clarification": "Produk yang mana, Kak?",
+        "changes_product": False,
+    }, {}))
+    monkeypatch.setattr(product_intent, "extract", real_extract)
+    monkeypatch.setattr(vectorstore, "similarity_search_with_score", lambda **kwargs: [])
+    monkeypatch.setattr(chain, "get_llm", lambda *args: SimpleNamespace(invoke=lambda messages:
+        SimpleNamespace(content="Foto sudah saya kirim: https://invented.example/photo.png")))
+    guarded = []
+
+    def check(text, **kwargs):
+        guarded.append(kwargs)
+        return False
+
+    monkeypatch.setattr(attachment_answer, "consistent", check)
+    result = chain.RAGChain().run("Boleh lihat foto roll up?", "provider-failed-visual", channel="playground")
+
+    assert len(guarded) == 1 and guarded[0]["selected"] is False
+    assert result.media_decision["intent_resolution"] == "ambiguous"
+    assert result.media_decision["reason"] == "intent_ambiguous"
+    assert result.media_decision["answer_validation"] == "safe_fallback"
+    assert result.media_url is None and result.media_selection is None
+    assert "invented.example" not in result.answer and "sudah saya kirim" not in result.answer
+
+
 @pytest.mark.parametrize("empty", [False, True])
 def test_playground_uses_semantic_product_identity_without_factual_name_gate(pg_live, monkeypatch, empty):
     from app import dependencies
@@ -151,7 +253,7 @@ def test_truncated_visual_details_use_complete_controlled_prose(pg_live, monkeyp
 
 @pytest.mark.parametrize('failure', ['timeout', 'invalid_product'])
 def test_failed_semantic_provider_cannot_fall_back_to_keyword_selection(pg_live, monkeypatch, failure):
-    from app.backend import product_intent
+    from app.backend import product_intent, attachment_answer
     seed_active(); catalog.save(record(),0,'operator'); store.catalog_feature(True)
     def provider(*a, **kw):
         if failure == 'timeout':
@@ -161,11 +263,21 @@ def test_failed_semantic_provider_cannot_fall_back_to_keyword_selection(pg_live,
     monkeypatch.setattr(product_intent,'structured_response',provider)
     monkeypatch.setattr(product_intent,'extract',real_extract)
     monkeypatch.setattr(vectorstore,'similarity_search_with_score',lambda **kw:[])
-    monkeypatch.setattr(chain,'get_llm',lambda *a:SimpleNamespace(invoke=lambda m:SimpleNamespace(content='Boleh perjelas produknya, Kak?')))
+    monkeypatch.setattr(chain,'get_llm',lambda *a:SimpleNamespace(invoke=lambda m:SimpleNamespace(content='Foto sudah saya kirim: https://invented.example/photo.png')))
+    guarded = []
+
+    def check(text, **kwargs):
+        guarded.append(kwargs)
+        return False
+
+    monkeypatch.setattr(attachment_answer, 'consistent', check)
     result=chain.RAGChain().run('Kirim foto roll up banner','failed-intent',channel='playground')
+    assert len(guarded) == 1 and guarded[0]['selected'] is False
     assert result.media_url is None
     assert result.media_decision['reason']=='intent_failed'
+    assert result.media_decision['answer_validation']=='safe_fallback'
     assert 'belum tersedia' not in result.answer
+    assert 'invented.example' not in result.answer and 'sudah saya kirim' not in result.answer
 
 
 def test_structured_provider_transport_has_no_hidden_sdk_retries(monkeypatch):

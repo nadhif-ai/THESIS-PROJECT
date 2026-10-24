@@ -105,7 +105,7 @@ def similarity_search_with_score(query, k=10, filter_dict=None, namespace=None):
     embedded = time.monotonic()
     response = index.query(
         vector=vector,
-        top_k=k,
+        top_k=min(100, max(20, k * 4)),
         namespace=namespace,
         filter=where,
         include_metadata=True,
@@ -123,4 +123,7 @@ def similarity_search_with_score(query, k=10, filter_dict=None, namespace=None):
         result.append(
             (Document(page_content=text, metadata=metadata), 1 - float(match.score))
         )
-    return result
+    from app.backend.retrieval_ranking import rank_candidates, rerank_candidates
+
+    candidates = rank_candidates(query, result, len(result))
+    return rerank_candidates(query, candidates, k)

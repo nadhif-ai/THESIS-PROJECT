@@ -11,7 +11,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
 
 from app.admin import kb_store, source_storage, store
-from app.admin.chunking import Chunking, split_document, token_statistics
+from app.admin.chunking import Chunking, PREPROCESSING, split_document, token_statistics
 from app.backend.models import embedding_identity, get_embedding_model
 from app.backend.vectorstore import get_vectorstore
 from app.config.settings import get_settings
@@ -115,7 +115,13 @@ def documents(source, configuration):
                 ).split_documents([document])
             )
         else:
-            result.extend(split_document(document, config))
+            result.extend(
+                split_document(
+                    document,
+                    config,
+                    preprocessing=configuration.get("preprocessing", PREPROCESSING),
+                )
+            )
     for ordinal, document in enumerate(result):
         document.metadata["chunk_index"] = ordinal
         media = re.search(

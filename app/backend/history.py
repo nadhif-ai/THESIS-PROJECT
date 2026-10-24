@@ -24,9 +24,19 @@ def bounded_history(turns):
 
 def retrieval_question(question, history):
     include_history = len(question) <= 160
-    branch_followup = include_history and bool(history) and "cabang" in history[-1].content.lower()
+    choice = question.strip(" .!")
+    offered_branch = bool(choice and history) and re.search(
+        r"(?:\bcabang\s+|\b\d+[.)]\s*)" + re.escape(choice) + r"(?=\W|$)",
+        history[-1].content, re.IGNORECASE,
+    )
+    branch_reply = re.fullmatch(
+        r"\s*(?:\d+|ok(?:e)?|iya|ya|sip|setuju|boleh|baik|siap)\s*[.!]?\s*",
+        question, re.IGNORECASE,
+    ) or re.search(r"\b(?:pilih|ambil)\s+(?:cabang|gerai)\b", question, re.IGNORECASE) or offered_branch
+    branch_followup = (include_history and bool(history) and
+                       "cabang" in history[-1].content.lower() and branch_reply)
     next_step = re.search(
-        r"\b(booking|approve|lanjut(?:kan)?|cabang|alamat|lokasi|terdekat|"
+        r"\b(booking|approve|lanjut(?:kan)?|"
         r"(?:mau|jadi|ingin)\s+(?:pesan|pesen|memesan))\b",
         question, re.IGNORECASE,
     )

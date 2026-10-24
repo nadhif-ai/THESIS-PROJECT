@@ -1,5 +1,5 @@
 import type { EvaluationResult, Metric } from "@/lib/api";
-import { QA_RECIPE } from "@/lib/evaluation-metrics";
+import { percentage, QA_RECIPE } from "@/lib/evaluation-metrics";
 
 const number = (value: number) => Number(value.toFixed(4)).toString();
 const definitions = [
@@ -77,7 +77,7 @@ export function EvaluationMath({ result }: { result: EvaluationResult }) {
             <summary><strong>{name}</strong><span>{available.length}/{values.length} case scores available</span></summary>
             <p className="calculation-equation">
               {mean === null ? "Mean unavailable: no case scores were recorded." :
-                `${number(sum)} / ${available.length} = ${number(mean)}; × 100 = ${number(mean * 100)}%`}
+                `${number(sum)} / ${available.length} = ${number(mean)}; × 100 = ${percentage(mean)}`}
             </p>
             <p>{values.length - available.length} missing. Values below are rounded for display; the mean uses unrounded scores.</p>
             {mismatch && <p>The saved average differs from the case arithmetic above. The saved result has not been changed.</p>}
@@ -110,7 +110,7 @@ export function MetricMath({ metric }: { metric: Metric }) {
       <p className="calculation-equation">
         {calculation.denominator === 0
           ? `The denominator is zero. DeepEval returns ${calculation.empty_score} by convention; no 0/0 ratio is evaluated.`
-          : `${number(calculation.numerator)} / ${calculation.denominator} = ${number(calculation.numerator / calculation.denominator)}; × 100 = ${number(calculation.numerator / calculation.denominator * 100)}%`}
+          : `${number(calculation.numerator)} / ${calculation.denominator} = ${number(calculation.numerator / calculation.denominator)}; × 100 = ${percentage(calculation.numerator / calculation.denominator)}`}
       </p>
       {calculation.strict_mode && <p>DeepEval strict mode applies its configured threshold after this ratio.</p>}
       {calculation.k !== undefined && <p>Requested k: {calculation.k}. Returned passages: {calculation.returned}. Each reference fact is counted at most once.</p>}

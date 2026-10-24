@@ -5,6 +5,7 @@ import json
 import os
 import time
 import uuid
+from copy import deepcopy
 from importlib.metadata import version as package_version
 
 from langsmith import Client, trace, tracing_context
@@ -20,6 +21,7 @@ from testing.evals.metrics import (
     single_turn_metrics,
     conversational_metrics,
     judge,
+    judge_settings,
 )
 from testing.evals.runner import load_cases, SINGLE_TURN, _metric_results, report_metric
 from testing.evals.calculations import RECIPE, ANNOTATED_RECIPE, retrieval_manifest, retrieval_metrics
@@ -35,6 +37,7 @@ def submit(dataset, limit):
             "openrouter_model": settings.openrouter_model,
             "eval_model": settings.eval_model,
             "semantic_top_k": settings.semantic_top_k,
+            "product_intent_model": settings.product_intent_model,
         }
     )
     from app.admin.prompt_settings import active_snapshot
@@ -70,9 +73,41 @@ def submit_report(evaluation_id):
     return {"job_id": identifier}
 
 
+def submit_scoring_retry(evaluation_id):
+    source_job = store.job(evaluation_id)
+    if source_job and source_job["status"] in ("queued", "running"):
+        raise ValueError("Wait for the current run to finish before retrying its scoring.")
+    source = store.evaluation_result(evaluation_id)
+    if not source or source.get("dataset") not in SINGLE_TURN or not source.get("cases"):
+        raise ValueError("A saved single-question evaluation is required to retry scoring.")
+    if any(not c.get("answer") or not c.get("expected_output") or c.get("error") for c in source["cases"]):
+        raise ValueError("This run has missing answers or references. Start a new evaluation instead.")
+    result = deepcopy(source)
+    for key in ("completed_at", "project_id", "dataset_id", "experiment_url", "scoring_error"):
+        result.pop(key, None)
+    result.update(cases=[], averages={}, rescore_of=evaluation_id, started_at=store.now(),
+                  judge_settings=judge_settings(source["judge"]),
+                  source_judge_settings=source.get("judge_settings"), scoring_retry_policy="failed_only",
+                  reporting_error=None)
+    identifier = kb_store.create_scoring_retry(evaluation_id, {
+        "phase": "answering", "result": result, "saved_cases": source["cases"],
+        "rows": [{"id": c["id"], "question": c["input"], "ground_truth": c["expected_output"], "review_notes": c.get("reference_guidance")} for c in source["cases"]],
+    })
+    try:
+        durable_jobs.dispatch(identifier)
+    except RuntimeError:
+        return {"job_id": identifier, "dispatch_pending": True}
+    return {"job_id": identifier}
+
+
 def _report(state):
     result = state["result"]
     if not result.get("project_id"):
+        if result.get("rescore_of"):
+            result["reporting_error"] = None
+            result["reporting_note"] = "Scoring retry reuses original answer traces. No replacement LangSmith experiment was created."
+            state["phase"] = "completed"
+            return result, True
         result["reporting_error"] = (
             "No LangSmith experiment was created; saved scores remain available."
         )
@@ -105,6 +140,7 @@ def _prepare(identifier, state):
 
     snapshot, config = state.pop("snapshot"), state["configuration"]
     manifest = snapshot["manifest"]
+    from app.backend.retrieval_ranking import RETRIEVAL_RECIPE
     result = {
         "id": identifier,
         "dataset": json.loads(kb_store.work(identifier)["payload"])["dataset"],
@@ -113,7 +149,9 @@ def _prepare(identifier, state):
         "started_at": store.now(),
         "model": config["openrouter_model"],
         "judge": config["eval_model"],
+        "intent_model": config.get("product_intent_model", get_settings().product_intent_model),
         "runtime_top_k": config["semantic_top_k"],
+        "retrieval_recipe": RETRIEVAL_RECIPE,
         "chunking": manifest.get("chunking"),
         "corpus_sha256": manifest.get("corpus_sha256"),
         "embedding_model": manifest["embedding"]["model"],
@@ -127,12 +165,7 @@ def _prepare(identifier, state):
         "dataset_sha256": hashlib.sha256(
             json.dumps(state["rows"], sort_keys=True, ensure_ascii=False).encode()
         ).hexdigest(),
-        "judge_settings": {
-            "temperature": 0,
-            "max_tokens": 4096,
-            "reasoning_effort": "none",
-            "threshold": 0.7,
-        },
+        "judge_settings": judge_settings(config["eval_model"]),
         "cases": [],
         "experiment_name": f"avg-{identifier[:12]}",
         "reporting_error": None,
@@ -239,6 +272,8 @@ def _answer(identifier, state, row):
                     session_id=f"eval_{identifier}_{row['id']}",
                     namespace=result["namespace"],
                     channel="evaluation",
+                    history_turns=[],
+                    intent_model=result.get("intent_model"),
                     top_k=result["runtime_top_k"],
                     model=result["model"],
                     **({"prompt_config": captured_prompt} if captured_prompt else {}),
@@ -276,6 +311,7 @@ def _answer(identifier, state, row):
                         channel="evaluation",
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        intent_model=result.get("intent_model"),
                         **({"prompt_config": captured_prompt} if captured_prompt else {}),
                         history_turns=[
                             (turns[i].content, turns[i + 1].content)
@@ -373,7 +409,13 @@ def _step(identifier, state):
         return result, done
     row = state["rows"][len(result["cases"])]
     if phase == "answering":
-        _answer(identifier, state, row)
+        if state.get("saved_cases"):
+            saved = deepcopy(state["saved_cases"][len(result["cases"])])
+            saved["metrics"] = [metric for metric in saved.get("metrics", []) if metric.get("score") is not None and not metric.get("error")]
+            state["record"] = saved
+            state["phase"] = "scoring"
+        else:
+            _answer(identifier, state, row)
         return result, False
     record = state["record"]
     if not record.get("error"):
@@ -395,21 +437,28 @@ def _step(identifier, state):
                 context=row.get("context"),
             )
             metrics = conversational_metrics(result["judge"], result.get("evaluation_recipe"))
-        index = len(record["metrics"])
-        with tracing_context(
-            project_name=result["experiment_name"]
-            if result.get("project_id")
-            else os.getenv("LANGSMITH_PROJECT")
-        ):
-            with trace(
-                "evaluation-metric",
-                inputs={"case_id": row["id"], "metric": metrics[index].__name__},
-                metadata={
-                    "knowledge_version": result["knowledge_version"],
-                    "evaluation_id": identifier,
-                },
+        metric = next((metric for metric in metrics if not any(saved["name"] == metric.__name__ for saved in record["metrics"])), None)
+        if metric is not None:
+            with tracing_context(
+                project_name=result["experiment_name"]
+                if result.get("project_id")
+                else os.getenv("LANGSMITH_PROJECT")
             ):
-                record["metrics"].extend(_metric_results(case, [metrics[index]]))
+                with trace(
+                    "evaluation-metric",
+                    inputs={"case_id": row["id"], "metric": metric.__name__},
+                    metadata={
+                        "knowledge_version": result["knowledge_version"],
+                        "evaluation_id": identifier,
+                    },
+                ):
+                    record["metrics"].extend(_metric_results(case, [metric]))
+        if record["metrics"][-1].get("failure_kind") == "configuration":
+            result["scoring_error"] = record["metrics"][-1]["reason"]
+            result["cases"].append(state.pop("record"))
+            result["completed_at"] = store.now()
+            state["phase"] = "failed"
+            return result, True
         if len(record["metrics"]) < len(metrics):
             return result, False
         if result["dataset"] in SINGLE_TURN and result.get("evaluation_recipe") == ANNOTATED_RECIPE:
@@ -432,5 +481,9 @@ def _step(identifier, state):
                 ]
             ]
         }
+        if not any(m.get("score") is not None for c in result["cases"] for m in c["metrics"]):
+            result["scoring_error"] = "No evaluation scores were produced. Inspect the answer and scoring errors before retrying."
+            state["phase"] = "failed"
+            return result, True
         state["phase"] = "reporting"
     return result, False

@@ -22,12 +22,16 @@ class Chunking(BaseModel):
 
 
 LEGACY = {"chunk_size": 1500, "chunk_overlap": 200, "preprocessing": "legacy"}
+PREPROCESSING = "sections-v2"
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
 
 
-def split_document(document, config):
+def split_document(document, config, *, preprocessing=PREPROCESSING):
     # Separator-only passages are not business knowledge. Preserve actual prices and units.
-    text = re.sub(r"(?m)^[ \t]*[-_*]{3,}[ \t]*$", "", document.page_content)
+    separator = r"(?m)^[ \t]*[-_*]{3,}[ \t]*$"
+    if preprocessing == PREPROCESSING:
+        separator = r"(?m)^[ \t]*(?:#{1,6}[ \t]+)?[-_*]{3,}[ \t]*$"
+    text = re.sub(separator, "", document.page_content)
     sections = MarkdownHeaderTextSplitter(
         headers_to_split_on=[
             ("#", "section_1"),

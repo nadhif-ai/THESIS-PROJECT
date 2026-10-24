@@ -280,6 +280,14 @@ def create_report(evaluation_id, result):
     return identifier
 
 
+def create_scoring_retry(evaluation_id, checkpoint):
+    identifier = uuid.uuid4().hex
+    checkpoint["result"]["id"] = identifier
+    with store._connection("administration") as db:
+        _insert_job(db, identifier, "evaluate", {"rescore_of": evaluation_id}, checkpoint)
+    return identifier
+
+
 def claim(identifier, sequence):
     token = uuid.uuid4().hex
     with store._connection("execution") as db:

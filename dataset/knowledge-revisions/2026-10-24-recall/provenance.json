@@ -1,0 +1,177 @@
+{
+  "status": "activated",
+  "base_snapshot": "kb-0a4b41713f9e423799b20387bda6597b",
+  "base_source_revision": 15,
+  "source_id": "ae2852bc51ff4b588bee4ec0de5a1618",
+  "filename": "01_sop_dan_kebijakan_toko.txt",
+  "before_artifact": "dataset/knowledge-revisions/2026-10-24/01_sop_dan_kebijakan_toko.txt",
+  "before_sha256": "a71abb58643be1e5522cbcb6ba09c5e0c056914069f7ec4a677b63dad84ebd30",
+  "after_sha256": "4644272c85369c6de895eee7f38121126b6cd054a6f955806ed0d1e63205a1ed",
+  "base_hash_verified_against": "dataset/knowledge-revisions/2026-10-24/provenance.json",
+  "base_snapshot_live_revalidation_at_upload": "Verified by authenticated /admin/api/knowledge before Replace: namespace kb-0a4b41713f9e423799b20387bda6597b, revision 15, pending false, source SHA256 a71abb58643be1e5522cbcb6ba09c5e0c056914069f7ec4a677b63dad84ebd30; staged revision 16 matched replacement SHA256, Sync completed and activated 141 passages.",
+  "activated_snapshot": "kb-e622863bb58d4137b4e8bf7cf62a186e",
+  "sync_job": "e622863bb58d4137b4e8bf7cf62a186e",
+  "scope": "Move existing visitor facts into one bounded coherent section; preserve contacts, staff details and all remaining policies; no changed numeric business facts, prices, references or benchmark question examples.",
+  "fact_conservation": [
+    {
+      "fact": "weekday_open_close",
+      "before": [
+        "A. Hari Kerja Biasa (Senin s.d. Sabtu / Weekdays):",
+        "- Jam Operasional Toko: Pukul 08.30 WIB sampai dengan pukul 02.30 dini hari."
+      ],
+      "after": "Senin–Sabtu: 08.30–02.30 dini hari",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "weekday_new_order_cutoff",
+      "before": [
+        "A. Hari Kerja Biasa (Senin s.d. Sabtu / Weekdays):",
+        "- Batas Akhir Penerimaan Pesanan (Close Order): Pukul 01.30 dini hari."
+      ],
+      "after": "close order 01.30 dini hari",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "weekday_after_cutoff_scope",
+      "before": [
+        "- Setelah pukul 01.30 dini hari, sistem tidak lagi menerima pesanan baru. Toko hanya melayani proses penyelesaian cetak dan pengambilan pesanan pelanggan hingga pukul 02.30 dini hari."
+      ],
+      "after": "Setelah 01.30 hanya penyelesaian cetak dan pengambilan hingga 02.30 dini hari, tanpa pesanan baru",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "sunday_open_close",
+      "before": [
+        "B. Hari Minggu:",
+        "- Jam Operasional: Pukul 09.00 WIB sampai dengan pukul 21.00 malam."
+      ],
+      "after": "Minggu: 09.00–21.00 malam",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "sunday_new_order_cutoff",
+      "before": [
+        "B. Hari Minggu:",
+        "- Batas Akhir Penerimaan Pesanan (Close Order): Pukul 20.30 malam."
+      ],
+      "after": "Minggu: 09.00–21.00 malam; close order 20.30 malam",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "national_holiday_except_friday",
+      "before": [
+        "- Hari Libur Nasional selain Jumat: Buka pukul 12.00 siang sampai dengan pukul 21.00 malam."
+      ],
+      "after": "Libur nasional selain Jumat: 12.00 siang–21.00 malam",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "national_holiday_friday",
+      "before": [
+        "- Hari Libur Nasional yang jatuh pada hari Jumat: Buka pukul 13.00 siang (setelah ibadah shalat Jumat) sampai dengan pukul 21.00 malam."
+      ],
+      "after": "Libur nasional hari Jumat: 13.00 siang (setelah ibadah shalat Jumat)–21.00 malam",
+      "status": "preserved_reformatted",
+      "occurrences_in_replacement": 1
+    },
+    {
+      "fact": "business_profile",
+      "before": "CV. Asia Visual Grafika merupakan unit usaha percetakan digital (digital printing) yang beroperasi di wilayah Tangerang Selatan dan melayani kebutuhan cetak luar ruangan (outdoor), dalam ruangan (indoor), cetak lembaran digital A3+ (DocuPrint), dan merchandise promosi.",
+      "after": "CV. Asia Visual Grafika merupakan unit usaha percetakan digital (digital printing) yang beroperasi di wilayah Tangerang Selatan dan melayani kebutuhan cetak luar ruangan (outdoor), dalam ruangan (indoor), cetak lembaran digital A3+ (DocuPrint), dan merchandise promosi.",
+      "status": "verbatim_once"
+    },
+    {
+      "fact": "two_operational_branches",
+      "before": "Toko memiliki dua cabang layanan operasional:",
+      "after": "Toko memiliki dua cabang layanan operasional:",
+      "status": "verbatim_once"
+    },
+    {
+      "fact": "ciputat_primary_branch",
+      "before": "1. Cabang Utama (Ciputat Timur)",
+      "after": "Ciputat Timur (cabang utama):",
+      "status": "preserved_reformatted"
+    },
+    {
+      "fact": "pamulang_second_branch",
+      "before": "2. Cabang Kedua (Pamulang):",
+      "after": "Pamulang (cabang kedua):",
+      "status": "preserved_reformatted"
+    },
+    {
+      "fact": "full_addresses_maps_and_landmarks",
+      "before_lines": [
+        10,
+        11,
+        12,
+        16,
+        17,
+        18
+      ],
+      "status": "all_exact_values_preserved_once",
+      "addresses": [
+        "Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.",
+        "Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417."
+      ],
+      "map_urls": [
+        "https://maps.app.goo.gl/Z4MSgYVkeJ7MTHKdA",
+        "https://maps.app.goo.gl/MWsiFp5HXBQphXTK6"
+      ],
+      "landmarks": [
+        "Patokan: Tepat di seberang SPBU (Pom Bensin) Ciputat.",
+        "Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan."
+      ]
+    },
+    {
+      "fact": "branch_specific_submission_emails",
+      "before_lines": [
+        13,
+        19
+      ],
+      "after_heading": "EMAIL PENGIRIMAN BERKAS SESUAI CABANG",
+      "status": "exact_values_and_branch_associations_preserved_once",
+      "ciputat_email": "asiavisualgrafika@gmail.com",
+      "pamulang_email": "asiavisualgrafika2@gmail.com"
+    },
+    {
+      "fact": "contact_channels_and_phone_numbers",
+      "before_lines": [
+        21,
+        29
+      ],
+      "status": "entire_contact_block_verbatim_once",
+      "block_sha256": "52ba58a04b861971fe09dbdfbb152a84c3ec5b645a6f9c72d3bcab6d9990de62",
+      "admin1_phone": "0896-9241-1115"
+    },
+    {
+      "fact": "extended_hours_description",
+      "before": "CV. Asia Visual Grafika menerapkan jam operasional yang panjang guna memenuhi kebutuhan cetak mendesak:",
+      "after": "CV. Asia Visual Grafika menerapkan jam operasional yang panjang guna memenuhi kebutuhan cetak mendesak:",
+      "status": "verbatim_once_moved_to_staff_section"
+    },
+    {
+      "fact": "three_staff_shifts_and_break_coverage",
+      "before": "- Pelayanan kasir dan staf depan menerapkan sistem 3 shift kerja (Shift 1: 08.30–17.30, Shift 2: 13.00–22.00, Shift 3: 17.30–02.30 WIB) sehingga pada jam istirahat tetap ada staf yang berjaga melayani pelanggan.",
+      "after": "- Pelayanan kasir dan staf depan menerapkan sistem 3 shift kerja (Shift 1: 08.30–17.30, Shift 2: 13.00–22.00, Shift 3: 17.30–02.30 WIB) sehingga pada jam istirahat tetap ada staf yang berjaga melayani pelanggan.",
+      "status": "verbatim_sentence_preserved_once_with_original_weekday_scope",
+      "before_scope": "A. Hari Kerja Biasa (Senin s.d. Sabtu / Weekdays):",
+      "after_scope": "Hari Kerja Biasa (Senin s.d. Sabtu / Weekdays):"
+    },
+    {
+      "fact": "all_sections_from_order_workflow_onwards",
+      "before_start_line": 52,
+      "after_heading": "3. ALUR PEMESANAN DAN PENGAMBILAN PRODUK",
+      "status": "entire_remainder_byte_identical",
+      "sha256": "0020d4b3f74cca5c841459c6cc850f64a60140eed307c886f074d20ac9420e1f"
+    }
+  ],
+  "offline_split_proof": "chunking-proof.json",
+  "activated_revision": 16,
+  "activated_passages": 141
+}

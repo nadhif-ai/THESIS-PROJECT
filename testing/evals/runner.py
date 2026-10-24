@@ -16,7 +16,7 @@ from deepeval.simulator import ConversationSimulator
 
 from app.admin import store
 from app.config.settings import get_settings
-from testing.evals.metrics import single_turn_metrics, conversational_metrics, judge
+from testing.evals.metrics import single_turn_metrics, conversational_metrics, judge, judge_settings, JudgeConfigurationError, JudgeOutputError
 from testing.evals.calculations import (
     RECIPE, judge_calculation, retrieval_manifest,
 )
@@ -245,10 +245,11 @@ def _metric_results(case, metrics, progress=None):
                 {
                     "name": metric.__name__,
                     "score": None,
-                    "reason": None,
+                    "reason": str(error) if isinstance(error, (JudgeConfigurationError, JudgeOutputError)) else "The scoring request failed. No quality score was produced; inspect the provider and retry scoring.",
                     "threshold": metric.threshold,
                     "passed": None,
                     "error": type(error).__name__,
+                    "failure_kind": "configuration" if isinstance(error, JudgeConfigurationError) else "scoring",
                 }
             )
         if progress:
@@ -313,6 +314,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
         "openrouter_model": s.openrouter_model,
         "eval_model": s.eval_model,
         "semantic_top_k": s.semantic_top_k,
+        "product_intent_model": s.product_intent_model,
     })
     folder = store.data_path() / "evaluations" / job_id
     folder.mkdir(parents=True, exist_ok=True)
@@ -324,6 +326,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
         "started_at": store.now(),
         "model": configuration["openrouter_model"],
         "judge": configuration["eval_model"],
+        "intent_model": configuration.get("product_intent_model", s.product_intent_model),
         "runtime_top_k": configuration["semantic_top_k"],
         "chunking": item["manifest"].get(
             "chunking",
@@ -369,12 +372,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
     result["dataset_sha256"] = hashlib.sha256(
         json.dumps(rows, sort_keys=True, ensure_ascii=False).encode()
     ).hexdigest()
-    result["judge_settings"] = {
-        "temperature": 0,
-        "max_tokens": 4096,
-        "reasoning_effort": "none",
-        "threshold": 0.7,
-    }
+    result["judge_settings"] = judge_settings(result["judge"])
     for row in rows:
         progress(phase="answering", case_id=row["id"], case_label=row.get("question") or row.get("scenario"), metric=None, metrics_completed=0, metrics_total=0)
         with tracing_context(
@@ -400,8 +398,10 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                         session_id=f"eval_{job_id}_{row['id']}",
                         namespace=item["namespace"],
                         channel="evaluation",
+                        history_turns=[],
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        intent_model=result.get("intent_model"),
                         prompt_config=captured_prompt,
                     )
                     record.update(
@@ -442,6 +442,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                             channel="evaluation",
                             top_k=result["runtime_top_k"],
                             model=result["model"],
+                            intent_model=result.get("intent_model"),
                             prompt_config=captured_prompt,
                             history_turns=[
                                 (turns[i].content, turns[i + 1].content)

@@ -85,6 +85,7 @@ def test_single_question(row, chain, knowledge_snapshot):
                 question=row["question"],
                 session_id="eval-pytest-" + uuid.uuid4().hex,
                 channel="evaluation",
+                history_turns=[],
                 namespace=selected["namespace"],
                 model=config["openrouter_model"], top_k=config["semantic_top_k"],
                 prompt_config=config["prompt_snapshot"],

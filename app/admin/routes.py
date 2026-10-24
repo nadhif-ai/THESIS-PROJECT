@@ -328,6 +328,7 @@ def provider_settings(values):
     return {
         "openrouter_model": s.openrouter_model,
         "eval_model": s.eval_model,
+        "product_intent_model": s.product_intent_model,
         "semantic_top_k": s.semantic_top_k,
         **values,
         "embedding_model": s.embedding_model,
@@ -387,12 +388,18 @@ class ProviderSettings(BaseModel):
         min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:-]+$"
     )
     semantic_top_k: int = Field(ge=1, le=20)
+    product_intent_model: str | None = Field(
+        default=None, min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:-]+$"
+    )
 
 
 @protected.put("/settings")
 def save_settings(body: ProviderSettings):
-    store.set_settings(body.model_dump())
-    return provider_settings(body.model_dump())
+    store.set_settings(body.model_dump(exclude_none=True))
+    return provider_settings(store.get_settings_values({
+        **body.model_dump(exclude_none=True),
+        "product_intent_model": body.product_intent_model or get_settings().product_intent_model,
+    }))
 
 
 @protected.get("/jobs")
@@ -432,6 +439,15 @@ def resume_job(job_id: str):
         durable_jobs.resume(job_id)
         return {"job_id": job_id}
     except (ValueError, RuntimeError) as error:
+        raise HTTPException(400, str(error)) from None
+
+
+@protected.post("/evaluations/{evaluation_id}/rescore")
+def rescore_evaluation(evaluation_id: str):
+    from testing.evals.durable import submit_scoring_retry
+    try:
+        return submit_scoring_retry(evaluation_id)
+    except ValueError as error:
         raise HTTPException(400, str(error)) from None
 
 

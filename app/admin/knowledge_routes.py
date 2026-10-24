@@ -3,7 +3,7 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 
 from app.admin import durable_jobs, global_knowledge, kb_store, source_storage
-from app.admin.chunking import Chunking
+from app.admin.chunking import Chunking, PREPROCESSING
 
 router = APIRouter(prefix="/knowledge", tags=["Knowledge"])
 
@@ -112,7 +112,7 @@ def configure(body: Chunking):
     try:
         if body.chunk_overlap > body.chunk_size // 2:
             raise ValueError("Overlap must be at most half the chunk size.")
-        kb_store.configure({**body.model_dump(), "preprocessing": "sections-v1"})
+        kb_store.configure({**body.model_dump(), "preprocessing": PREPROCESSING})
         return {"ok": True}
     except ValueError as error:
         raise invalid(error) from None

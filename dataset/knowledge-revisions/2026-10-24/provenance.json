@@ -1,0 +1,36 @@
+{
+  "original_snapshot": "kb-ecaf24265cfa46cab72f1d24f2c29ce0",
+  "activated_snapshot": "kb-0a4b41713f9e423799b20387bda6597b",
+  "sync_job": "0a4b41713f9e423799b20387bda6597b",
+  "source_revision": 15,
+  "chunking_before": {
+    "chunk_size": 1000,
+    "chunk_overlap": 100,
+    "preprocessing": "sections-v1"
+  },
+  "chunking_after": {
+    "chunk_size": 1000,
+    "chunk_overlap": 100,
+    "preprocessing": "sections-v2"
+  },
+  "changes": [
+    {
+      "name": "01_sop_dan_kebijakan_toko.txt",
+      "source_id": "ae2852bc51ff4b588bee4ec0de5a1618",
+      "before_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+      "after_sha256": "a71abb58643be1e5522cbcb6ba09c5e0c056914069f7ec4a677b63dad84ebd30"
+    },
+    {
+      "name": "04_daftar_estimasi_harga.txt",
+      "source_id": "36f51e8a65d64ff8b782187c47b68720",
+      "before_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+      "after_sha256": "e47b67626e0e5a98fe6582bb55684d04799006e602088862e79d6f148f0edffe"
+    },
+    {
+      "name": "06_estimasi_pcs_per_lembar_a3.txt",
+      "source_id": "aea30213c78a4e5d819d2ae2dd199069",
+      "before_sha256": "d072075361d140e615738d90ac73640a9e2a767014f7edcffdf3998e5ddd2181",
+      "after_sha256": "1f9e13352fdf7909b68e5f84a54adb0f266aec63ee398f61f0c7b433a52971ed"
+    }
+  ]
+}

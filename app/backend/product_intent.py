@@ -63,7 +63,18 @@ Only show/compare/repeat when a visual is requested. Price, material, shipping, 
 questions alone are action none. Do not infer a visual request from discussing a new product.
 Current explicit product overrides previous focus. Implicit 'itu/gambarnya/kirim lagi' can use unambiguous
 focus or conversation. Unknown or ambiguous products require clarification; never invent an ID.
+Resolution describes interpretation of the request, not whether pricing, stock or an image is available.
+A clear nonvisual request may be resolved with no product IDs. Use resolved when the needed canonical
+identity, contextual reference and requested view are clear; use unsupported only for a requested
+product or operation outside the supported vocabulary. Use ambiguous only when a distinction in
+identity, reference or view needs customer input, and ask a concrete nonempty clarification question
+about that distinction. Keep clarification empty when resolved.
 A broad family that maps to several products is ambiguous without a subtype or validated focus.
+First narrow identity using the explicit product, format, sales unit and subtype. Declare family
+ambiguity only when multiple canonical products still fit those details; do not ask for a distinction
+already supplied. Missing material or finishing does not make an identified family ambiguous: leave
+unstated attributes absent. Preserve ambiguity when details conflict. Identifying a product family
+does not establish that a cutting method or finishing option was requested.
 In particular, generic 'stiker/sticker' could mean meteran or A3/kiss cut; generic 'kartu' could mean
 ID card or kartu nama. Ask which; never choose the first vocabulary entry. 'apapun' explicitly allows
 representative choice. A prior unrelated product does not disambiguate a newly named family.
@@ -90,12 +101,16 @@ Never generate prices, URLs, or asset IDs. Do not set resolution failed yourself
 
 PROMPT_SHA256 = hashlib.sha256(_INSTRUCTIONS.encode()).hexdigest()
 
-def extract(question, history=(), focus=(), *, visual_vocabulary=None):
+def extract(question, history=(), focus=(), *, visual_vocabulary=None, model=None):
     messages = [SystemMessage(content=_INSTRUCTIONS + '\nCanonical products: ' + json.dumps(PRODUCTS) + '\nVisual attribute vocabulary (not prices or order availability): ' + json.dumps(visual_vocabulary or {})),
                 *history,
                 HumanMessage(content=json.dumps({'validated_focus': list(focus), 'current_message': question}, ensure_ascii=False))]
     try:
-        output, usage = structured_response(ProductIntent.model_json_schema(), messages, timeout=20)
+        schema = ProductIntent.model_json_schema()
+        schema['properties']['resolution']['enum'].remove('failed')
+        output, usage = structured_response(schema, messages, timeout=20, **({'model': model} if model else {}))
+        if isinstance(output, dict) and output.get('resolution') == 'failed':
+            output = {**output, 'resolution': 'ambiguous'}
         intent = ProductIntent.model_validate(output)
         intent._usage = usage
         return intent

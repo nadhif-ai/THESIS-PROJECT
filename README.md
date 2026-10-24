@@ -177,6 +177,7 @@ Evaluasi berbayar tidak diperlukan untuk memeriksa instalasi ini. Dependency Chr
 | `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | Indeks `chatbot-nadhif`, vector dense **2048 dimensi, cosine** |
 | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | Provider dan model pemberi jawaban |
 | `EVAL_MODEL` | Model judge terpisah; default `google/gemini-2.5-flash` |
+| `PRODUCT_INTENT_MODEL` | Model klasifikasi permintaan produk/gambar; default `openai/gpt-4.1`. Pilihan tersimpan di Providers menggantikan default untuk permintaan berikutnya. |
 | `SEMANTIC_TOP_K` | Jumlah passage untuk jawaban; dapat diubah di Providers |
 | `LANGSMITH_TRACING`, `LANGSMITH_ENDPOINT`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` | Trace dan laporan evaluasi |
 | `LANGSMITH_WORKSPACE_ID` | Opsional jika key LangSmith memerlukan workspace organisasi |
@@ -197,10 +198,11 @@ Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di Postg
 2. **Knowledge**: satu daftar sumber TXT/PDF teks. Upload langsung ke private Supabase Storage; preview file asli, teks dan passage. TXT dapat diedit; PDF diganti lewat **Replace**. Switch aktif/nonaktif dan hapus per sumber baru berlaku setelah **Sync knowledge**. Batas per file 10 MB, PDF 300 halaman, hasil ekstraksi 1 MB UTF-8; PDF scan memerlukan OCR sebelum upload.
    Di **Passage configuration**, simpan ukuran karakter dan overlap. Migrasi awal mempertahankan konfigurasi aktif 1.500/200 dengan preprocessing legacy; instalasi kosong dimulai 1.000/100. Menyimpan konfigurasi baru memakai pemisahan section dengan heading pada passage. Nilai karakter berbeda dari token. Embedding tetap Nemotron/OpenRouter 2.048 dimensi di `chatbot-nadhif`.
 3. **Playground**: knowledge tersinkron terbaru, tanpa pemilih versi; lihat konteks/sumber, penggunaan token, dan trace LangSmith. Sesi playground terpisah dari pelanggan.
+   Retrieval bersama mengambil kandidat semantik, menggabungkan peringkat BM25/RRF, lalu memakai `bge-reranker-v2-m3` melalui Pinecone Inference sebelum memilih top-k. Reranking memakai akun Pinecone yang sama dan menambah penggunaan inference. Kegagalan provider dibatasi timeout dan kembali ke urutan RRF dengan metadata `rerank_fallback`; periksa evidence sebelum menyimpulkan semua run memakai reranker. Cosine distance dan skor reranker tetap terpisah, bukan confidence jawaban. [Protokol dan hasil studi precision](docs/research/2026-10-24-rag-precision-study.md).
 4. **Sync knowledge** membangun namespace pengganti, memverifikasi vector, lalu mengaktifkannya secara atomik. Editing Knowledge terkunci selama sinkronisasi; data sebelumnya tetap melayani hingga penggantinya siap. Jika semua sumber nonaktif/dihapus, bot menjawab “Maaf Kak, informasi tersebut belum tersedia saat ini.” Evaluasi baru memerlukan knowledge yang dapat dicari.
 5. **Conversations**: filter WhatsApp, playground, API, atau evaluasi. Riwayat lama diimpor sekali tanpa mengubah file asal.
-6. **Providers**: model jawaban, model judge, top-k, dan status konfigurasi kredensial.
-7. **Evaluations**: jalankan pertanyaan asli atau skenario percakapan yang telah direview; periksa skor/alasan per kasus, ekspor JSON, dan buka eksperimen LangSmith.
+6. **Providers**: pilihan model jawaban, model judge, model intent produk/gambar, top-k, dan status konfigurasi kredensial. Pilihan model saat ini tetap tersedia di dropdown bersama opsi yang disediakan.
+7. **Evaluations**: jalankan pertanyaan asli atau skenario percakapan yang telah direview. Filter riwayat berdasarkan status/jenis tugas, lalu buka **Inspect result** untuk skor, jawaban, referensi, dan evidence per kasus di tampilan terpisah (`?run=ID`). **Back to evaluation history** mengembalikan filter, posisi scroll, dan fokus ke run sebelumnya. Ekspor JSON dan eksperimen LangSmith tetap tersedia.
 
 Sinkronisasi dan evaluasi memakai checkpoint PostgreSQL, lease eksekusi dan Vercel Queues; lokal menjalankan state machine yang sama. Evaluasi menangkap knowledge, dataset dan konfigurasi model saat Mulai, konsisten walaupun sync lain selesai. **Resume** meneruskan checkpoint setelah kegagalan; panggilan provider yang terputus sebelum checkpoint mungkin terulang. File/vector lama dibersihkan setelah grace 24 jam dan tidak dipin konfigurasi/pekerjaan yang masih memerlukannya. [Kontrak dan prosedur migrasi KB global](docs/single-knowledge-base.md).
 
