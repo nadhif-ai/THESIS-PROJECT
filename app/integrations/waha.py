@@ -18,6 +18,7 @@ from app.admin import store
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 router = APIRouter(prefix="/chat/waha", tags=["2. Integrasi WhatsApp"])
 _wake = threading.Event()
 _stop = threading.Event()
@@ -109,8 +110,12 @@ def send_reply(row):
         try:
             result = api("POST", path, {**base, **payload}, timeout=timeout)
             identifier = _reply_id(result)
-        except requests.RequestException:
-            store.checkpoint_delivery_part(row, name, "uncertain", error="Provider outcome unknown; inspect before retrying.")
+        except requests.RequestException as error:
+            item = hashlib.sha256(row["message_id"].encode()).hexdigest()[:12]
+            logger.warning("WhatsApp phase=delivery_uncertain item=%s part=%s error=%s",
+                           item, name, type(error).__name__)
+            store.checkpoint_delivery_part(row, name, "uncertain",
+                                           error=f"{type(error).__name__}: provider outcome unknown; inspect before retrying.")
             return "uncertain"
         except ValueError:
             store.checkpoint_delivery_part(row, name, "failed", error="Provider rejected this delivery part.")
@@ -222,7 +227,7 @@ def process(row):
                 return
         logger.info("WhatsApp phase=sending item=%s generation_ms=%.1f", item, (time.monotonic()-started)*1000)
         send_reply(row)
-        logger.info("WhatsApp phase=sent item=%s total_ms=%.1f", item, (time.monotonic()-started)*1000)
+        logger.info("WhatsApp phase=delivery_completed item=%s total_ms=%.1f", item, (time.monotonic()-started)*1000)
     except store.StateUnavailable:
         # Let durable delivery retry; a transient database outage is not a failed customer answer.
         raise

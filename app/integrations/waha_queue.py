@@ -5,11 +5,12 @@ import logging
 import os
 
 import anyio
-from vercel.queue import DuplicateIdempotencyKeyError, QueueClient, subscribe
+from vercel.queue import DuplicateIdempotencyKeyError, QueueClient, RetryAfter, subscribe
 
 from app.admin import store
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 TOPIC = "whatsapp-replies"
 
 
@@ -40,7 +41,9 @@ def consume(payload):
     state = store.get_inbox(session, message_id)
     if state is None or state["status"] in ("queued", "generating", "sending"):
         # Another invocation owns this chat, or an interrupted generation needs its lease to expire.
-        raise RuntimeError("Inbox item is pending; retry queue delivery.")
+        logger.info("WhatsApp phase=deferred item=%s status=%s retry_seconds=10",
+                    item, state["status"] if state else "missing")
+        raise RetryAfter(10)
     logger.info("WhatsApp phase=finished item=%s status=%s", item, state["status"])
 
 
