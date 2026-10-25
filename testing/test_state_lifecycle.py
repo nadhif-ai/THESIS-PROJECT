@@ -23,9 +23,10 @@ def test_startup_is_read_only(pg_live, monkeypatch):
     assert store.list_job_rows()[0]['status']=='running'
 
 
-def test_startup_rejects_an_incompatible_pinecone_index(monkeypatch):
+def test_startup_rejects_an_incompatible_pinecone_index(pg_live, monkeypatch):
     from app import dependencies
     from app.backend import vectorstore
+    seed_published()
 
     monkeypatch.setattr(dependencies, '_rag_chain', None)
     monkeypatch.setattr(store, 'check_ready', lambda: None)
@@ -35,8 +36,7 @@ def test_startup_rejects_an_incompatible_pinecone_index(monkeypatch):
     monkeypatch.setattr(vectorstore, 'get_vectorstore', incompatible)
     with pytest.raises(ValueError, match='384-dimensional'):
         dependencies.initialize_rag_system()
-    with pytest.raises(RuntimeError, match='not initialized'):
-        dependencies.get_rag_chain()
+    assert dependencies._rag_chain is None
 
 
 def test_startup_rejects_published_vectors_from_another_model(pg_live, monkeypatch):

@@ -1,0 +1,29 @@
+{
+  "mode": "offline_no_api_or_database_access",
+  "chunking": {
+    "chunk_size": 1000,
+    "chunk_overlap": 100,
+    "preprocessing": "sections-v2"
+  },
+  "before_source_chunk_count": 15,
+  "after_source_chunk_count": 14,
+  "max_after_chunk_characters": 985,
+  "visit_chunk_count": 1,
+  "visit_chunk_characters": 981,
+  "visit_chunk_sha256": "4402f72127d386d7fc36b4f28ee7c60a05d420a24bcb631f4988433ad8ec7ff4",
+  "visit_chunk_text": "CV. ASIA VISUAL GRAFIKA > 1. PROFIL TOKO DAN CABANG > KUNJUNGAN GERAI: ALAMAT, PETA DAN JAM LAYANAN\n\nToko memiliki dua cabang layanan operasional:\nCiputat Timur (cabang utama): Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.\nPeta: https://maps.app.goo.gl/Z4MSgYVkeJ7MTHKdA\nPatokan: Tepat di seberang SPBU (Pom Bensin) Ciputat.\nPamulang (cabang kedua): Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417.\nPeta: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6\nPatokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.\nJam layanan (WIB):\n- Senin–Sabtu: 08.30–02.30 dini hari; close order 01.30 dini hari. Setelah 01.30 hanya penyelesaian cetak dan pengambilan hingga 02.30 dini hari, tanpa pesanan baru.\n- Minggu: 09.00–21.00 malam; close order 20.30 malam.\n- Libur nasional selain Jumat: 12.00 siang–21.00 malam.\n- Libur nasional hari Jumat: 13.00 siang (setelah ibadah shalat Jumat)–21.00 malam.",
+  "visit_chunk_metadata": {
+    "source": "01_sop_dan_kebijakan_toko.txt",
+    "section_1": "CV. ASIA VISUAL GRAFIKA",
+    "section_2": "1. PROFIL TOKO DAN CABANG",
+    "section_3": "KUNJUNGAN GERAI: ALAMAT, PETA DAN JAM LAYANAN"
+  },
+  "all_branch_addresses_maps_landmarks_and_customer_schedules_in_one_node": true,
+  "emails_contacts_and_staff_shifts_outside_visit_node": true,
+  "urls_exact_multiset_unchanged": true,
+  "emails_exact_multiset_unchanged": true,
+  "contact_block_verbatim_once": true,
+  "staff_shift_sentence_verbatim_once": true,
+  "remainder_from_section_3_byte_identical": true,
+  "staff_shift_original_weekday_scope_preserved": true
+}

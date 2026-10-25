@@ -7,6 +7,12 @@ Terms used when discussing the business chatbot, its administration, and the the
 **Customer conversation**:
 A customer's exchange of messages with the business chatbot, including follow-up questions that depend on earlier messages.
 
+**Print inquiry summary**:
+A summary of a customer's intended print specifications and unresolved details for review by store staff. It is not a confirmed order or a reservation in the production queue.
+
+**Preferred branch**:
+The store branch a customer chooses for continuing a print inquiry.
+
 **Knowledge base**:
 The business information maintained for the chatbot to answer questions about Asia Visual Grafika's services, requirements, and policies.
 _Avoid_: Knowledge database when referring to the business information itself.
@@ -34,3 +40,18 @@ A reviewed answer that describes the business facts an evaluation case expects t
 
 **Evaluation scenario**:
 A customer question or conversation with a defined expected answer or outcome used to assess the chatbot.
+
+**Product group**:
+One of the seven agreed catalog groupings of printing products. A group can contain several distinct products, such as ID cards and business cards.
+
+**Catalog image**:
+A visual example associated with a printing product or its variants. The initial catalog images are AI-generated illustrations, rather than photographs of actual shop stock.
+
+**Approved catalog image**:
+A catalog image the business has approved for showing to customers. Approval does not turn an illustration into evidence of exact material properties or current prices.
+
+**Variant comparison image**:
+A catalog image that presents several identified product forms, materials, or finishes together to help customers compare their appearance.
+
+**Customer image request**:
+A customer's request to see a product illustration, including a contextual follow-up such as asking to see the image again. A price, material, or shipping question alone is not an image request.

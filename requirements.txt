@@ -9,6 +9,7 @@ pydantic==2.12.5
 pydantic-settings==2.12.0
 psycopg[binary]==3.3.6
 psycopg-pool==3.3.3
+vercel-queue==0.9.2             # request-bound private WhatsApp consumers on Vercel
 python-dotenv==1.2.1            # membaca file .env
 
 # --- RAG ---
@@ -20,6 +21,7 @@ langchain-text-splitters==1.1.0
 # --- Pendukung ---
 pandas==2.3.3
 requests==2.32.5                # WhatsApp transport (WAHA / legacy Fonnte)
+Pillow==12.0.0                  # decode and verify catalog image uploads
 pypdf==6.7.2                    # opsional: hanya jika mengunggah KB berformat PDF
 pinecone==7.3.0
 deepeval==4.2.8

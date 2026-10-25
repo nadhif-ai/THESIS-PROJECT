@@ -1,0 +1,34 @@
+{
+  "url": "http://127.0.0.1:8000/admin/playground",
+  "observed_at": "2026-10-18T15:31:57.403Z",
+  "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+  "prompt_is_default": true,
+  "prompt_characters": 1887,
+  "knowledge": {
+    "id": "kb-25f39a6805154e86a7507bb93ce1c758",
+    "namespace": "kb-25f39a6805154e86a7507bb93ce1c758",
+    "passages": 95,
+    "chunking": {
+      "chunk_size": 1500,
+      "chunk_overlap": 200,
+      "preprocessing": "legacy"
+    },
+    "files": [
+      "01_sop_dan_kebijakan_toko.txt",
+      "02_spesifikasi_bahan_dan_finishing.txt",
+      "03_panduan_berkas_siap_cetak.txt",
+      "04_daftar_estimasi_harga.txt",
+      "05_daftar_pertanyaan_populer.txt",
+      "06_estimasi_pcs_per_lembar_a3.txt"
+    ],
+    "embedding": {
+      "model": "nvidia/nemotron-3-embed-1b:free",
+      "provider": "openrouter",
+      "dimensions": 2048,
+      "normalization": "l2",
+      "input_contract": "nvidia-query-passage-v1"
+    },
+    "index": "chatbot-nadhif"
+  },
+  "effective_answer_model": "openai/gpt-6-luna"
+}

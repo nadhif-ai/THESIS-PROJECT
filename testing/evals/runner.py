@@ -16,7 +16,10 @@ from deepeval.simulator import ConversationSimulator
 
 from app.admin import store
 from app.config.settings import get_settings
-from testing.evals.metrics import single_turn_metrics, conversational_metrics, judge
+from testing.evals.metrics import single_turn_metrics, conversational_metrics, judge, judge_settings, JudgeConfigurationError, JudgeOutputError
+from testing.evals.calculations import (
+    RECIPE, judge_calculation, retrieval_manifest,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATASET = Path(__file__).with_name(".dataset.json")
@@ -48,8 +51,8 @@ def dataset_status(kind="conversations"):
         rows = qa_rows()
         return {
             "exists": True,
-            "reviewed": QA_REVIEW.exists()
-            and json.loads(QA_REVIEW.read_text()).get("sha256") == digest,
+            "reviewed": (QA_REVIEW.exists() and json.loads(QA_REVIEW.read_text()).get("sha256") == digest)
+            or store.get_setting("dataset_review:audited", {}).get("sha256") == digest,
             "sha256": digest,
             "count": sum(row.get("review_status") != "hold" for row in rows),
             "held_count": sum(row.get("review_status") == "hold" for row in rows),
@@ -61,8 +64,8 @@ def dataset_status(kind="conversations"):
     digest = hashlib.sha256(DATASET.read_bytes()).hexdigest()
     stale = STALE.exists() and json.loads(STALE.read_text()).get("sha256") == digest
     reviewed = (
-        REVIEW.exists()
-        and json.loads(REVIEW.read_text()).get("sha256") == digest
+        ((REVIEW.exists() and json.loads(REVIEW.read_text()).get("sha256") == digest)
+         or store.get_setting("dataset_review:conversations", {}).get("sha256") == digest)
         and not stale
     )
     rows = candidate_rows()
@@ -94,12 +97,7 @@ def mark_reviewed(kind="conversations"):
                 raise ValueError(
                     "Each QA case needs a question, reference, review notes and valid status."
                 )
-        QA_REVIEW.write_text(
-            json.dumps(
-                {"sha256": status["sha256"], "reviewed_at": store.now()}, indent=2
-            )
-            + "\n"
-        )
+        store.set_settings({"dataset_review:audited": {"sha256": status["sha256"], "reviewed_at": store.now()}})
         return dataset_status(kind)
     status = dataset_status()
     if not status["exists"]:
@@ -118,10 +116,7 @@ def mark_reviewed(kind="conversations"):
         )
         if not golden.scenario or not golden.expected_outcome:
             raise ValueError("Every scenario needs a reviewed expected outcome.")
-    REVIEW.write_text(
-        json.dumps({"sha256": status["sha256"], "reviewed_at": store.now()}, indent=2)
-        + "\n"
-    )
+    store.set_settings({"dataset_review:conversations": {"sha256": status["sha256"], "reviewed_at": store.now()}})
     return dataset_status()
 
 
@@ -241,6 +236,8 @@ def _metric_results(case, metrics, progress=None):
                     "reason": metric.reason,
                     "threshold": metric.threshold,
                     "passed": metric.is_successful(),
+                    "method": "llm_judge",
+                    "calculation": judge_calculation(metric, case),
                 }
             )
         except Exception as error:
@@ -248,10 +245,11 @@ def _metric_results(case, metrics, progress=None):
                 {
                     "name": metric.__name__,
                     "score": None,
-                    "reason": None,
+                    "reason": str(error) if isinstance(error, (JudgeConfigurationError, JudgeOutputError)) else "The scoring request failed. No quality score was produced; inspect the provider and retry scoring.",
                     "threshold": metric.threshold,
                     "passed": None,
                     "error": type(error).__name__,
+                    "failure_kind": "configuration" if isinstance(error, JudgeConfigurationError) else "scoring",
                 }
             )
         if progress:
@@ -299,6 +297,9 @@ def _sync_dataset(client, name, rows, kind):
 def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configuration=None):
     from app.dependencies import get_rag_chain
     from app.admin.jobs import update_progress
+    from app.admin.prompt_settings import active_snapshot
+
+    captured_prompt = active_snapshot()
 
     def progress(**fields):
         update_progress(job_id, **fields)
@@ -313,6 +314,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
         "openrouter_model": s.openrouter_model,
         "eval_model": s.eval_model,
         "semantic_top_k": s.semantic_top_k,
+        "product_intent_model": s.product_intent_model,
     })
     folder = store.data_path() / "evaluations" / job_id
     folder.mkdir(parents=True, exist_ok=True)
@@ -324,13 +326,15 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
         "started_at": store.now(),
         "model": configuration["openrouter_model"],
         "judge": configuration["eval_model"],
+        "intent_model": configuration.get("product_intent_model", s.product_intent_model),
         "runtime_top_k": configuration["semantic_top_k"],
         "chunking": item["manifest"].get(
             "chunking",
             {"chunk_size": 1500, "chunk_overlap": 200, "preprocessing": "legacy"},
         ),
         "corpus_sha256": item["manifest"].get("corpus_sha256"),
-        "evaluation_recipe": "retrieval-precision-recall-v1",
+        "evaluation_recipe": RECIPE if dataset in SINGLE_TURN else "conversation-v2",
+        "retrieval_manifest": retrieval_manifest(item["records"]),
         "embedding_model": item["manifest"]["embedding"]["model"],
         "embedding": item["manifest"]["embedding"],
         "vector_index": item["manifest"]["vector_index"],
@@ -338,6 +342,8 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
         "cases": [],
         "experiment_name": f"avg-{dataset}-{job_id[:12]}",
         "reporting_error": None,
+        "prompt_snapshot": captured_prompt,
+        "prompt_sha256": captured_prompt["sha256"],
     }
     client = Client()
     examples = {}
@@ -363,16 +369,10 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
     except Exception as error:
         result["reporting_error"] = type(error).__name__
     chain = get_rag_chain()
-    result["prompt_sha256"] = chain.prompt_fingerprint
     result["dataset_sha256"] = hashlib.sha256(
         json.dumps(rows, sort_keys=True, ensure_ascii=False).encode()
     ).hexdigest()
-    result["judge_settings"] = {
-        "temperature": 0,
-        "max_tokens": 4096,
-        "reasoning_effort": "none",
-        "threshold": 0.7,
-    }
+    result["judge_settings"] = judge_settings(result["judge"])
     for row in rows:
         progress(phase="answering", case_id=row["id"], case_label=row.get("question") or row.get("scenario"), metric=None, metrics_completed=0, metrics_total=0)
         with tracing_context(
@@ -398,8 +398,11 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                         session_id=f"eval_{job_id}_{row['id']}",
                         namespace=item["namespace"],
                         channel="evaluation",
+                        history_turns=[],
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        intent_model=result.get("intent_model"),
+                        prompt_config=captured_prompt,
                     )
                     record.update(
                         input=row["question"],
@@ -409,6 +412,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                         usage=answer.usage,
                         latency_seconds=answer.latency_seconds,
                         reference_guidance=row.get("review_notes"),
+                        retrieval_annotations=row.get("retrieval_annotations"),
                     )
                     if answer.error:
                         record["error"] = answer.error
@@ -438,6 +442,13 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                             channel="evaluation",
                             top_k=result["runtime_top_k"],
                             model=result["model"],
+                            intent_model=result.get("intent_model"),
+                            prompt_config=captured_prompt,
+                            history_turns=[
+                                (turns[i].content, turns[i + 1].content)
+                                for i in range(0, len(turns) - 1, 2)
+                                if turns[i].role == "user" and turns[i + 1].role == "assistant"
+                            ],
                         )
                         if response.error:
                             raise ValueError(response.error)
@@ -506,6 +517,21 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
     return retry_report(job_id)
 
 
+def report_metric(client, result, row, score):
+    if score.get("status") == "unavailable":
+        return
+    identifier = str(uuid.uuid5(uuid.UUID(row["trace_id"]), score["name"]))
+    try:
+        client.read_feedback(identifier)
+    except LangSmithNotFoundError:
+        client.create_feedback(
+            run_id=row["trace_id"], key=score["name"], score=score["score"],
+            comment=score.get("reason") or score.get("error"), feedback_id=identifier,
+            session_id=result["project_id"], error=score["score"] is None,
+            source_info={"framework": score.get("method", "deepeval"), "threshold": score.get("threshold"),
+                         "version": result["evaluation_recipe"] if score.get("method") else result["deepeval_version"]})
+
+
 def retry_report(evaluation_id):
     if not evaluation_id.isalnum():
         raise ValueError("Invalid evaluation ID.")
@@ -522,24 +548,7 @@ def retry_report(evaluation_id):
             )
         for row in result["cases"]:
             for score in row["metrics"]:
-                identifier = str(uuid.uuid5(uuid.UUID(row["trace_id"]), score["name"]))
-                try:
-                    client.read_feedback(identifier)
-                except LangSmithNotFoundError:
-                    client.create_feedback(
-                        run_id=row["trace_id"],
-                        key=score["name"],
-                        score=score["score"],
-                        comment=score.get("reason") or score.get("error"),
-                        feedback_id=identifier,
-                        session_id=result["project_id"],
-                        error=score["score"] is None,
-                        source_info={
-                            "framework": "deepeval",
-                            "threshold": score["threshold"],
-                            "version": result["deepeval_version"],
-                        },
-                    )
+                report_metric(client, result, row, score)
         result["reporting_error"] = None
         project = client.read_project(project_id=result["project_id"])
         result["experiment_url"] = project.url

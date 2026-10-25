@@ -1,0 +1,346 @@
+[
+  {
+    "id": "retrieval-final-holdout-01",
+    "input": "Kak, mau kirim desain siap cetak ke cabang Ciputat, email pengirimannya ke mana ya?",
+    "actual_output": null,
+    "expected_output": "Untuk pengiriman berkas siap cetak ke cabang Ciputat, kirim ke email: asiavisualgrafika@gmail.com",
+    "context": [
+      "Source document: 03_panduan_berkas_siap_cetak.txt\n\n1. Pengiriman Berkas Melalui Email:\n   - Kirim ke alamat email cabang:\n     * Cabang Ciputat: asiavisualgrafika@gmail.com\n     * Cabang Pamulang: asiavisualgrafika2@gmail.com"
+    ],
+    "source_file": "03_panduan_berkas_siap_cetak.txt",
+    "additional_metadata": {
+      "family": "locations",
+      "contrast_intent": "ciputat-file-submission-email",
+      "source_evidence": {
+        "source": "03_panduan_berkas_siap_cetak.txt",
+        "source_sha256": "10b06892b01ddbae064bef3c52d0127fe7fe797ccbd2c28c04c14c6dd81bb19d",
+        "start_line": 98,
+        "end_line": 101,
+        "excerpt_sha256": "35030d0e454ab1cb31868de46e667c234b00d61d125e6665dc11bcb6ba7aa0e0",
+        "supporting_quotes": [
+          "Cabang Ciputat: asiavisualgrafika@gmail.com"
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Named-branch design-email request. Require Ciputat email; do not substitute a physical street address, general WhatsApp or Pamulang email."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "locations",
+        "generated_index": 0,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-02",
+    "input": "Halo, saya mau datang langsung ke cabang Pamulang. Boleh minta alamat fisik lengkapnya ya, biar gampang nyarinya?",
+    "actual_output": null,
+    "expected_output": "Alamat cabang Pamulang: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417. Patokannya tepat di depan sekolah MTsN Kota Tangerang Selatan. Lokasi di maps: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n2. Cabang Kedua (Pamulang):\n   Alamat: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417. \n   Sharelock: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6\n   Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.\n   Email Pengiriman Berkas: asiavisualgrafika2@gmail.com"
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "locations",
+      "contrast_intent": "pamulang-physical-address",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 13,
+        "end_line": 17,
+        "excerpt_sha256": "403609b56b4a3202d498770739132dbad9119c7c4937e2dfa8d2fc988cb56677",
+        "supporting_quotes": [
+          "Alamat: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417.",
+          "Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.",
+          "Sharelock: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6"
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Named-branch physical visit. Exact street address, municipality and source landmark/Maps match; no invented nearest-branch assumption."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "locations",
+        "generated_index": 1,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-03",
+    "input": "Kak, kalau ambil 2 paket X-Banner Flexi China 340 GSM ukuran standar 60 x 160 cm, estimasi totalnya berapa ya?",
+    "actual_output": null,
+    "expected_output": "Kak, untuk 2 paket X-Banner Flexi China 340 GSM ukuran 60 x 160 cm (sudah termasuk rangka), estimasi totalnya Rp 140.000 (Rp 70.000 per paket).",
+    "context": [
+      "Source document: 04_daftar_estimasi_harga.txt\n\n## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs."
+    ],
+    "source_file": "04_daftar_estimasi_harga.txt",
+    "additional_metadata": {
+      "family": "pricing",
+      "contrast_intent": "x-banner-flexi340-two-packages",
+      "source_evidence": {
+        "source": "04_daftar_estimasi_harga.txt",
+        "source_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+        "start_line": 41,
+        "end_line": 52,
+        "excerpt_sha256": "9600a477c0e32dd95d329d4ffdfb2b89685c158dbc854416037c24c0c2ab0516",
+        "supporting_quotes": [
+          "Ukuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.",
+          "Harga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "New quantity/material combination, 2 × Rp70,000 = Rp140,000, standard60×160cm and frame included. Arithmetic independently checked."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "pricing",
+        "generated_index": 0,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-04",
+    "input": "Halo, mau tanya estimasi total buat cetak 1 lembar spanduk Flexi China 280 GSM High Resolution ukuran 3 x 1,5 meter. Kira-kira berapa ya?",
+    "actual_output": null,
+    "expected_output": "Untuk spanduk Flexi China 280 GSM kualitas tinggi High Resolution (Rp 25.000/m²) ukuran 3 × 1,5 m:\n\n- Luas: 3 × 1,5 = 4,5 m²\n- Harga: 4,5 × Rp 25.000 = Rp 112.500\n- 1 lembar, sudah sesuai pembulatan ke kelipatan Rp 500\n\nEstimasi total: **Rp 112.500**.",
+    "context": [
+      "Source document: 04_daftar_estimasi_harga.txt\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\"."
+    ],
+    "source_file": "04_daftar_estimasi_harga.txt",
+    "additional_metadata": {
+      "family": "pricing",
+      "contrast_intent": "spanduk-flexi280-hr-3x1point5",
+      "source_evidence": {
+        "source": "04_daftar_estimasi_harga.txt",
+        "source_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+        "start_line": 7,
+        "end_line": 21,
+        "excerpt_sha256": "994c6c59a10f03ad433f0bdeaac9ab2c9b0a1758bc8cd5c1bc4be525e561f1d7",
+        "supporting_quotes": [
+          "Harga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².",
+          "Cara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.",
+          "Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "New dimensions and explicit HR quality, 3 ×1.5=4.5m²;4.5×25,000=Rp112,500. Already a multiple of500. Independently checked."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "pricing",
+        "generated_index": 1,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-05",
+    "input": "Kalau ada salah ketik di berkas yang saya kirim sendiri ke cabang Asia Visual Grafika, apakah bisa reprint gratis? Kira-kira bedanya gimana kalau kesalahannya karena pihak toko, misal salah bahan yang dipakai?",
+    "actual_output": null,
+    "expected_output": "Maaf, salah ketik dari berkas yang Anda kirim sendiri termasuk kesalahan pihak pelanggan, jadi toko tidak memberikan ganti rugi atau cetak ulang gratis.\n\nSebaliknya, jika kesalahannya karena pihak toko/produksi—misalnya salah bahan, salah ukuran, cacat mesin cetak, atau warna bergaris parah—CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang tanpa biaya tambahan, dengan syarat Anda menyerahkan bukti fisik produk yang salah ke toko.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n3. Kebijakan Garansi dan Cetak Ulang (Re-Print):\n   - Kesalahan dari Pihak Toko/Produksi: Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko.\n   - Kesalahan dari Pihak Pelanggan: Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan, salah pemilihan ukuran berkas dari pelanggan, atau resolusi gambar pecah akibat berkas asli yang dikirimkan buram."
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "policies",
+      "contrast_intent": "customer-typo-versus-shop-wrong-material",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 93,
+        "end_line": 95,
+        "excerpt_sha256": "970284796eddc610fb4287c8c33ae2b4b39a8dc3a009e3a7153e41e95cf38e6c",
+        "supporting_quotes": [
+          "Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan",
+          "Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah)",
+          "melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Contrasting origin-specific outcomes: customer typo excluded; shop wrong material free reprint with physical proof. No automatic cash refund is established."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "policies",
+        "generated_index": 0,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-06",
+    "input": "Kak, kalau saya kelebihan transfer buat bayar pesanan di percetakan, refundnya berapa lama ya dan pengembaliannya lewat transfer atau bisa tunai?",
+    "actual_output": null,
+    "expected_output": "Refund kelebihan transfer diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja. Refund tunai tidak diperkenankan.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n2. Kebijakan Pengembalian Dana (Refund):\n   - Refund dana akibat kelebihan transfer atau pembatalan sah diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja (tidak diperkenankan refund tunai)."
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "policies",
+      "contrast_intent": "refund-timing-and-method",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 91,
+        "end_line": 92,
+        "excerpt_sha256": "27719ec0ec1dff2a07467108c4c4685233796e9d2a458e15df107aa5170e6c86",
+        "supporting_quotes": [
+          "Refund dana akibat kelebihan transfer atau pembatalan sah diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja (tidak diperkenankan refund tunai)."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Refund for excess transfer: BCA transfer within1workingday, no cash. Distinguish from ordinary DP/payment instructions."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "policies",
+        "generated_index": 1,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-07",
+    "input": "Halo, mau tanya buat file JPEG buat cetak: minimal resolusi berapa DPI ya? Mode warnanya harus RGB atau bisa CMR? Terus kualitas simpannya perlu diset berapa biar diterima? Makasih.",
+    "actual_output": null,
+    "expected_output": "Halo! Untuk file JPEG/JPEG kualitas maksimal yang diterima untuk cetak:\n- Resolusi minimal: 300 DPI\n- Mode warna: CMYK (bukan RGB)\n- Kualitas simpan: kompresi tertinggi, Quality 10–12 / Maximum",
+    "context": [
+      "Source document: 03_panduan_berkas_siap_cetak.txt\n\n5. JPG / JPEG Kualitas Maksimal:\n   - Diterima jika disimpan dengan kualitas kompresi tertinggi (Quality: 10–12 / Maximum), resolusi minimal 300 DPI, dan mode CMYK."
+    ],
+    "source_file": "03_panduan_berkas_siap_cetak.txt",
+    "additional_metadata": {
+      "family": "requirements",
+      "contrast_intent": "jpeg-quality-resolution-color",
+      "source_evidence": {
+        "source": "03_panduan_berkas_siap_cetak.txt",
+        "source_sha256": "10b06892b01ddbae064bef3c52d0127fe7fe797ccbd2c28c04c14c6dd81bb19d",
+        "start_line": 64,
+        "end_line": 65,
+        "excerpt_sha256": "f8a2a5379c9e9589dcd673970fc36a1d97e6311aa80405e25b35608685138d8b",
+        "supporting_quotes": [
+          "Diterima jika disimpan dengan kualitas kompresi tertinggi (Quality: 10–12 / Maximum), resolusi minimal 300 DPI, dan mode CMYK."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Question includes generated CMR typo; reference correctly states sourceCMYK,300DPI,and Quality10–12/Maximum. No unsupported alternative profile is accepted."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "requirements",
+        "generated_index": 0,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  },
+  {
+    "id": "retrieval-final-holdout-08",
+    "input": "Misi, mau tanya soal stiker Ritrama. Bahan yang pas dilepas gak ninggalin bekas lem itu yang mana ya? Terus kelebihan Ritrama apa aja sih yang tertulis? Makasih.",
+    "actual_output": null,
+    "expected_output": "Bahan yang saat dilepas tidak meninggalkan bekas noda lem adalah Stiker Vinyl Meteran Ritrama (250 GSM). Kelebihannya yang tertulis: stiker vinyl kelas premium buatan Eropa dengan kualitas perekat terbaik — daya rekat sangat kuat dan tahan lama, tapi saat dikupas/dilepas tidak meninggalkan bekas noda lem di permukaan tempelan (body kendaraan, kaca, maupun dinding). Bahannya juga lebih elastis dan lebih tebal dibanding vinyl China, sehingga lebih mudah ditempelkan pada permukaan melengkung seperti badan mobil.",
+    "context": [
+      "Source document: 02_spesifikasi_bahan_dan_finishing.txt\n\n3. Stiker Vinyl Meteran Ritrama (250 GSM):\n   - Karakteristik: Stiker vinyl kelas premium buatan Eropa dengan kualitas perekat terbaik — daya rekatnya sangat kuat dan tahan lama, tapi saat dikupas/dilepas tidak meninggalkan bekas noda lem di permukaan tempelan (baik di body kendaraan, kaca, maupun dinding). Bahannya lebih elastis dan lebih tebal dibanding vinyl China, sehingga lebih mudah ditempelkan pada permukaan melengkung seperti badan mobil.\n   - Penggunaan: Branding kendaraan operasional perusahaan (car branding/wrapping mobil), dekorasi kaca etalase toko, dan label stiker luar ruangan yang butuh ketahanan jangka panjang.\n   - Cocok untuk cetak produk turunan: branding mobil/motor (car wrapping/decal), stiker kaca etalase toko premium, stiker label luar ruangan tahan cuaca bertahun-tahun."
+    ],
+    "source_file": "02_spesifikasi_bahan_dan_finishing.txt",
+    "additional_metadata": {
+      "family": "requirements",
+      "contrast_intent": "removable-adhesive-property",
+      "source_evidence": {
+        "source": "02_spesifikasi_bahan_dan_finishing.txt",
+        "source_sha256": "448fc0a469256712acda22d22aea4a674210b828a3e0761260ed5ee38d4a7352",
+        "start_line": 82,
+        "end_line": 85,
+        "excerpt_sha256": "4826aa37757a7c8f51f1d3c82871b4529aa2b7c3a0c55af8c47dc3dd4e54f12c",
+        "supporting_quotes": [
+          "saat dikupas/dilepas tidak meninggalkan bekas noda lem di permukaan tempelan (baik di body kendaraan, kaca, maupun dinding).",
+          "Bahannya lebih elastis dan lebih tebal dibanding vinyl China, sehingga lebih mudah ditempelkan pada permukaan melengkung seperti badan mobil."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Source supports no adhesive residue and listed material properties. Neither question nor reference assumes no paint damage, universal safe removal, or a new warranty."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "requirements",
+        "generated_index": 1,
+        "normalization": null
+      },
+      "application_prompt_frozen_before_generation": "ae0161f05d799c7d06aaf53ec32d2a95e3130487930924be50239d3663ea9914",
+      "frozen_at": "2026-10-23T18:48:05.533064+00:00",
+      "holdout_rule": "Evaluate once after finalprompt freeze. Do not tune application or rewrite references after observing this sample; any later correction needs new validation."
+    }
+  }
+]

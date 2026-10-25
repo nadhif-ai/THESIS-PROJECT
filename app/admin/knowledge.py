@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from langchain_core.documents import Document
 from app.admin import store
-from app.admin.chunking import Chunking, LEGACY, split_document, token_statistics
+from app.admin.chunking import Chunking, LEGACY, PREPROCESSING, split_document, token_statistics
 from app.backend.loader import _load_csv_file
 from app.backend.models import get_embedding_model, embedding_identity
 from app.config.settings import get_settings
@@ -93,6 +93,7 @@ def new_draft(base_id=None):
             "created_at": store.now(),
             "manifest": {
                 "files": list(source["manifest"]["files"]),
+                **({"menu_text": source["manifest"]["menu_text"]} if "menu_text" in source["manifest"] else {}),
                 "base": source["id"],
                 "embedding": source["manifest"].get("embedding"),
                 "vector_index": source["manifest"].get("vector_index"),
@@ -103,11 +104,11 @@ def new_draft(base_id=None):
                             if source["manifest"]
                             .get("chunking", {})
                             .get("preprocessing")
-                            == "sections-v1"
+                            in ("sections-v1", PREPROCESSING)
                             else {}
                         )
                     ).model_dump(),
-                    preprocessing="sections-v1",
+                    preprocessing=PREPROCESSING,
                 ),
             },
             "records": source["records"],
@@ -131,14 +132,14 @@ def configure_chunking(version_id, config):
     with _lock:
         item = editable(version_id)
         item["manifest"]["chunking"] = dict(
-            config.model_dump(), preprocessing="sections-v1"
+            config.model_dump(), preprocessing=PREPROCESSING
         )
         item["status"] = "draft"
         item["error"] = None
         store.save_version(item)
 
 
-def draft_documents(file, config):
+def draft_documents(file, config, *, preprocessing=PREPROCESSING):
     extension = file.suffix.lower()
     if extension in (".txt", ".md"):
         raw = [Document(page_content=file.read_text(encoding="utf-8-sig"))]
@@ -155,7 +156,7 @@ def draft_documents(file, config):
             format=extension.lstrip("."),
             answer_source="knowledge_base",
         )
-        documents.extend(split_document(document, config))
+        documents.extend(split_document(document, config, preprocessing=preprocessing))
     for ordinal, document in enumerate(documents):
         document.metadata["chunk_index"] = ordinal
         match = re.search(
@@ -175,6 +176,8 @@ def save_file(version_id, name, content):
         name = valid_name(name)
         path_for(item).mkdir(parents=True, exist_ok=True)
         (path_for(item) / name).write_bytes(content)
+        if name == "05_daftar_pertanyaan_populer.txt":
+            item["manifest"]["menu_text"] = content.decode("utf-8-sig")
         item["manifest"]["files"] = sorted(set(item["manifest"]["files"] + [name]))
         item["status"] = "draft"
         item["error"] = None
@@ -186,6 +189,8 @@ def delete_file(version_id, name):
         item = editable(version_id)
         name = valid_name(name)
         (path_for(item) / name).unlink(missing_ok=True)
+        if name == "05_daftar_pertanyaan_populer.txt":
+            item["manifest"]["menu_text"] = ""
         item["manifest"]["files"] = [n for n in item["manifest"]["files"] if n != name]
         item["status"] = "draft"
         store.save_version(item)
@@ -208,8 +213,11 @@ def index_version(version_id):
             for r in previous.values() if compatible
         }
         config = Chunking(**item["manifest"].get("chunking", {}))
+        preprocessing = item["manifest"].get("chunking", {}).get("preprocessing")
+        if preprocessing not in ("sections-v1", PREPROCESSING):
+            preprocessing = PREPROCESSING
         item["manifest"]["chunking"] = dict(
-            config.model_dump(), preprocessing="sections-v1"
+            config.model_dump(), preprocessing=preprocessing
         )
         hashes = {}
         records = []
@@ -220,7 +228,7 @@ def index_version(version_id):
             hashes[name] = hashlib.sha256(file.read_bytes()).hexdigest()
             if name == "05_daftar_pertanyaan_populer.txt":
                 continue
-            docs = draft_documents(file, config)
+            docs = draft_documents(file, config, preprocessing=preprocessing)
             if not docs:
                 raise ValueError(
                     f"{name}: no searchable text; check the file format or use a text-based PDF."

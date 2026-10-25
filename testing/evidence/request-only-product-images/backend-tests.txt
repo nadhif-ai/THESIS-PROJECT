@@ -1,0 +1,59 @@
+sssssssssss............................................................. [ 26%]
+........................................................................ [ 52%]
+........................................................................ [ 79%]
+.........................................................                [100%]Running teardown with pytest sessionfinish...
+
+=============================== warnings summary ===============================
+venv/lib/python3.12/site-packages/starlette/testclient.py:45
+  /Users/royanrosyad/Nayor/Nadhif-TA/venv/lib/python3.12/site-packages/starlette/testclient.py:45: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+testing/test_admin_controls.py::test_report_retry_updates_database_without_local_files
+  /Users/royanrosyad/Nayor/Nadhif-TA/venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:188: DeprecationWarning: langsmith.wrappers._openai_agents is deprecated and has been moved to langsmith.integrations.openai_agents_sdk. Please update your imports.
+    exec(co, module.__dict__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+Test testing/evals/test_chatbot.py::test_single_question[1] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[2] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[3] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[4] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[5] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[6] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[7] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[8] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[9] was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_single_question[10] was skipped.
+Reason: ('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 65,
+'Skipped: Set RUN_PAID_EVALS=1 and select legacy or reviewed audited QA
+references.')
+Test testing/evals/test_chatbot.py::test_conversation was skipped. Reason:
+('/Users/royanrosyad/Nayor/Nadhif-TA/testing/evals/test_chatbot.py', 105,
+'Skipped: Select EVAL_DATASET=conversations after human dataset review.')
+262 passed, 11 skipped, 2 warnings in 55.39s

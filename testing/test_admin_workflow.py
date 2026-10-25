@@ -64,7 +64,7 @@ def test_api_authentication_and_csrf(workspace):
             client.post(
                 "/admin/api/versions", json={}, headers={"x-csrf-token": token}
             ).status_code
-            == 200
+            == 410
         )
         assert all(
             isinstance(value, bool)

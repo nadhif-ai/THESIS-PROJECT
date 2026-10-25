@@ -28,6 +28,7 @@ class Settings(BaseSettings):
 
     openrouter_api_key: str = Field(...)
     openrouter_model: str = Field(default="google/gemini-2.5-flash")
+    product_intent_model: str = "openai/gpt-4.1"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
     embedding_model: str = "nvidia/nemotron-3-embed-1b:free"
@@ -57,6 +58,9 @@ class Settings(BaseSettings):
     data_dir: str = "./data"
     database_url: str = Field(default="", repr=False)
     database_migration_url: str = Field(default="", repr=False)
+    supabase_url: str = ""
+    supabase_secret_key: str = Field(default="", repr=False)
+    supabase_service_role_key: str = Field(default="", repr=False)
     eval_model: str = "google/gemini-2.5-flash"
     admin_username: str = "admin"
     admin_password: str = ""

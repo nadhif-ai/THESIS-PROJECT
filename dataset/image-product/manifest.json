@@ -1,0 +1,2650 @@
+{
+  "schema_version": "1.0.0",
+  "created_on": "2026-10-22",
+  "brand": "CV. Asia Visual Grafika",
+  "purpose": "Approved catalog seed and generation provenance; runtime metadata is managed in the admin dashboard after import.",
+  "runtime_integration_enabled": false,
+  "generation": {
+    "tool": "Codex built-in image_gen",
+    "model": "Codex GPT Image (exact model version not exposed)",
+    "style_prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. ",
+    "logo_reference": "references/official-logo.png",
+    "scope_reference": "references/catalog-scope.png",
+    "knowledge_reference": "references/product-knowledge.txt"
+  },
+  "pricing_policy": "No prices embedded or copied into image entries. Consult the supplied knowledge source and confirm current estimates with admin; artwork never establishes price or included finishing.",
+  "categories": [
+    {
+      "id": "banner-spanduk",
+      "name": "Banner & Spanduk"
+    },
+    {
+      "id": "stiker-meteran",
+      "name": "Stiker Meteran"
+    },
+    {
+      "id": "standing-banner",
+      "name": "X/Y/Roll Up Banner"
+    },
+    {
+      "id": "stiker-a3-kiss-cut",
+      "name": "Stiker A3+ / Kiss Cut"
+    },
+    {
+      "id": "digital-print-a3",
+      "name": "Digital Print A3+"
+    },
+    {
+      "id": "id-card-kartu-nama",
+      "name": "ID Card & Kartu Nama"
+    },
+    {
+      "id": "other-physical-printing",
+      "name": "Other Physical Printing Products"
+    }
+  ],
+  "assets": [
+    {
+      "id": "banner-spanduk-hero",
+      "file": "images/banner-spanduk-hero.png",
+      "category_id": "banner-spanduk",
+      "category": "Banner & Spanduk",
+      "role": "hero",
+      "variants": [
+        "Flexi China 280 GSM"
+      ],
+      "verified_source_facts": [
+        "Flexi China 280/340 GSM; Flexi Korea 440 GSM; Albatros 200 GSM",
+        "Harga per m²; mata ayam standar termasuk"
+      ],
+      "retrieval_keywords": [
+        "banner",
+        "spanduk",
+        "baliho",
+        "backdrop",
+        "flexi",
+        "cetak per meter"
+      ],
+      "description_id": "Ilustrasi spanduk Flexi horizontal dengan mata ayam sudut dan desain logo biru Asia Visual Grafika.",
+      "alt_text_id": "spanduk Flexi horizontal dengan mata ayam sudut dan desain logo biru Asia Visual Grafika.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Subject: HERO Banner & Spanduk. A single horizontal flexible printed Flexi China 280 GSM promotional spanduk stretched straight between discreet neutral studio supports, front three-quarter view so full rectangular banner visible, subtle flexible woven vinyl surface and small metal eyelets in its four corners. Blue and white contemporary print with large official logo and simple text 'BANNER & SPANDUK'. No adhesive backing, no roll-up cassette, no X stand, no paper poster. Not a rigid sign. Do not write size or weight on the artwork.",
+      "manual_review_notes": [
+        "Supports and artwork illustrative; exact material texture not verified from a physical sample."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)",
+          "line_start": 7,
+          "line_end": 24
+        }
+      ],
+      "source_section_queries": [
+        "BANNER & SPANDUK"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "stiker meteran",
+        "stiker A3+",
+        "roll up banner"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Flexi China 280 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Banner & Spanduk\nIlustrasi spanduk Flexi horizontal dengan mata ayam sudut dan desain logo biru Asia Visual Grafika.\nPilihan sumber: Flexi China 280 GSM\nKata kunci: banner, spanduk, baliho, backdrop, flexi, cetak per meter\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-9e318dbb-38f1-4136-b7e7-b78940797b65.png",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2041635,
+        "sha256": "b94edd39c45fd0abaa51dec46328721e0d35781b4f3c44c32738432bc54ebe7c"
+      },
+      "product_type": "banner-spanduk",
+      "related_asset_ids": [
+        "banner-spanduk-material-comparison"
+      ]
+    },
+    {
+      "id": "banner-spanduk-material-comparison",
+      "file": "images/banner-spanduk-material-comparison.png",
+      "category_id": "banner-spanduk",
+      "category": "Banner & Spanduk",
+      "role": "material_comparison",
+      "variants": [
+        "Flexi China 280 GSM",
+        "Flexi China 340 GSM",
+        "Flexi Korea 440 GSM",
+        "Albatros 200 GSM"
+      ],
+      "verified_source_facts": [
+        "Listed banner materials; appearance does not establish GSM or print resolution"
+      ],
+      "retrieval_keywords": [
+        "bahan spanduk",
+        "perbandingan flexi",
+        "flexi china",
+        "flexi korea",
+        "albatros"
+      ],
+      "description_id": "Perbandingan ilustratif empat bahan banner: Flexi China 280/340 GSM, Flexi Korea 440 GSM, dan Albatros 200 GSM.",
+      "alt_text_id": "Perbandingan ilustratif empat bahan banner: Flexi China 280/340 GSM, Flexi Korea 440 GSM, dan Albatros 200 GSM.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Four modestly curled printed banner material swatches on tabletop, arranged 2 by 2. Same blue logo artwork on each. Accurate tidy separate small label cards read exactly 'Flexi China 280 GSM', 'Flexi China 340 GSM', 'Flexi Korea 440 GSM', 'Albatros 200 GSM'. Flexi surfaces gently textured, Albatros smoother. All same dimensions, do NOT exaggerate thickness differences or invent quality ratings. No adhesive, backing liner or stand.",
+      "manual_review_notes": [
+        "GSM, origin and resolution cannot be authenticated visually; swatches illustrative."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)",
+          "line_start": 7,
+          "line_end": 24
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-c498dcb9-8a8d-4764-b2b4-f84bd57010ae.png",
+      "source_section_queries": [
+        "BANNER & SPANDUK"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "stiker meteran",
+        "stiker A3+",
+        "roll up banner"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Flexi China 280 GSM",
+        "Flexi China 340 GSM",
+        "Flexi Korea 440 GSM",
+        "Albatros 200 GSM"
+      ],
+      "source_only_variants": [
+        "Flexi China 280 GSM",
+        "Flexi China 340 GSM",
+        "Flexi Korea 440 GSM",
+        "Albatros 200 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Banner & Spanduk\nPerbandingan ilustratif empat bahan banner: Flexi China 280/340 GSM, Flexi Korea 440 GSM, dan Albatros 200 GSM.\nPilihan sumber: Flexi China 280 GSM; Flexi China 340 GSM; Flexi Korea 440 GSM; Albatros 200 GSM\nKata kunci: bahan spanduk, perbandingan flexi, flexi china, flexi korea, albatros\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2587345,
+        "sha256": "20ef436ec470d356da6f835f0015270e3c001cc8ca4253d5068be4808fda4ecc"
+      },
+      "product_type": "banner-spanduk",
+      "related_asset_ids": [
+        "banner-spanduk-hero"
+      ],
+      "visual_attributes": {
+        "material": [
+          "china",
+          "korea",
+          "albatros"
+        ]
+      }
+    },
+    {
+      "id": "stiker-meteran-hero",
+      "file": "images/stiker-meteran-hero.png",
+      "category_id": "stiker-meteran",
+      "category": "Stiker Meteran",
+      "role": "hero",
+      "variants": [
+        "Vinyl Ritrama 250 GSM"
+      ],
+      "verified_source_facts": [
+        "China 200 GSM; Ritrama 250 GSM; OWV 250 GSM; Transparan 200 GSM",
+        "Harga per m²"
+      ],
+      "retrieval_keywords": [
+        "stiker meteran",
+        "stiker vinyl",
+        "vinyl gulungan",
+        "stiker dinding",
+        "stiker kaca",
+        "ritrama"
+      ],
+      "description_id": "Ilustrasi stiker vinyl meteran gulungan dengan sudut lapisan perekat dan kertas pelindung terangkat.",
+      "alt_text_id": "stiker vinyl meteran gulungan dengan sudut lapisan perekat dan kertas pelindung terangkat.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. One wide partially unrolled adhesive printed vinyl roll on a tabletop, blue official logo and white printed artwork, small corner peeled back to show white release liner and adhesive sheet clearly distinct from backing. No eyelets, no woven banner, no label sticker sheet. Do not print supplier trademarks.",
+      "manual_review_notes": [
+        "Roll width and backing appearance illustrative; supplier not visually authenticated."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "STIKER METERAN (Harga Cetak Stiker Gulungan / Cutting Stiker per Meter Persegi / m²)",
+          "line_start": 25,
+          "line_end": 40
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-ca349e17-df1b-4739-b07b-ef5b7da1470d.png",
+      "source_section_queries": [
+        "STIKER METERAN"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "spanduk",
+        "stiker A3+ per lembar"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Vinyl Ritrama 250 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Stiker Meteran\nIlustrasi stiker vinyl meteran gulungan dengan sudut lapisan perekat dan kertas pelindung terangkat.\nPilihan sumber: Vinyl Ritrama 250 GSM\nKata kunci: stiker meteran, stiker vinyl, vinyl gulungan, stiker dinding, stiker kaca, ritrama\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2224768,
+        "sha256": "f95eaa775b55573508f834740c6403dd7cb9579aabeeefe51f136ba1e60d47b5"
+      },
+      "product_type": "stiker-meteran",
+      "related_asset_ids": [
+        "stiker-meteran-material-comparison"
+      ]
+    },
+    {
+      "id": "stiker-meteran-material-comparison",
+      "file": "images/stiker-meteran-material-comparison.png",
+      "category_id": "stiker-meteran",
+      "category": "Stiker Meteran",
+      "role": "material_comparison",
+      "variants": [
+        "China 200 GSM",
+        "Vinyl Ritrama 250 GSM",
+        "One Way Vision 250 GSM",
+        "Transparan 200 GSM"
+      ],
+      "verified_source_facts": [
+        "Four listed roll sticker materials"
+      ],
+      "retrieval_keywords": [
+        "bahan stiker",
+        "owv",
+        "one way vision",
+        "stiker transparan",
+        "vinyl ritrama"
+      ],
+      "description_id": "Perbandingan stiker meteran China, Ritrama, One Way Vision berlubang, dan transparan.",
+      "alt_text_id": "Perbandingan stiker meteran China, Ritrama, One Way Vision berlubang, dan transparan.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Four roll-vinyl material samples in a two-by-two tabletop arrangement, each with same blue official logo. Separate tidy labels exactly 'China 200 GSM', 'Ritrama 250 GSM', 'OWV 250 GSM', 'Transparan 200 GSM'. China and Ritrama both white opaque adhesive films with peeled release-liner corners, do not invent visible quality ranking. OWV has realistic densely perforated tiny holes visible against a small neutral gray glass tile. Transparent sample on clear glass has genuinely transparent unprinted regions; white neutral background visible through it. No paper labels or banner eyelets.",
+      "manual_review_notes": [
+        "Perforation, transparency, adhesives and exact stock appearance need physical sample confirmation."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "STIKER METERAN (Harga Cetak Stiker Gulungan / Cutting Stiker per Meter Persegi / m²)",
+          "line_start": 25,
+          "line_end": 40
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-7c548f28-4888-4549-85c4-1cb72b0231f2.png",
+      "source_section_queries": [
+        "STIKER METERAN"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "spanduk",
+        "stiker A3+ per lembar"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "China 200 GSM",
+        "Vinyl Ritrama 250 GSM",
+        "One Way Vision 250 GSM",
+        "Transparan 200 GSM"
+      ],
+      "source_only_variants": [
+        "China 200 GSM",
+        "Vinyl Ritrama 250 GSM",
+        "One Way Vision 250 GSM",
+        "Transparan 200 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Stiker Meteran\nPerbandingan stiker meteran China, Ritrama, One Way Vision berlubang, dan transparan.\nPilihan sumber: China 200 GSM; Vinyl Ritrama 250 GSM; One Way Vision 250 GSM; Transparan 200 GSM\nKata kunci: bahan stiker, owv, one way vision, stiker transparan, vinyl ritrama\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2292463,
+        "sha256": "81f178f72d3f2a17a695a2c9883661d9d4f0eafede31d64a7f804e776a898034"
+      },
+      "product_type": "stiker-meteran",
+      "related_asset_ids": [
+        "stiker-meteran-hero"
+      ],
+      "visual_attributes": {
+        "material": [
+          "china",
+          "ritrama",
+          "one way vision",
+          "transparan"
+        ]
+      }
+    },
+    {
+      "id": "x-banner-hero",
+      "file": "images/x-banner-hero.png",
+      "category_id": "standing-banner",
+      "category": "X/Y/Roll Up Banner",
+      "role": "hero",
+      "variants": [
+        "X-Banner 60 x 160 cm"
+      ],
+      "verified_source_facts": [
+        "Cetak + rangka",
+        "Flexi China 280/340 GSM; Flexi Korea 440 GSM; Albatros dengan laminasi"
+      ],
+      "retrieval_keywords": [
+        "x banner",
+        "x-banner",
+        "banner stand x",
+        "rangka x",
+        "60x160"
+      ],
+      "description_id": "Ilustrasi X-Banner tegak 60 × 160 cm dengan panel cetak dan rangka penyangga.",
+      "alt_text_id": "X-Banner tegak 60 × 160 cm dengan panel cetak dan rangka penyangga.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. One complete upright X-Banner with physically plausible flexible printed panel 60 cm wide by 160 cm high, four metal eyelets at panel corners, thin crossed black tension rods form X behind panel, visible from a three-quarter angle with a subtle rear side view. Two lower front feet and stabilizing rear leg. Blue and white logo print, small title 'X-BANNER'. No rectangular base cassette, no heavy pole base.",
+      "manual_review_notes": [
+        "Exact supplied frame design unverified; mounting geometry representative."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)",
+          "line_start": 41,
+          "line_end": 55
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-a5d6dc4b-2fa5-4338-bfad-9a0ed5bfd729.png",
+      "source_section_queries": [
+        "X-BANNER"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "spanduk meteran"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "X-Banner 60 x 160 cm"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "X/Y/Roll Up Banner\nIlustrasi X-Banner tegak 60 × 160 cm dengan panel cetak dan rangka penyangga.\nPilihan sumber: X-Banner 60 x 160 cm\nKata kunci: x banner, x-banner, banner stand x, rangka x, 60x160\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1829426,
+        "sha256": "734fe66aa8903c68d4de5533b6acef3bbecfac1ade2b48b0cca9795afdf450c9"
+      },
+      "product_type": "x-banner",
+      "related_asset_ids": [
+        "y-banner-hero",
+        "roll-up-banner-hero",
+        "standing-banner-form-comparison"
+      ]
+    },
+    {
+      "id": "y-banner-hero",
+      "file": "images/y-banner-hero-v2.png",
+      "category_id": "standing-banner",
+      "category": "X/Y/Roll Up Banner",
+      "role": "hero",
+      "variants": [
+        "Y-Banner 60 x 160 cm"
+      ],
+      "verified_source_facts": [
+        "Cetak + rangka",
+        "Flexi China 280/340 GSM; Flexi Korea 440 GSM; Albatros dengan laminasi"
+      ],
+      "retrieval_keywords": [
+        "y banner",
+        "y-banner",
+        "banner stand y",
+        "rangka y",
+        "60x160"
+      ],
+      "description_id": "Ilustrasi representatif Y-Banner 60 × 160 cm; bentuk rangka perlu dikonfirmasi dengan stok toko.",
+      "alt_text_id": "representatif Y-Banner 60 × 160 cm; bentuk rangka perlu dikonfirmasi dengan stok toko.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. One representative Y-Banner standing on a low three-spoke floor base with central upright, matching the middle product in reference image 2. A 60 cm wide by 160 cm high blue-white logo panel. Clearly plausible central rear pole branches into two thin upper arms forming letter Y behind panel; small upper fork ends visible just outside top corners, lower central tension attachment. NO crossed X rods. Low floor base with three slender stabilizing spokes, no roll up cassette. Front three-quarter view exposes support at right edge while artwork remains readable. Blue-white printed artwork with supplied official logo and exact text 'ASIA VISUAL GRAFIKA' and 'Y-BANNER'. Entire product within frame. Mechanical geometry illustrative, not a technical diagram.",
+      "manual_review_notes": [
+        "High priority: no product photograph supplied; actual Y frame and mounting must be checked before customer use.",
+        "Y frame is only partially visible; hero and comparison are representative alternative hardware, not an engineering proof. Shop photograph required to approve geometry."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)",
+          "line_start": 56,
+          "line_end": 70
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-023308c5-07f8-4feb-8ee0-9a1f943c4484.png",
+      "revision_reason": "Reduced visual mismatch with comparison; Y mounting remains representative and needs shop confirmation.",
+      "source_section_queries": [
+        "Y-BANNER"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_as_illustration_requires_product_confirmation",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "spanduk meteran"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Y-Banner 60 x 160 cm"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "X/Y/Roll Up Banner\nIlustrasi representatif Y-Banner 60 × 160 cm; bentuk rangka perlu dikonfirmasi dengan stok toko.\nPilihan sumber: Y-Banner 60 x 160 cm\nKata kunci: y banner, y-banner, banner stand y, rangka y, 60x160\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png",
+        "images/standing-banner-form-comparison.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1777723,
+        "sha256": "6f6f92d4d9756b5219d3f21172671b8fd1426b2caea8a5f4843ab1bf7c341bb7"
+      },
+      "product_type": "y-banner",
+      "related_asset_ids": [
+        "x-banner-hero",
+        "roll-up-banner-hero",
+        "standing-banner-form-comparison"
+      ]
+    },
+    {
+      "id": "roll-up-banner-hero",
+      "file": "images/roll-up-banner-hero.png",
+      "category_id": "standing-banner",
+      "category": "X/Y/Roll Up Banner",
+      "role": "hero",
+      "variants": [
+        "Roll Up Banner 60 x 160 cm"
+      ],
+      "verified_source_facts": [
+        "60 x 160 cm or 85 x 200 cm",
+        "Cetak + rangka gulung otomatis"
+      ],
+      "retrieval_keywords": [
+        "roll up banner",
+        "rollup",
+        "pull up",
+        "retractable banner",
+        "tiang gulung"
+      ],
+      "description_id": "Ilustrasi Roll Up Banner 60 × 160 cm dengan kaset gulung aluminium dan tiang penyangga.",
+      "alt_text_id": "Roll Up Banner 60 × 160 cm dengan kaset gulung aluminium dan tiang penyangga.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. One complete retractable roll up banner, panel proportions exactly 60 cm wide to 160 cm high, blue and white logo printed artwork with small title 'ROLL UP BANNER', silver aluminum floor cassette, stabilizing feet, single rear pole supporting top rail. Entire cassette and top visible. No X rods, no corner eyelets. Mechanism appearance representative.",
+      "manual_review_notes": [
+        "Actual cassette model and pole hardware not supplied."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "ROLL UP BANNER (Harga per Paket, sudah termasuk rangka / tiang gulung otomatis)",
+          "line_start": 71,
+          "line_end": 93
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-8ac9f944-1aad-4b6b-9264-c607f27622b5.png",
+      "source_section_queries": [
+        "ROLL UP BANNER"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "spanduk meteran"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Roll Up Banner 60 x 160 cm"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "X/Y/Roll Up Banner\nIlustrasi Roll Up Banner 60 × 160 cm dengan kaset gulung aluminium dan tiang penyangga.\nPilihan sumber: Roll Up Banner 60 x 160 cm\nKata kunci: roll up banner, rollup, pull up, retractable banner, tiang gulung\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1836591,
+        "sha256": "94af55d73f1867913724165f84d88425bf8c30f575d8d62e7a72479edb72b024"
+      },
+      "product_type": "roll-up-banner",
+      "related_asset_ids": [
+        "x-banner-hero",
+        "y-banner-hero",
+        "standing-banner-form-comparison"
+      ]
+    },
+    {
+      "id": "standing-banner-form-comparison",
+      "file": "images/standing-banner-form-comparison.png",
+      "category_id": "standing-banner",
+      "category": "X/Y/Roll Up Banner",
+      "role": "form_comparison",
+      "variants": [
+        "X-Banner 60 x 160 cm",
+        "Y-Banner 60 x 160 cm",
+        "Roll Up Banner 60 x 160 cm"
+      ],
+      "verified_source_facts": [
+        "All shown at common 60 x 160 cm panel size; roll-up also available 85 x 200 cm"
+      ],
+      "retrieval_keywords": [
+        "beda x y roll up",
+        "perbandingan banner stand",
+        "x banner vs y banner",
+        "rangka banner"
+      ],
+      "description_id": "Perbandingan bentuk X-Banner, Y-Banner, dan Roll Up pada ukuran panel yang sama.",
+      "alt_text_id": "Perbandingan bentuk X-Banner, Y-Banner, dan Roll Up pada ukuran panel yang sama.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Three upright banner stands side by side at SAME panel size 60 x 160 cm, spaced apart with complete feet and top visible, slightly angled so rear support hardware identifiable. Left X-Banner uses thin X crossed rods connected to corner eyelets; middle Y-Banner uses central upright with two upper fork arms forming Y and stable floor support; right roll up uses silver retractable cassette and single rear pole. Shared identical blue-white official logo panel artwork. Small neutral separate labels 'X-Banner', 'Y-Banner', 'Roll Up'. Do not duplicate X geometry on Y; do not add cassette to X/Y.",
+      "manual_review_notes": [
+        "High priority: representative Y construction; confirm against shop frame. Roll-up larger size is not shown."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)",
+          "line_start": 41,
+          "line_end": 55
+        },
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)",
+          "line_start": 56,
+          "line_end": 70
+        },
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "ROLL UP BANNER (Harga per Paket, sudah termasuk rangka / tiang gulung otomatis)",
+          "line_start": 71,
+          "line_end": 93
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-f280f558-7e82-4500-8501-cde73e14b2f8.png",
+      "source_section_queries": [
+        "X-BANNER",
+        "Y-BANNER",
+        "ROLL UP BANNER"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_as_illustration_requires_product_confirmation",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "spanduk meteran"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "X-Banner 60 x 160 cm",
+        "Y-Banner 60 x 160 cm",
+        "Roll Up Banner 60 x 160 cm"
+      ],
+      "source_only_variants": [
+        "X-Banner 60 x 160 cm",
+        "Y-Banner 60 x 160 cm",
+        "Roll Up Banner 60 x 160 cm"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "X/Y/Roll Up Banner\nPerbandingan bentuk X-Banner, Y-Banner, dan Roll Up pada ukuran panel yang sama.\nPilihan sumber: X-Banner 60 x 160 cm; Y-Banner 60 x 160 cm; Roll Up Banner 60 x 160 cm\nKata kunci: beda x y roll up, perbandingan banner stand, x banner vs y banner, rangka banner\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2127844,
+        "sha256": "41f7e08c68c86e9d30696128d2e585d33317dfe2c3f38274ecf4490222c2d8d9"
+      },
+      "product_type": "standing-banner-comparison",
+      "related_asset_ids": [
+        "x-banner-hero",
+        "y-banner-hero",
+        "roll-up-banner-hero"
+      ]
+    },
+    {
+      "id": "stiker-a3-plus-hero",
+      "file": "images/stiker-a3-plus-hero-v2.png",
+      "category_id": "stiker-a3-kiss-cut",
+      "category": "Stiker A3+ / Kiss Cut",
+      "role": "hero",
+      "variants": [
+        "Cromo tanpa Kiss Cut",
+        "Vinyl tanpa Kiss Cut",
+        "Transparan tanpa Kiss Cut"
+      ],
+      "verified_source_facts": [
+        "A3+ sheet sticker category; stated effective area 31 x 47 cm"
+      ],
+      "retrieval_keywords": [
+        "stiker a3",
+        "stiker a3+",
+        "stiker per lembar",
+        "stiker cromo",
+        "label produk"
+      ],
+      "description_id": "Ilustrasi lembar stiker A3+ tanpa kiss cut dengan motif label bulat dan kotak membulat berlogo.",
+      "alt_text_id": "lembar stiker A3+ tanpa kiss cut dengan motif label bulat dan kotak membulat berlogo.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A flat A3+ UN-CUT adhesive printed sticker sheet with 47:31 proportions on neutral tabletop, two slightly offset sheets below. The top surface is ONE completely continuous glossy film, no grooves, no indentations, no cuts or cut outlines anywhere. Printed artwork consists of repeated simple solid-blue circles and rounded rectangles with white official A logo inside. NO WORDS on any small label (logo mark only). The circles are PRINTED INK boundaries only, flush with the continuous film. One outer corner of the whole sheet peeled as a single wide film to reveal release liner, not individual labels. No loose labels, no rolls. This is the hero for uncut sheet stickers, not kiss cut.",
+      "manual_review_notes": [
+        "Not every material shown; sheet example does not establish label yield.",
+        "Selected revision is a landscape composition despite square prompt; same lighting and palette, full sheet details retained. Not a label-yield template."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "STIKER CETAK A3+ SATUAN / KISS CUT (Harga per lembar A3+)",
+          "line_start": 246,
+          "line_end": 274
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-5ef9ea4a-91a0-4185-9039-cd4f11d83969.png",
+      "revision_reason": "Removed misleading kiss-cut outlines and abbreviated brand text from uncut-sheet hero.",
+      "source_section_queries": [
+        "STIKER CETAK A3+ SATUAN / KISS CUT"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "stiker meteran",
+        "cutting huruf",
+        "kiss cut lettering"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Cromo tanpa Kiss Cut",
+        "Vinyl tanpa Kiss Cut",
+        "Transparan tanpa Kiss Cut"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Stiker A3+ / Kiss Cut\nIlustrasi lembar stiker A3+ tanpa kiss cut dengan motif label bulat dan kotak membulat berlogo.\nPilihan sumber: Cromo tanpa Kiss Cut; Vinyl tanpa Kiss Cut; Transparan tanpa Kiss Cut\nKata kunci: stiker a3, stiker a3+, stiker per lembar, stiker cromo, label produk\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1542,
+        "height": 1020,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2126645,
+        "sha256": "4fe2fe7c6703e2ca226c9842d91b9421fae610f396070b2a334b7724879c5245"
+      },
+      "product_type": "stiker-a3-kiss-cut",
+      "related_asset_ids": [
+        "stiker-a3-plus-kiss-cut-detail"
+      ]
+    },
+    {
+      "id": "stiker-a3-plus-kiss-cut-detail",
+      "file": "images/stiker-a3-plus-kiss-cut-detail.png",
+      "category_id": "stiker-a3-kiss-cut",
+      "category": "Stiker A3+ / Kiss Cut",
+      "role": "finishing_detail",
+      "variants": [
+        "Cromo dengan Kiss Cut",
+        "Vinyl dengan Kiss Cut"
+      ],
+      "verified_source_facts": [
+        "Kiss cut circles and simple shapes only; no lettering cuts",
+        "Layout guide: kiss-cut effective area 29 x 42 cm"
+      ],
+      "retrieval_keywords": [
+        "kiss cut",
+        "stiker potong",
+        "stiker bulat",
+        "label oval",
+        "rounded box",
+        "cromo kiss cut"
+      ],
+      "description_id": "Detail kiss cut pola bulat, oval, dan kotak membulat; satu label diangkat dari backing yang tetap utuh.",
+      "alt_text_id": "Detail kiss cut pola bulat, oval, dan kotak membulat; satu label diangkat dari backing yang tetap utuh.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Close-up commercial photograph of an A3+ sticker sheet with only circular, oval and rounded rectangle blue-and-white official-logo labels. One circular sticker partially peeled from intact uncut release backing, clearly visible precision kiss-cut perimeter and remaining labels. No hand needed. Entire logo printed inside simple outer circle, NOT cut around logo silhouette, no individual die-cut letters. Tactile adhesive film, gentle curl. No dimensions or yield count.",
+      "manual_review_notes": [
+        "Do not infer transparent kiss-cut availability; only Cromo/Vinyl listed. Layout areas conflict with generic section wording; review noted."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "STIKER CETAK A3+ SATUAN / KISS CUT (Harga per lembar A3+)",
+          "line_start": 246,
+          "line_end": 274
+        },
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "BIAYA ONGKOS POTONG MANUAL, LAMINATING, & MATA AYAM (TARIF JASA FINISHING)",
+          "line_start": 879,
+          "line_end": 915
+        },
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "PANDUAN RUMUS PERHITUNGAN HARGA (CHAIN-OF-THOUGHT)",
+          "line_start": 916,
+          "line_end": 1031
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-061da176-49f8-49d1-bb45-26d231306ffd.png",
+      "source_section_queries": [
+        "STIKER CETAK A3+ SATUAN / KISS CUT",
+        "BIAYA ONGKOS POTONG MANUAL, LAMINATING, & MATA AYAM",
+        "PANDUAN RUMUS PERHITUNGAN HARGA"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "stiker meteran",
+        "cutting huruf",
+        "kiss cut lettering"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Cromo dengan Kiss Cut",
+        "Vinyl dengan Kiss Cut"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Stiker A3+ / Kiss Cut\nDetail kiss cut pola bulat, oval, dan kotak membulat; satu label diangkat dari backing yang tetap utuh.\nPilihan sumber: Cromo dengan Kiss Cut; Vinyl dengan Kiss Cut\nKata kunci: kiss cut, stiker potong, stiker bulat, label oval, rounded box, cromo kiss cut\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2111027,
+        "sha256": "521a741c7656e52252df6f5f72975d40afed6b766122e4497f46f5148001b84b"
+      },
+      "product_type": "stiker-a3-kiss-cut",
+      "related_asset_ids": [
+        "stiker-a3-plus-hero"
+      ]
+    },
+    {
+      "id": "digital-print-a3-plus-hero",
+      "file": "images/digital-print-a3-plus-hero.png",
+      "category_id": "digital-print-a3",
+      "category": "Digital Print A3+",
+      "role": "hero",
+      "variants": [
+        "Art Paper 150 GSM",
+        "Art Carton 260 GSM",
+        "HVS 100 GSM",
+        "BC 230 GSM",
+        "Linen 230 GSM",
+        "Concorde 260 GSM",
+        "Photo Paper 260 GSM"
+      ],
+      "verified_source_facts": [
+        "Sheet area 32 x 48 cm stated; 1S/2S except Photo Paper 1S"
+      ],
+      "retrieval_keywords": [
+        "digital print",
+        "cetak a3",
+        "poster a3",
+        "cetak dokumen",
+        "sertifikat",
+        "print per lembar"
+      ],
+      "description_id": "Ilustrasi hasil digital print A3+ berupa poster, dokumen, dan sertifikat tanpa data pribadi.",
+      "alt_text_id": "hasil digital print A3+ berupa poster, dokumen, dan sertifikat tanpa data pribadi.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A premium tabletop arrangement of unframed A3+ printed paper sheets (32:48 ratio), one dominant blue-and-white corporate poster with official logo, a second plain corporate document sheet, a subtle certificate sample with only heading 'SERTIFIKAT' and official logo, no signatures or real names. Crisp flat paper edges, small curled paper corner, no adhesive liner. No framed large-format poster or folded packaging. Small title on main poster 'DIGITAL PRINT A3+'.",
+      "manual_review_notes": [
+        "Paper types are catalog coverage, not all physically identifiable in hero; finishing not implied included."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "CETAK DOKUMEN / DIGITAL PRINT A3+ (Harga per lembar A3+)",
+          "line_start": 275,
+          "line_end": 359
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-cb800bda-0304-45d7-9c93-c85eebcf5094.png",
+      "source_section_queries": [
+        "CETAK DOKUMEN / DIGITAL PRINT A3+"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "stiker",
+        "brosur offset per rim",
+        "poster Albatros A0/A1/A2"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Art Paper 150 GSM",
+        "Art Carton 260 GSM",
+        "HVS 100 GSM",
+        "BC 230 GSM",
+        "Linen 230 GSM",
+        "Concorde 260 GSM",
+        "Photo Paper 260 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Digital Print A3+\nIlustrasi hasil digital print A3+ berupa poster, dokumen, dan sertifikat tanpa data pribadi.\nPilihan sumber: Art Paper 150 GSM; Art Carton 260 GSM; HVS 100 GSM; BC 230 GSM; Linen 230 GSM; Concorde 260 GSM; Photo Paper 260 GSM\nKata kunci: digital print, cetak a3, poster a3, cetak dokumen, sertifikat, print per lembar\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2345561,
+        "sha256": "24c751216ed4b8d97d615422d43143460eaad2fdf6e9ca595679004a5252402b"
+      },
+      "product_type": "digital-print-a3",
+      "related_asset_ids": [
+        "digital-print-a3-plus-paper-comparison"
+      ]
+    },
+    {
+      "id": "digital-print-a3-plus-paper-comparison",
+      "file": "images/digital-print-a3-plus-paper-comparison.png",
+      "category_id": "digital-print-a3",
+      "category": "Digital Print A3+",
+      "role": "material_comparison",
+      "variants": [
+        "Art Paper 150 GSM",
+        "Art Carton 260 GSM",
+        "HVS 100 GSM",
+        "BC 230 GSM",
+        "Linen 230 GSM",
+        "Concorde 260 GSM",
+        "Photo Paper 260 GSM"
+      ],
+      "verified_source_facts": [
+        "Seven paper stocks listed; finish/texture illustrative"
+      ],
+      "retrieval_keywords": [
+        "jenis kertas",
+        "art paper",
+        "art carton",
+        "hvs",
+        "bc",
+        "linen",
+        "concorde",
+        "photo paper"
+      ],
+      "description_id": "Perbandingan ilustratif tujuh pilihan kertas digital print A3+ dengan label jenis dan GSM dari sumber.",
+      "alt_text_id": "Perbandingan ilustratif tujuh pilihan kertas digital print A3+ dengan label jenis dan GSM dari sumber.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Seven small PAPER stock sample cards on neutral tabletop in tidy two-row composition, each identical blue official logo artwork. Seven legible separate captions exactly 'Art Paper 150 GSM', 'Art Carton 260 GSM', 'HVS 100 GSM', 'BC 230 GSM', 'Linen 230 GSM', 'Concorde 260 GSM', 'Photo Paper 260 GSM'. Small realistic sample edge and subtle sheen variations; Linen faint woven paper texture, Photo Paper gentle photographic sheen. Do not exaggerate thickness or imply finish guaranteed. No adhesive backing, no rings binding swatches.",
+      "manual_review_notes": [
+        "Paper texture and whiteness illustrative; source spells Concord and Concorde. GSM not visually measurable."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "CETAK DOKUMEN / DIGITAL PRINT A3+ (Harga per lembar A3+)",
+          "line_start": 275,
+          "line_end": 359
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-4d217860-f5b7-45c3-85b8-2a0471f6c872.png",
+      "source_section_queries": [
+        "CETAK DOKUMEN / DIGITAL PRINT A3+"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "stiker",
+        "brosur offset per rim",
+        "poster Albatros A0/A1/A2"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Art Paper 150 GSM",
+        "Art Carton 260 GSM",
+        "HVS 100 GSM",
+        "BC 230 GSM",
+        "Linen 230 GSM",
+        "Concorde 260 GSM",
+        "Photo Paper 260 GSM"
+      ],
+      "source_only_variants": [
+        "Art Paper 150 GSM",
+        "Art Carton 260 GSM",
+        "HVS 100 GSM",
+        "BC 230 GSM",
+        "Linen 230 GSM",
+        "Concorde 260 GSM",
+        "Photo Paper 260 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Digital Print A3+\nPerbandingan ilustratif tujuh pilihan kertas digital print A3+ dengan label jenis dan GSM dari sumber.\nPilihan sumber: Art Paper 150 GSM; Art Carton 260 GSM; HVS 100 GSM; BC 230 GSM; Linen 230 GSM; Concorde 260 GSM; Photo Paper 260 GSM\nKata kunci: jenis kertas, art paper, art carton, hvs, bc, linen, concorde, photo paper\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2233709,
+        "sha256": "eeddb012c7083d9a190a06ee722b497f9b4e35f8ef6966480df2e0dcaf75902a"
+      },
+      "product_type": "digital-print-a3",
+      "related_asset_ids": [
+        "digital-print-a3-plus-hero"
+      ],
+      "visual_attributes": {
+        "material": [
+          "art paper",
+          "art carton",
+          "hvs",
+          "bc",
+          "linen",
+          "concorde",
+          "photo paper"
+        ]
+      }
+    },
+    {
+      "id": "id-card-hero",
+      "file": "images/id-card-hero.png",
+      "category_id": "id-card-kartu-nama",
+      "category": "ID Card & Kartu Nama",
+      "role": "hero",
+      "variants": [
+        "ID Card PVC",
+        "ID Card UV"
+      ],
+      "verified_source_facts": [
+        "1S/2S; credit-card-sized identification; minimum priced tier starts 5 pcs"
+      ],
+      "retrieval_keywords": [
+        "id card",
+        "kartu identitas",
+        "kartu panitia",
+        "pvc",
+        "uv card",
+        "tanda pengenal"
+      ],
+      "description_id": "Ilustrasi kartu identitas plastik sisi depan dan belakang dengan ikon profil contoh, tanpa identitas nyata.",
+      "alt_text_id": "kartu identitas plastik sisi depan dan belakang dengan ikon profil contoh, tanpa identitas nyata.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Two standalone rounded-corner rigid credit-card-proportioned identification cards, one front and one reverse on studio tabletop. Official logo and blue-white graphic design, heading 'ID CARD', role 'STAFF', small abstract human silhouette icon instead of real photo, no names/numbers/QR or barcode. Reverse has official logo. No lanyard, no holder, no bank logos, no paper business-card stack. Natural rigid PVC appearance.",
+      "manual_review_notes": [
+        "PVC/UV are listed offerings, not visually certified by image; no real identity data."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "ID CARD / KARTU IDENTITAS (Harga per pcs, sistem grosir — semakin banyak semakin murah)",
+          "line_start": 94,
+          "line_end": 130
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-863a184e-b003-4bb5-bbe0-aabb24cb8f2d.png",
+      "source_section_queries": [
+        "ID CARD / KARTU IDENTITAS"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "kartu nama bisnis",
+        "e-money",
+        "lanyard"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "ID Card PVC",
+        "ID Card UV"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "ID Card & Kartu Nama\nIlustrasi kartu identitas plastik sisi depan dan belakang dengan ikon profil contoh, tanpa identitas nyata.\nPilihan sumber: ID Card PVC; ID Card UV\nKata kunci: id card, kartu identitas, kartu panitia, pvc, uv card, tanda pengenal\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2050990,
+        "sha256": "4137d741e694b3148dc4a4142301f0bb157dd18f675b650ca7437fb3d2896ceb"
+      },
+      "product_type": "id-card",
+      "related_asset_ids": []
+    },
+    {
+      "id": "kartu-nama-hero",
+      "file": "images/kartu-nama-hero.png",
+      "category_id": "id-card-kartu-nama",
+      "category": "ID Card & Kartu Nama",
+      "role": "hero",
+      "variants": [
+        "Art Carton",
+        "BC / Board Cover"
+      ],
+      "verified_source_facts": [
+        "1S/2S; 100 lembar per box; glossy/doff listed for Art Carton"
+      ],
+      "retrieval_keywords": [
+        "kartu nama",
+        "business card",
+        "art carton",
+        "bc",
+        "kartu nama per box"
+      ],
+      "description_id": "Ilustrasi tumpukan kartu nama kertas serta contoh sisi depan dan belakang berlogo perusahaan.",
+      "alt_text_id": "tumpukan kartu nama kertas serta contoh sisi depan dan belakang berlogo perusahaan.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A neat small stack of PAPER business cards, rectangular sharp corners, visibly layered paper edges, a few cards laid flat showing front/back blue-white official logo designs. Text only 'ASIA VISUAL GRAFIKA' and 'KARTU NAMA', no fabricated phone address person or contact data. No PVC ID badge, no lanyard, no foil or embossing. Box quantity not depicted as exact count.",
+      "manual_review_notes": [
+        "Business-card dimensions and actual stock surface not specified; no foil/emboss claims."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "KARTU NAMA (Harga per box, 1 box = 100 lembar kartu nama)",
+          "line_start": 209,
+          "line_end": 245
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-bf6f27c8-ab07-4cc4-9c21-ebd96cdc56e3.png",
+      "source_section_queries": [
+        "KARTU NAMA"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "ID Card PVC",
+        "e-money"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Art Carton",
+        "BC / Board Cover"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "ID Card & Kartu Nama\nIlustrasi tumpukan kartu nama kertas serta contoh sisi depan dan belakang berlogo perusahaan.\nPilihan sumber: Art Carton; BC / Board Cover\nKata kunci: kartu nama, business card, art carton, bc, kartu nama per box\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2158469,
+        "sha256": "9df33a7192bd3554b5e483b34c671ab6122ddc4c9f2943aea73b8a9603488668"
+      },
+      "product_type": "kartu-nama",
+      "related_asset_ids": [
+        "kartu-nama-glossy-doff-comparison"
+      ]
+    },
+    {
+      "id": "kartu-nama-glossy-doff-comparison",
+      "file": "images/kartu-nama-glossy-doff-comparison.png",
+      "category_id": "id-card-kartu-nama",
+      "category": "ID Card & Kartu Nama",
+      "role": "finishing_comparison",
+      "variants": [
+        "Art Carton laminasi Glossy",
+        "Art Carton laminasi Doff"
+      ],
+      "verified_source_facts": [
+        "Art Carton cards 1S/2S with glossy/doff lamination listed"
+      ],
+      "retrieval_keywords": [
+        "laminasi kartu nama",
+        "glossy",
+        "doff",
+        "matte",
+        "finishing kartu nama"
+      ],
+      "description_id": "Perbandingan pantulan laminasi glossy dan doff pada contoh kartu nama Art Carton.",
+      "alt_text_id": "Perbandingan pantulan laminasi glossy dan doff pada contoh kartu nama Art Carton.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Two identical blue-white official-logo PAPER Art Carton business-card samples side by side on tabletop. Left has realistic clear glossy lamination with a visible soft light reflection; right matte doff lamination diffuse and low sheen. Exactly the same artwork, color and thickness, no luxury foil. Separate neutral tidy labels 'Glossy' and 'Doff'. Cards sharp rectangular corners. No UV ID cards or unsupported coatings.",
+      "manual_review_notes": [
+        "Finish comparison applies to listed Art Carton lamination only, not proof of all-stock availability."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "KARTU NAMA (Harga per box, 1 box = 100 lembar kartu nama)",
+          "line_start": 209,
+          "line_end": 245
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-055e2b54-b5aa-4773-afeb-4d5874839099.png",
+      "source_section_queries": [
+        "KARTU NAMA"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Art Carton laminasi Glossy",
+        "Art Carton laminasi Doff"
+      ],
+      "source_only_variants": [
+        "Art Carton laminasi Glossy",
+        "Art Carton laminasi Doff"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "ID Card & Kartu Nama\nPerbandingan pantulan laminasi glossy dan doff pada contoh kartu nama Art Carton.\nPilihan sumber: Art Carton laminasi Glossy; Art Carton laminasi Doff\nKata kunci: laminasi kartu nama, glossy, doff, matte, finishing kartu nama\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2007010,
+        "sha256": "cc8aa7d316354b18ba61cf95b5cf4496d026e8431263aeb90d9a925ca9a517f9"
+      },
+      "product_type": "kartu-nama",
+      "related_asset_ids": [
+        "kartu-nama-hero"
+      ],
+      "visual_attributes": {
+        "finish": [
+          "glossy",
+          "doff"
+        ]
+      }
+    },
+    {
+      "id": "brosur-flyer-hero",
+      "file": "images/brosur-flyer-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Brosur / Flyer Art Paper 150 GSM A4/A5"
+      ],
+      "verified_source_facts": [
+        "1S/2S; per rim = 500 lembar"
+      ],
+      "retrieval_keywords": [
+        "brosur",
+        "flyer",
+        "leaflet",
+        "brosur per rim",
+        "art paper 150"
+      ],
+      "description_id": "Ilustrasi brosur/flyer datar Art Paper dengan desain promosi biru putih; jumlah rim tidak divisualkan.",
+      "alt_text_id": "brosur/flyer datar Art Paper dengan desain promosi biru putih; jumlah rim tidak divisualkan.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A neatly fanned stack of flat promotional flyers, A4/A5 proportions, smooth Art Paper surface, official blue logo and restrained blue-white printed promotional layout. Text only 'BROSUR & FLYER' and company name. No prices, no invented business copy, no folding required, no envelope. Do not imply exact quantity from stack.",
+      "manual_review_notes": [
+        "Exact printed artwork illustrative; image cannot establish rim quantity."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "BROSUR / FLYER (Harga per rim, 1 rim = 500 lembar)",
+          "line_start": 131,
+          "line_end": 153
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-a0da9b86-917b-45a7-b188-cf4540d3d5f9.png",
+      "source_section_queries": [
+        "BROSUR / FLYER"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Brosur / Flyer Art Paper 150 GSM A4/A5"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi brosur/flyer datar Art Paper dengan desain promosi biru putih; jumlah rim tidak divisualkan.\nPilihan sumber: Brosur / Flyer Art Paper 150 GSM A4/A5\nKata kunci: brosur, flyer, leaflet, brosur per rim, art paper 150\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2349841,
+        "sha256": "477ac4a5ac8c2f25e8aeda929b21b07577427cf3ebca15f337b7283cefa3d9e8"
+      },
+      "product_type": "brosur-flyer",
+      "related_asset_ids": []
+    },
+    {
+      "id": "nota-ncr-hero",
+      "file": "images/nota-ncr-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Nota NCR Half Folio",
+        "Nota NCR Full Folio",
+        "1–4 ply"
+      ],
+      "verified_source_facts": [
+        "Per buku; source says 50 lembar"
+      ],
+      "retrieval_keywords": [
+        "nota ncr",
+        "nota faktur",
+        "kwitansi",
+        "surat jalan",
+        "nota rangkap"
+      ],
+      "description_id": "Ilustrasi nota NCR tiga lapis berwarna dengan form transaksi kosong dan logo perusahaan.",
+      "alt_text_id": "nota NCR tiga lapis berwarna dengan form transaksi kosong dan logo perusahaan.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A small office NCR invoice pad on tabletop, white top sheet gently lifted revealing pale pink and pale yellow duplicate sheets, left/top glued bound edge, blue official logo printed on white form header and heading 'NOTA'. Faint empty ruled columns, absolutely no customer names, transaction amounts or serial number claims. Carbonless paper thin and realistic. No blue carbon transfer sheets. Three-ply example only.",
+      "manual_review_notes": [
+        "Duplicate paper colors, binding and interpretation of 50 lembar vs sets require shop confirmation."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "NOTA NCR / NOTA FAKTUR (Harga per buku, 1 buku = 50 lembar)",
+          "line_start": 154,
+          "line_end": 174
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-120c96af-2286-472f-be31-a7fe7d43bc30.png",
+      "source_section_queries": [
+        "NOTA NCR / NOTA FAKTUR"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Nota NCR Half Folio",
+        "Nota NCR Full Folio",
+        "1–4 ply"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi nota NCR tiga lapis berwarna dengan form transaksi kosong dan logo perusahaan.\nPilihan sumber: Nota NCR Half Folio; Nota NCR Full Folio; 1–4 ply\nKata kunci: nota ncr, nota faktur, kwitansi, surat jalan, nota rangkap\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2143040,
+        "sha256": "938ea366aca44830c8614792f808d6659187cadef7b8736176be3b79b830e0fc"
+      },
+      "product_type": "nota-ncr",
+      "related_asset_ids": []
+    },
+    {
+      "id": "stempel-otomatis-hero",
+      "file": "images/stempel-otomatis-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Stempel kotak",
+        "Stempel bulat"
+      ],
+      "verified_source_facts": [
+        "Self-inking automatic rubber stamps; multiple mm sizes listed"
+      ],
+      "retrieval_keywords": [
+        "stempel",
+        "stempel otomatis",
+        "stempel bulat",
+        "stempel kotak",
+        "cap kantor"
+      ],
+      "description_id": "Ilustrasi stempel otomatis kotak dan bulat dengan contoh hasil cap biru pada kertas.",
+      "alt_text_id": "stempel otomatis kotak dan bulat dengan contoh hasil cap biru pada kertas.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Two realistic self-inking automatic rubber stamps, one rectangular housing and one round housing, neutral dark blue/black plastic on white tabletop, accompanying white paper with one clean blue rectangular impression and one round impression containing official logo and text 'ASIA VISUAL GRAFIKA'. Actual small rubber stamp hardware, not engraved wax seal. No manufacturer logo or claimed dimensions.",
+      "manual_review_notes": [
+        "Housing models, ink color and achievable tiny-logo detail need shop confirmation."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "STEMPEL (Harga per pcs)",
+          "line_start": 175,
+          "line_end": 208
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-d99b4013-3071-45cb-968a-94a1e754f2aa.png",
+      "source_section_queries": [
+        "STEMPEL"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Stempel kotak",
+        "Stempel bulat"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi stempel otomatis kotak dan bulat dengan contoh hasil cap biru pada kertas.\nPilihan sumber: Stempel kotak; Stempel bulat\nKata kunci: stempel, stempel otomatis, stempel bulat, stempel kotak, cap kantor\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2150652,
+        "sha256": "c3508164a47208475ba26df122767266491ba5aced482c3405dab34871f6a425"
+      },
+      "product_type": "stempel",
+      "related_asset_ids": []
+    },
+    {
+      "id": "poster-albatros-hero",
+      "file": "images/poster-albatros-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Poster Albatros A0",
+        "Poster Albatros A1",
+        "Poster Albatros A2"
+      ],
+      "verified_source_facts": [
+        "Albatros tanpa laminasi; A0 84x119, A1 59x84, A2 42x59 cm as supplied"
+      ],
+      "retrieval_keywords": [
+        "poster albatros",
+        "poster a0",
+        "poster a1",
+        "poster a2",
+        "poster besar",
+        "large format indoor"
+      ],
+      "description_id": "Ilustrasi poster indoor Albatros tanpa laminasi atau bingkai, dengan satu lembar digulung.",
+      "alt_text_id": "poster indoor Albatros tanpa laminasi atau bingkai, dengan satu lembar digulung.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A single dominant large unframed Albatros indoor printed poster leaning gently against seamless studio wall, lower edge naturally curved, one rolled printed poster beside it. Smooth paperlike surface, official logo and blue-white design with title 'POSTER ALBATROS'. No frame, no eyelets, no stand cassette, no adhesive peel, no visible protective lamination.",
+      "manual_review_notes": [
+        "Representative large-format poster; no exact scale claim; no framing or lamination included."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "POSTER (Harga per pcs, bahan Albatros tanpa laminasi)",
+          "line_start": 360,
+          "line_end": 373
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-b5da2c4b-118a-45d4-b9d0-f24deb44b582.png",
+      "source_section_queries": [
+        "POSTER"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Poster Albatros A0",
+        "Poster Albatros A1",
+        "Poster Albatros A2"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi poster indoor Albatros tanpa laminasi atau bingkai, dengan satu lembar digulung.\nPilihan sumber: Poster Albatros A0; Poster Albatros A1; Poster Albatros A2\nKata kunci: poster albatros, poster a0, poster a1, poster a2, poster besar, large format indoor\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2080176,
+        "sha256": "bdbe82d85bada60695a47843764f7fdb474fffe9b5faec008ba5cd11ade230d2"
+      },
+      "product_type": "poster-albatros",
+      "related_asset_ids": []
+    },
+    {
+      "id": "kalender-meja-a5-hero",
+      "file": "images/kalender-meja-a5-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Kalender Meja A5 Art Carton 260 GSM"
+      ],
+      "verified_source_facts": [
+        "14 halaman; 14.8 x 21 cm; 1S/2S"
+      ],
+      "retrieval_keywords": [
+        "kalender meja",
+        "kalender a5",
+        "kalender custom",
+        "14 halaman"
+      ],
+      "description_id": "Ilustrasi kalender meja A5 berlogo dengan grid contoh tanpa tanggal; model jilid representatif.",
+      "alt_text_id": "kalender meja A5 berlogo dengan grid contoh tanpa tanggal; model jilid representatif.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. One A5 landscape desktop tent calendar, width 21 cm height 14.8 cm page proportions, Art Carton printed pages with simple top wire binding and sturdy triangular paper stand. Official logo prominent on upper page area, blue-white design. For calendar grid use a small sober abstract date grid with no month/year or numerals, so no inaccurate actual dates. Show a modest natural page block, do not assert count on image.",
+      "manual_review_notes": [
+        "Binding style and base structure representative; 14 pages comes from source not visual counting."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "KALENDER MEJA (Harga per pcs, ukuran A5, bahan Art Carton 260 GSM)",
+          "line_start": 374,
+          "line_end": 393
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-e3799678-c28a-4116-8107-4ff8faee971f.png",
+      "source_section_queries": [
+        "KALENDER MEJA"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Kalender Meja A5 Art Carton 260 GSM"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi kalender meja A5 berlogo dengan grid contoh tanpa tanggal; model jilid representatif.\nPilihan sumber: Kalender Meja A5 Art Carton 260 GSM\nKata kunci: kalender meja, kalender a5, kalender custom, 14 halaman\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2090563,
+        "sha256": "e2d7d730e213f14349f518202e4e6767025c113045a52144efebaeaa9cee7f0a"
+      },
+      "product_type": "kalender-meja",
+      "related_asset_ids": []
+    },
+    {
+      "id": "e-money-custom-uv-hero",
+      "file": "images/e-money-custom-uv-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Mandiri E-Money UV",
+        "BRI Brizzi UV",
+        "BCA Flazz UV"
+      ],
+      "verified_source_facts": [
+        "1S/2S UV custom print; card issuance/balance not specified"
+      ],
+      "retrieval_keywords": [
+        "e-money custom",
+        "kartu elektronik",
+        "flazz",
+        "brizzi",
+        "mandiri",
+        "uv print kartu"
+      ],
+      "description_id": "Ilustrasi artwork cetak UV pada kartu elektronik generik tanpa merek bank atau data kartu.",
+      "alt_text_id": "artwork cetak UV pada kartu elektronik generik tanpa merek bank atau data kartu.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Two generic credit-card-proportioned rounded plastic electronic payment cards on neutral tabletop, custom UV-printed blue-white official company logo design, text 'CUSTOM UV' only. No bank logos, no counterfeit bank card marks, no chips, no card numbers, no balances or payment-network logos, no identity portrait. Clearly custom card printing mockup, sleek printed plastic sheen.",
+      "manual_review_notes": [
+        "Generic card artwork; verify bank-required marks, approved print zones, card model and balance inclusion before release."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "E-MONEY / KARTU ELEKTRONIK CUSTOM UV PRINT (Harga per pcs)",
+          "line_start": 394,
+          "line_end": 408
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-802c19cf-127c-4c83-99fd-8212c36f5623.png",
+      "source_section_queries": [
+        "E-MONEY / KARTU ELEKTRONIK CUSTOM UV PRINT"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [
+        "ID Card",
+        "kartu nama"
+      ],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Mandiri E-Money UV",
+        "BRI Brizzi UV",
+        "BCA Flazz UV"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi artwork cetak UV pada kartu elektronik generik tanpa merek bank atau data kartu.\nPilihan sumber: Mandiri E-Money UV; BRI Brizzi UV; BCA Flazz UV\nKata kunci: e-money custom, kartu elektronik, flazz, brizzi, mandiri, uv print kartu\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1976234,
+        "sha256": "1a376068eb61c233b004dd7a3334996685c232b1cf04a1ffa7a015c39bf9f3ca"
+      },
+      "product_type": "e-money-custom-uv",
+      "related_asset_ids": []
+    },
+    {
+      "id": "plakat-akrilik-hero",
+      "file": "images/plakat-akrilik-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Plakat Akrilik Tipe B"
+      ],
+      "verified_source_facts": [
+        "Type A/B/C/D 8/10/15/20 mm; 23 cm high x 10 cm wide; box included"
+      ],
+      "retrieval_keywords": [
+        "plakat akrilik",
+        "plakat penghargaan",
+        "plakat wisuda",
+        "souvenir akrilik",
+        "award"
+      ],
+      "description_id": "Ilustrasi plakat akrilik bening dengan logo dan box kemasan; bentuk produk dan box representatif.",
+      "alt_text_id": "plakat akrilik bening dengan logo dan box kemasan; bentuk produk dan box representatif.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A simple clear upright acrylic award plaque with rectangular body proportions 23 cm high by 10 cm wide, visibly 10 mm thick polished clear edges, modest stable clear base and open plain navy presentation box beside it. Official blue logo print on plaque, title 'PENGHARGAAN', no recipient names dates or award claims. Do not make crystal facets or metal parts. Box has neutral foam insert.",
+      "manual_review_notes": [
+        "Exact silhouette, base, print method and packaging design not specified; Type B thickness is intended not measured from image."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "PLAKAT AKRILIK (Harga per pcs, sudah termasuk box kemasan)",
+          "line_start": 409,
+          "line_end": 421
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-7d544667-433b-470a-aaaa-e343e8bd8383.png",
+      "source_section_queries": [
+        "PLAKAT AKRILIK"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Plakat Akrilik Tipe B"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi plakat akrilik bening dengan logo dan box kemasan; bentuk produk dan box representatif.\nPilihan sumber: Plakat Akrilik Tipe B\nKata kunci: plakat akrilik, plakat penghargaan, plakat wisuda, souvenir akrilik, award\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2066442,
+        "sha256": "6ef6428dc98823e9e40e25e188f4d665408e24f0c370ff559a476f0b3fc743ed"
+      },
+      "product_type": "plakat-akrilik",
+      "related_asset_ids": []
+    },
+    {
+      "id": "yasin-buku-saku-hero",
+      "file": "images/yasin-buku-saku-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Yasin Soft Cover",
+        "Yasin Hard Cover",
+        "Yasin Hard Cover Samping"
+      ],
+      "verified_source_facts": [
+        "HVS / Minyak Press and page-count choices listed"
+      ],
+      "retrieval_keywords": [
+        "buku yasin",
+        "buku saku doa",
+        "yasin soft cover",
+        "hard cover",
+        "bcs"
+      ],
+      "description_id": "Ilustrasi buku Yasin softcover dan hardcover tertutup dengan judul Latin tanpa teks ayat.",
+      "alt_text_id": "buku Yasin softcover dan hardcover tertutup dengan judul Latin tanpa teks ayat.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Two closed small Indonesian Yasin prayer books on tabletop, one flexible softcover and one thicker hardcover with visible spine, white covers with restrained deep blue geometric border, small official company logo near bottom, exact Latin-script title 'YASIN' only. No Arabic text, no scripture, no personal memorial names/photos, no gold foil, no invented page counts printed. Show intact paper page blocks.",
+      "manual_review_notes": [
+        "Hardcover-samping construction, size and exact stock not evidenced; avoid implying specific page counts or religious text accuracy."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "YASIN / BUKU SAKU (Harga per pcs)",
+          "line_start": 422,
+          "line_end": 450
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-f740837b-590a-4708-9471-057f07af97e7.png",
+      "source_section_queries": [
+        "YASIN / BUKU SAKU"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Yasin Soft Cover",
+        "Yasin Hard Cover",
+        "Yasin Hard Cover Samping"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi buku Yasin softcover dan hardcover tertutup dengan judul Latin tanpa teks ayat.\nPilihan sumber: Yasin Soft Cover; Yasin Hard Cover; Yasin Hard Cover Samping\nKata kunci: buku yasin, buku saku doa, yasin soft cover, hard cover, bcs\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2482318,
+        "sha256": "05d1ae0bbd79fcc9d1eb8985a4b8cfb9babb69c24003e69cd99039f36c1e06dc"
+      },
+      "product_type": "yasin-buku-saku",
+      "related_asset_ids": []
+    },
+    {
+      "id": "tumbler-custom-hero",
+      "file": "images/tumbler-custom-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Niagara / Sakura",
+        "Smart LED"
+      ],
+      "verified_source_facts": [
+        "Custom one-sided print; minimum 5 pcs"
+      ],
+      "retrieval_keywords": [
+        "tumblr custom",
+        "tumbler",
+        "botol minum",
+        "niagara",
+        "sakura",
+        "smart led"
+      ],
+      "description_id": "Ilustrasi dua botol minum custom berlogo; model Niagara/Sakura dan Smart LED perlu foto pembanding.",
+      "alt_text_id": "dua botol minum custom berlogo; model Niagara/Sakura dan Smart LED perlu foto pembanding.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Two representative custom drink bottles, one plain straight-sided travel bottle with simple lid and one slightly slimmer insulated-looking bottle with plain black circular LED-style lid (display unlit). Both clean white bodies with official blue logo printed on one side. No capacity markings, no temperature values, no metal grade or insulation claims, no extra accessories. Studio product photography.",
+      "manual_review_notes": [
+        "High priority: supplier photographs absent; Niagara/Sakura/Smart LED silhouettes and features unverified. LED unlit avoids claimed temperature."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "TUMBLR CUSTOM (Harga per pcs, minimal order 5 pcs)",
+          "line_start": 451,
+          "line_end": 469
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-41d5150a-7034-4ad9-8e2f-21f9e52b512d.png",
+      "source_section_queries": [
+        "TUMBLR CUSTOM"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Niagara / Sakura",
+        "Smart LED"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi dua botol minum custom berlogo; model Niagara/Sakura dan Smart LED perlu foto pembanding.\nPilihan sumber: Niagara / Sakura; Smart LED\nKata kunci: tumblr custom, tumbler, botol minum, niagara, sakura, smart led\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1725228,
+        "sha256": "8017100f4844fa92452e462fdb2408967647f9d3f2431f32d5b597bfa7606633"
+      },
+      "product_type": "tumbler-custom",
+      "related_asset_ids": []
+    },
+    {
+      "id": "pin-aksesoris-hero",
+      "file": "images/pin-aksesoris-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Pin Peniti 4.4/5.8 cm",
+        "Pin Gantungan 4.4/5.8 cm"
+      ],
+      "verified_source_facts": [
+        "Minimum 24 pcs"
+      ],
+      "retrieval_keywords": [
+        "pin custom",
+        "pin peniti",
+        "pin gantungan",
+        "button badge",
+        "gantungan pin"
+      ],
+      "description_id": "Ilustrasi pin bulat peniti dan gantungan; bagian belakang peniti dan ring gantungan terlihat.",
+      "alt_text_id": "pin bulat peniti dan gantungan; bagian belakang peniti dan ring gantungan terlihat.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Small arrangement of round custom button badges with official blue-white logo artwork: two front-facing round printed badges, one reversed badge showing a plausible safety pin back, and one round badge keychain with simple metal ring. Realistic domed printed face and metal rim. No text dimension claims, no magnets or unsupported clips.",
+      "manual_review_notes": [
+        "Back hardware and keychain connector style representative; exact diameters from source not visually measured."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "PIN AKSESORIS (Harga per pcs, minimal order 24 pcs)",
+          "line_start": 470,
+          "line_end": 483
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-1db8a775-34e8-4b9d-aea7-59be5aab1fe7.png",
+      "source_section_queries": [
+        "PIN AKSESORIS"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Pin Peniti 4.4/5.8 cm",
+        "Pin Gantungan 4.4/5.8 cm"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi pin bulat peniti dan gantungan; bagian belakang peniti dan ring gantungan terlihat.\nPilihan sumber: Pin Peniti 4.4/5.8 cm; Pin Gantungan 4.4/5.8 cm\nKata kunci: pin custom, pin peniti, pin gantungan, button badge, gantungan pin\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2087369,
+        "sha256": "bfe87bbf98627be2f30d4b4148d1d0af8095221b1dacbe26defb3627a05bdd96"
+      },
+      "product_type": "pin-aksesoris",
+      "related_asset_ids": []
+    },
+    {
+      "id": "lanyard-custom-hero",
+      "file": "images/lanyard-custom-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Lanyard Polos",
+        "Sablon 1 Warna",
+        "Full Color"
+      ],
+      "verified_source_facts": [
+        "Minimum 25 pcs; sold separately from ID Card"
+      ],
+      "retrieval_keywords": [
+        "lanyard",
+        "tali id card",
+        "tali gantung",
+        "lanyard sablon",
+        "lanyard full color"
+      ],
+      "description_id": "Ilustrasi tali lanyard polos, sablon satu warna, dan desain full color; kartu identitas dijual terpisah.",
+      "alt_text_id": "tali lanyard polos, sablon satu warna, dan desain full color; kartu identitas dijual terpisah.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Three fabric neck lanyards arranged in relaxed elongated loops on tabletop: one plain deep blue, one blue with single-color white official logo repeat, one white with blue official logo and restrained two-tone blue graphics representing full-color artwork. Realistic woven fabric and basic metal swivel hooks. NO attached ID cards, no plastic holders, no badge reels, no claimed widths or special safety buckles.",
+      "manual_review_notes": [
+        "Width, weaving, hooks, print process and full-color substrate not specified; hooks representative."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "LANYARD (Harga per pcs, minimal order 25 pcs)",
+          "line_start": 484,
+          "line_end": 496
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-885740df-49a2-4eff-8df0-3533a5c08e2e.png",
+      "source_section_queries": [
+        "LANYARD"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Lanyard Polos",
+        "Sablon 1 Warna",
+        "Full Color"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi tali lanyard polos, sablon satu warna, dan desain full color; kartu identitas dijual terpisah.\nPilihan sumber: Lanyard Polos; Sablon 1 Warna; Full Color\nKata kunci: lanyard, tali id card, tali gantung, lanyard sablon, lanyard full color\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2527183,
+        "sha256": "e3c6c5844deab2484aecb304bf832b585161d9d4c697a7616e081ca13b5f293a"
+      },
+      "product_type": "lanyard",
+      "related_asset_ids": []
+    },
+    {
+      "id": "korek-api-custom-hero",
+      "file": "images/korek-api-custom-hero.png",
+      "category_id": "other-physical-printing",
+      "category": "Other Physical Printing Products",
+      "role": "hero",
+      "variants": [
+        "Cetak Satu Sisi",
+        "Cetak Dua Sisi"
+      ],
+      "verified_source_facts": [
+        "Minimum 50 pcs"
+      ],
+      "retrieval_keywords": [
+        "korek api custom",
+        "korek souvenir",
+        "korek logo",
+        "cetak korek"
+      ],
+      "description_id": "Ilustrasi korek api custom berlogo dengan contoh permukaan cetak; model badan belum terverifikasi.",
+      "alt_text_id": "korek api custom berlogo dengan contoh permukaan cetak; model badan belum terverifikasi.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. Three simple pocket gas lighters arranged safely upright and flat, plain white rectangular bodies with metal top and ignition wheel, official blue logo printed naturally on flat body. No flame, smoke, hands, brand names, refillability claim or safety claims. Show front and reverse positioning as print examples without promising exact hardware model.",
+      "manual_review_notes": [
+        "Actual lighter body, ignition mechanism and print area unspecified; model requires shop review."
+      ],
+      "generation_status": "generated",
+      "visual_review_status": "reviewed_representative",
+      "is_ai_generated": true,
+      "is_actual_product_photo": false,
+      "prices_in_image": false,
+      "source_sections": [
+        {
+          "file": "references/product-knowledge.txt",
+          "heading": "KOREK API CUSTOM (Harga per pcs, minimal order 50 pcs)",
+          "line_start": 497,
+          "line_end": 517
+        }
+      ],
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-f167f8e1-cbac-4d1d-a750-114921dadff9.png",
+      "source_section_queries": [
+        "KOREK API CUSTOM"
+      ],
+      "review": {
+        "reviewer": "Codex visual inspection",
+        "scope": "Displayed full image: product identity, logo resemblance, palette, text, composition and obvious artifacts. Not physical product authentication.",
+        "status": "passed_with_documented_limitations",
+        "admin_product_approval": "approved_by_user",
+        "customer_release_approved": true,
+        "approved_on": "2026-10-22",
+        "approval_source": "Q3 explicit approval of all 27 selected images"
+      },
+      "negative_retrieval_keywords": [],
+      "variant_mapping_note": "variants lists source offerings; depicted_variants identifies visible examples only. Do not infer all offerings are individually shown or visually distinguishable.",
+      "depicted_variants": [
+        "Representative product appearance; exact source variant not visually authenticated"
+      ],
+      "source_only_variants": [
+        "Cetak Satu Sisi",
+        "Cetak Dua Sisi"
+      ],
+      "pricing": {
+        "embedded": false,
+        "authoritative_source": "references/product-knowledge.txt",
+        "current_price_requires_admin_confirmation": true
+      },
+      "retrieval_text": "Other Physical Printing Products\nIlustrasi korek api custom berlogo dengan contoh permukaan cetak; model badan belum terverifikasi.\nPilihan sumber: Cetak Satu Sisi; Cetak Dua Sisi\nKata kunci: korek api custom, korek souvenir, korek logo, cetak korek\nIlustrasi AI, bukan foto barang aktual; spesifikasi dan harga mengikuti knowledge base.",
+      "retrieval_enabled": false,
+      "metadata_ready_for_future_integration": true,
+      "input_images": [
+        "references/official-logo.png"
+      ],
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1932889,
+        "sha256": "e9493890ef3d868ff15f538aea688abef4d67d5728699e2a4a172d0843aaa1d6"
+      },
+      "product_type": "korek-api-custom",
+      "related_asset_ids": []
+    }
+  ],
+  "delivery_status": "approved_for_catalog_import",
+  "asset_count": 27,
+  "retrieval_policy": {
+    "integration_enabled": false,
+    "base_path": "dataset/image-product/",
+    "paths_relative_to": "manifest.json directory",
+    "source_facts_are_not_visual_certification": true,
+    "keyword_entries_are_not_embeddings": true,
+    "price_authority": "references/product-knowledge.txt; confirm current estimates with admin",
+    "do_not_retrieve_for": [
+      "software services",
+      "unlisted products"
+    ],
+    "public_caption_recommendation": "Ilustrasi produk; model, bahan, finishing, dan harga dikonfirmasi admin."
+  },
+  "archived_generations": [
+    {
+      "id": "y-banner-hero-superseded-v1",
+      "file": "drafts/y-banner-hero-v1.png",
+      "category_id": "standing-banner",
+      "category": "X/Y/Roll Up Banner",
+      "role": "hero",
+      "variants": [
+        "Y-Banner 60 x 160 cm"
+      ],
+      "description_id": "Versi awal Y-Banner; digantikan revisi untuk menyelaraskan tampilan rangka.",
+      "retrieval_keywords": [],
+      "retrieval_enabled": false,
+      "review_status": "superseded_do_not_use",
+      "superseded_by": "y-banner-hero",
+      "reason": "Matched representative Y floor base to form comparison.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. One complete upright Y-Banner with printed panel 60 cm wide by 160 cm high, three-quarter view exposing a plausible Y-shaped rear support: central upright forks into two arms supporting the upper banner corners, lower panel tensioned near lower central support, stable floor base. Blue and white logo print, small title 'Y-BANNER'. Show the rear fork clearly at side, no X rods and no roll-up cassette. No invented size labels.",
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-4f73f820-b7da-426c-81d5-e9ca30e87239.png",
+      "is_ai_generated": true,
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 1721609,
+        "sha256": "7b49fadd669fdcae641f364950945e6de1e1a2cbad09552ef434c8a0c9484329"
+      }
+    },
+    {
+      "id": "stiker-a3-plus-hero-superseded-v1",
+      "file": "drafts/stiker-a3-plus-hero-v1.png",
+      "category_id": "stiker-a3-kiss-cut",
+      "category": "Stiker A3+ / Kiss Cut",
+      "role": "hero",
+      "variants": [
+        "Cromo tanpa Kiss Cut",
+        "Vinyl tanpa Kiss Cut",
+        "Transparan tanpa Kiss Cut"
+      ],
+      "description_id": "Versi awal hero stiker tanpa kiss cut; ditolak karena tampak memiliki garis potong dan singkatan nama merek.",
+      "retrieval_keywords": [],
+      "retrieval_enabled": false,
+      "review_status": "superseded_do_not_use",
+      "superseded_by": "stiker-a3-plus-hero",
+      "reason": "Removed misleading kiss-cut outlines and abbreviated brand text from uncut-sheet hero.",
+      "prompt": "Use case: product-mockup. Create ONE square 1024x1024 photorealistic commercial product catalog photograph for Asia Visual Grafika. Reference image 1 is ONLY the official blue folded A logo; preserve that exact mark, do not redesign it. Clean warm-white seamless studio and pale neutral tabletop, soft upper-left daylight, gentle realistic contact shadows, crisp tactile material detail, restrained deep blue and white printed graphics derived from the logo, same visual series across all assets. Product fills about 75% of frame with generous safe margins. Print the supplied blue logo naturally onto product artwork, with small neat text 'ASIA VISUAL GRAFIKA' only where it fits. No decorative floating logo overlay. No prices, no discount claims, no phone numbers, no invented specifications, no watermarks, no additional brands, no irrelevant props. Printed artwork is illustrative, not an actual customer order. A flat rectangular A3+ adhesive label sheet and two subtly offset sheets beneath, long-to-short ratio about 47:31. Top sheet has neatly repeated small ROUND and rounded-rectangle labels printed with official logo, all uncut (no cut lines), even margins, a small lifted sheet corner revealing release backing. Blue-and-white branded label designs. No roll, no loose cut letters. Single dominant sheet; do not claim exact sticker count.",
+      "generation_source_path": "/Users/royanrosyad/.codex/generated_images/01a162f7-e39f-77d3-a38a-71d0c963ad91/exec-af9a60d9-2eb1-4580-b70a-67c01dc88e25.png",
+      "is_ai_generated": true,
+      "image": {
+        "width": 1254,
+        "height": 1254,
+        "format": "PNG",
+        "bit_depth": 8,
+        "color_type": 2,
+        "bytes": 2195034,
+        "sha256": "bfe8be70142290f52209e500a6c2534ad240f27a5a57b021321e6005a9ca121c"
+      }
+    }
+  ],
+  "reference_integrity": [
+    {
+      "file": "references/catalog-scope.png",
+      "sha256": "5f9cd6856ab07587ff5ab51430ecd84bd521927cd3e422359db9f92b3bbb0432",
+      "bytes": 92588
+    },
+    {
+      "file": "references/official-logo.png",
+      "sha256": "3c987db855ffd5f5d64e04bc91486d3fcd24a5faa79c7cdd287d42b201e4b7bd",
+      "bytes": 36853
+    },
+    {
+      "file": "references/product-knowledge.txt",
+      "sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+      "bytes": 47869
+    }
+  ],
+  "verification": {
+    "date": "2026-10-22",
+    "selected_images": 27,
+    "archived_images": 2,
+    "category_count": 7,
+    "file_integrity": "passed",
+    "mapping": "passed",
+    "unique_selected_checksums": 27,
+    "visual_review": "completed_with_documented_limitations",
+    "admin_product_approval": "approved_by_user",
+    "runtime_integration": "disabled"
+  },
+  "source_ambiguities": [
+    {
+      "id": "a3-effective-areas",
+      "detail": "Generic sticker effective area 31x47 cm vs kiss-cut layout 29x42 cm; manual layout 31x47 cm; digital sheet 32x48 cm. Distinguish sheet and usable area; confirm with shop."
+    },
+    {
+      "id": "y-frame-geometry",
+      "detail": "No product photo supplied. Representative partially visible Y hardware must be confirmed."
+    },
+    {
+      "id": "unspecified-models",
+      "detail": "Souvenir silhouettes, mounting hardware, paper textures, bindings and packaging are illustrative, not source-certified stock."
+    },
+    {
+      "id": "ncr-sheet-count",
+      "detail": "Source says 50 lembar per buku; confirm sheets vs multipart sets."
+    },
+    {
+      "id": "e-money-inclusions",
+      "detail": "Card balance, supplied blank card, required issuer marks and print zones unspecified."
+    },
+    {
+      "id": "concorde-alias",
+      "detail": "Knowledge source uses both Concord and Concorde; preserved as one paper-family alias."
+    }
+  ]
+}

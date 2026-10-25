@@ -1,0 +1,27 @@
+{
+  "database": "disposable loopback only",
+  "catalogCount": 27,
+  "savedAsset": "roll-up-banner-hero",
+  "savedRevision": 3,
+  "savedCaption": "Ilustrasi roll up banner.",
+  "widths": [
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false,
+      "dark": true,
+      "reducedMotion": true
+    }
+  ],
+  "signedStagingReplacement": "passed; existing approved PNG decoded and saved as revision 3",
+  "unsavedReplacementPreview": true,
+  "dialogLabelAndFocus": true,
+  "escapeClosesDialog": true,
+  "playground": {
+    "imageLoaded": true,
+    "selectorRole": "form_comparison"
+  }
+}

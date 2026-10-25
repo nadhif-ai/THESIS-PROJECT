@@ -1,0 +1,383 @@
+[
+  {
+    "request": {
+      "question": "Halo!",
+      "session_id": "4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Halo, Kak! 😊 Lagi mau cetak apa? Ceritakan kebutuhannya, nanti saya bantu cek pilihan bahan atau estimasi harganya.",
+      "session_id": "playground_4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3",
+      "answer_source": "Greeting",
+      "media_url": null,
+      "sources": [],
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0
+      },
+      "retrieval_context": [],
+      "latency_seconds": 0,
+      "trace_id": null,
+      "trace_url": null,
+      "error": null,
+      "prompt_sha256": null
+    }
+  },
+  {
+    "request": {
+      "question": "Min, spanduk ukuran 2×3 meter, dua lembar. Berapa harganya?",
+      "session_id": "4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Untuk spanduk ukuran 2×3 meter sebanyak 2 lembar, bahannya mau pakai yang mana, Kak? Harga berbeda tergantung bahan dan kualitas cetaknya, misalnya Flexi China 280 GSM standar Rp16.500/m² atau kualitas tinggi Rp25.000/m².",
+      "session_id": "playground_4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3",
+      "answer_source": "naive_rag",
+      "media_url": null,
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "usage": {
+        "prompt_tokens": 3536,
+        "completion_tokens": 115
+      },
+      "retrieval_context": [
+        {
+          "text": "## PANDUAN RUMUS PERHITUNGAN HARGA (CHAIN-OF-THOUGHT)\n\nPanduan ini berisi seluruh rumus dan langkah perhitungan yang WAJIB digunakan LLM saat pelanggan menanyakan estimasi harga total pesanan. Ikuti langkah demi langkah (step-by-step) secara urut dan tuliskan rincian perhitungan pada jawaban.\n\n### A. RUMUS PERHITUNGAN PRODUK LARGE FORMAT / METERAN (Banner, Spanduk, Stiker Meteran)\n\nBerlaku untuk: cetak spanduk, banner, baliho, backdrop, stiker vinyl meteran, stiker one way vision, poster Albatros meteran, dan laminating meteran.\n\nLangkah Perhitungan:\n1. Hitung luas 1 cetakan: Luas = Panjang (meter) × Lebar (meter).\n2. Hitung total luas seluruh pesanan: Total Luas = Luas × Jumlah pcs.\n3. Tentukan harga per m² sesuai jenis bahan yang dipilih pelanggan (lihat tabel harga di atas).\n4. Hitung harga mentah: Harga Mentah = Total Luas × Harga per m².\n5. Bulatkan ke atas ke kelipatan Rp 500 terdekat: Total Harga = ceiling(Harga Mentah ÷ 500) × 500.\n\nContoh CoT: Pelanggan memesan 2 spanduk Flexi 280 GSM Standar ukuran 3 × 1 meter.\n• Luas per spanduk = 3 × 1 = 3 m².\n• Total luas = 3 × 2 = 6 m².\n• Harga per m² Flexi 280 Standar = Rp 16.500.\n• Harga mentah = 6 × Rp 16.500 = Rp 99.000.\n• Pembulatan ke kelipatan 500 → Rp 99.000 (sudah kelipatan 500).\n• Total estimasi = Rp 99.000.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 39,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "2dea54e57e33195c06ce26756989bd4c6035f6d1e3df8ad9cc95fac659c31ccc",
+            "cosine_similarity": 0.325403333,
+            "similarity_score": 0.674596667
+          },
+          "distance": 0.674596667,
+          "similarity": 0.325403333
+        },
+        {
+          "text": "Ukuran Persegi Panjang / Kustom:\n• 2 cm x 3 cm: 162 pcs per lembar A3+\n• 2 cm x 4 cm: 117 pcs per lembar A3+\n• 2 cm x 5 cm: 101 pcs per lembar A3+\n• 3 cm x 4 cm: 71 pcs per lembar A3+\n• 3 cm x 5 cm: 60 pcs per lembar A3+\n• 3 cm x 6 cm: 58 pcs per lembar A3+\n• 4 cm x 5 cm: 45 pcs per lembar A3+\n• 4 cm x 6 cm: 36 pcs per lembar A3+\n• 4 cm x 7 cm: 36 pcs per lembar A3+\n• 5 cm x 6 cm: 30 pcs per lembar A3+\n• 5 cm x 7 cm: 28 pcs per lembar A3+\n• 5 cm x 8 cm: 25 pcs per lembar A3+\n• 5 cm x 9 cm: 20 pcs per lembar A3+\n• 5 cm x 10 cm: 20 pcs per lembar A3+\n• 6 cm x 7 cm: 20 pcs per lembar A3+\n• 6 cm x 8 cm: 20 pcs per lembar A3+",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 9,
+            "document_id": "b457cbf47b594baf9d444694eab014a8",
+            "format": "txt",
+            "source": "03_panduan_berkas_siap_cetak.txt",
+            "source_id": "6e21c4942b07464a9285ad8d7d1f8cec",
+            "chunk_id": "76ae35d73bc59d0e2fda62cbb89df9f4e8122fc7c1e0946b5692fe1707a61943",
+            "cosine_similarity": 0.314673901,
+            "similarity_score": 0.6853260990000001
+          },
+          "distance": 0.6853260990000001,
+          "similarity": 0.3146739009999999
+        },
+        {
+          "text": "## 1. BAHAN CETAK LUAR RUANGAN (OUTDOOR BANNER / SPANDUK)\nBahan spanduk luar ruangan dirancang khusus agar kuat menghadapi hujan dan terik matahari langsung. Mesin cetak besar (large format) kami mampu mencetak lebar maksimal 3,2 meter dalam satu lembar utuh tanpa sambungan. Jika pelanggan memesan spanduk yang lebarnya melebihi 3,2 meter, maka cetakan akan dibuat dalam beberapa bagian terpisah lalu disambung menggunakan teknik pengeleman panas khusus banner agar sambungannya kokoh dan rapi.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 1,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "155d85cf64da62d58b8ef59796f38b2be394d5405449933a5a08a9433764fe14",
+            "cosine_similarity": 0.309150755,
+            "similarity_score": 0.690849245
+          },
+          "distance": 0.690849245,
+          "similarity": 0.309150755
+        },
+        {
+          "text": "## 7. OPSI FINISHING PASCA-CETAK\nA. Finishing Spanduk / Banner Outdoor:\n1. Potong Pas Gambar: Hasil cetakan spanduk dipotong rapi tepat di garis batas desain, tanpa ada sisa kain putih di pinggiran. Hasilnya ukuran spanduk sama persis dengan ukuran gambar desain.\n2. Staples: Pengikatan hasil cetakan menggunakan staples/isi staples tembak di bagian tepi atau sudut, biasanya digunakan untuk memasang cetakan pada media papan atau rangka kayu.\n3. Mata Ayam (Ring Besi Pengait): Pemasangan cincin logam (ring besi) berlubang di pinggiran spanduk sebagai tempat memasukkan tali pengikat. Tersedia dua pilihan pemasangan: 'Per Sudut' (4 buah mata ayam dipasang di 4 sudut spanduk saja) atau 'Per Meter' (mata ayam dipasang setiap jarak 1 meter di sepanjang tepi spanduk, untuk spanduk berukuran besar agar tarikan tali merata).\n4. Lipat Pas Gambar: Bagian sisa kain putih di luar area desain tidak dipotong, melainkan dilipat ke belakang tepat pada batas gambar lalu direkatkan dengan lem pemanas agar rapi, kuat, dan tidak mudah terurai. Hasil akhirnya serupa dengan 'Potong Pas Gambar' dari tampak depan, namun tepi spanduk lebih tebal dan kokoh karena ada lapisan lipatan.\n5. Tanpa Finishing (Lebihan Putih): Cetakan dibiarkan apa adanya dengan menyisakan bidang kain putih kosong di sekeliling gambar tanpa dipotong atau dilipat. Pilihan ini cocok jika pelanggan ingin memasang sendiri ke dalam pigura kayu, papan billboard, atau rangka display khusus yang membutuhkan sisa kain untuk dicengkeram.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 23,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "ff99cc4005dbb06f5fefc2835ff71c0d21f17e1e6e2df10ed6f1ffd1114814dc",
+            "cosine_similarity": 0.29358542,
+            "similarity_score": 0.70641458
+          },
+          "distance": 0.70641458,
+          "similarity": 0.29358542
+        },
+        {
+          "text": "# DAFTAR ESTIMASI HARGA PRODUK CETAK — CV. ASIA VISUAL GRAFIKA\n# Berlaku untuk kedua cabang: Ciputat & Pamulang\n# Harga dalam satuan Rupiah (IDR). Dapat berubah sewaktu-waktu.\n# Untuk konfirmasi harga terkini, silakan hubungi admin toko.\n# -----------------------------------------------------------------------\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ba6c5b99ba018c4481d6018194f002a2e59e2c18d7b21cd45cd1f2f89c48f28d",
+            "cosine_similarity": 0.284884959,
+            "similarity_score": 0.715115041
+          },
+          "distance": 0.715115041,
+          "similarity": 0.284884959
+        }
+      ],
+      "latency_seconds": 14.256,
+      "trace_id": "01a14fb2-cddb-7792-b054-7b01588e5688",
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a14fb2-cddb-7792-b054-7b01588e5688/run/01a14fb2-cddb-7792-b054-7b01588e5688?start_time=2026-10-18T15%3A48%3A00.603075%2B00%3A00",
+      "error": null,
+      "prompt_sha256": "a09754cd27c08a1664ac933e88645ea50fb24c7e14dc0db8d60ecb3bff209f5a"
+    }
+  },
+  {
+    "request": {
+      "question": "Flexi China 280 GSM, cetak standar.",
+      "session_id": "4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Untuk spanduk Flexi China 280 GSM cetak standar ukuran 2×3 meter sebanyak 2 lembar, totalnya *Rp198.000*. Hitungannya 6 m² per lembar × 2 lembar × Rp16.500/m².",
+      "session_id": "playground_4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3",
+      "answer_source": "naive_rag",
+      "media_url": null,
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "usage": {
+        "prompt_tokens": 3653,
+        "completion_tokens": 104
+      },
+      "retrieval_context": [
+        {
+          "text": "# DAFTAR ESTIMASI HARGA PRODUK CETAK — CV. ASIA VISUAL GRAFIKA\n# Berlaku untuk kedua cabang: Ciputat & Pamulang\n# Harga dalam satuan Rupiah (IDR). Dapat berubah sewaktu-waktu.\n# Untuk konfirmasi harga terkini, silakan hubungi admin toko.\n# -----------------------------------------------------------------------\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ba6c5b99ba018c4481d6018194f002a2e59e2c18d7b21cd45cd1f2f89c48f28d",
+            "cosine_similarity": 0.483933121,
+            "similarity_score": 0.516066879
+          },
+          "distance": 0.516066879,
+          "similarity": 0.48393312099999997
+        },
+        {
+          "text": "Pilihan Bahan Spanduk Outdoor:\n1. Flexi Standar (China 280 GSM):\n   - Karakteristik: Ini adalah bahan spanduk paling tipis dan paling ringan yang kami sediakan. Permukaannya sedikit mengkilap seperti plastik licin. Kalau dilihat dari belakang saat terkena sinar matahari atau lampu terang, bahan ini agak tembus cahaya (terlihat bayangan terang dari baliknya). Bobotnya ringan sehingga mudah digulung dan dibawa, namun karena tipis, bahan ini tidak sekuat jenis flexi lainnya. Angka 280 GSM menunjukkan berat bahan per meter persegi — semakin besar angkanya, semakin tebal dan berat bahannya.\n   - Ketahanan: Sekitar 3–6 bulan jika dipasang di luar ruangan. Warnanya akan lebih cepat memudar dibanding bahan yang lebih tebal, dan bahannya bisa robek jika terus-menerus tertiup angin kencang dalam waktu lama.\n   - Penggunaan Ideal: Cocok untuk keperluan jangka pendek seperti acara hajatan, spanduk selamat datang, spanduk ulang tahun, latar belakang (backdrop) panggung wisuda, atau promosi mingguan toko dengan anggaran yang terjangkau dan ekonomis.\n   - Pilihan Kualitas Warna: Tersedia dua pilihan hasil cetak. Cetak Standar menghasilkan warna yang sudah bagus untuk kebutuhan sehari-hari dengan harga lebih hemat. Cetak Hires menghasilkan warna yang lebih tajam, lebih pekat, dan lebih detail — cocok jika desainnya banyak foto atau gradasi warna halus.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "ca57c6641782da19586a9f12285e110d61a4febb53f3e782357f38e759dbaacf",
+            "cosine_similarity": 0.473267198,
+            "similarity_score": 0.5267328019999999
+          },
+          "distance": 0.5267328019999999,
+          "similarity": 0.47326719800000006
+        },
+        {
+          "text": "2. Flexi Medium (China 340 GSM):\n   - Karakteristik: Bahan spanduk dengan ketebalan sedang, terasa lebih padat dan kaku saat dipegang dibandingkan Flexi 280 GSM. Seratnya lebih rapat sehingga bahan ini lebih kokoh dan tidak gampang melar atau bergelombang. Kalau dipasang di tiang, bentuknya lebih tegak dan tidak mudah melipat sendiri karena angin.\n   - Ketahanan: Mampu bertahan sekitar 6–12 bulan di luar ruangan. Lebih tahan terhadap terpaan angin dan hujan deras. Jika disambung (untuk ukuran lebar di atas 3,2 meter), sambungan lemnya juga lebih kuat karena serat bahan yang lebih padat mencengkeram lem dengan baik.\n   - Penggunaan Ideal: Spanduk nama toko yang dipajang dalam hitungan bulan, T-banner promosi di pinggir jalan, spanduk proyek konstruksi/pembangunan, dan baliho promosi di depan ruko.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 3,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "c4fd2d14a7e34a7c12d8d9ce912dad9f3842a3bff65db911c7d0cb2e517da2b9",
+            "cosine_similarity": 0.465943277,
+            "similarity_score": 0.534056723
+          },
+          "distance": 0.534056723,
+          "similarity": 0.46594327700000004
+        },
+        {
+          "text": "## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: Y-Banner, yaitu banner tegak berdiri berbentuk huruf Y yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN X-Banner, BUKAN spanduk meteran.\nUkuran standar Y-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga y banner\", \"y-banner berapa\", \"banner stand y\".\n\nHarga cetak Y-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak Y-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak Y-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak Y-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "90eb4e7183901941215f6bd64895f017ef0ecd7cb901bd43cf92c2fe5690a85c",
+            "cosine_similarity": 0.420237,
+            "similarity_score": 0.579763
+          },
+          "distance": 0.579763,
+          "similarity": 0.42023699999999997
+        },
+        {
+          "text": "## ROLL UP BANNER (Harga per Paket, sudah termasuk rangka / tiang)\n\nUkuran 60 x 160 cm:\nRoll Up Banner Flexi China 280 GSM ukuran 60x160: Rp 195.000 per paket.\nRoll Up Banner Flexi China 340 GSM ukuran 60x160: Rp 210.000 per paket.\nRoll Up Banner Flexi Korea 440 GSM ukuran 60x160: Rp 240.000 per paket.\nRoll Up Banner Albatros ukuran 60x160: Rp 250.000 per paket.\nRangka Roll Up Banner 60x160 saja tanpa cetak: Rp 175.000 per pcs.\n\nUkuran 85 x 200 cm:\nRoll Up Banner Flexi China 280 GSM ukuran 85x200: Rp 245.000 per paket.\nRoll Up Banner Flexi China 340 GSM ukuran 85x200: Rp 260.000 per paket.\nRoll Up Banner Flexi Korea 440 GSM (High Resolution) ukuran 85x200: Rp 325.000 per paket.\nRoll Up Banner Albatros ukuran 85x200: Rp 335.000 per paket.\nRangka Roll Up Banner 85x200 saja tanpa cetak: Rp 195.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 25,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ac807d78ef324ad8a5470dba3948e578280fe80273657929df3858f87c29b38c",
+            "cosine_similarity": 0.407741308,
+            "similarity_score": 0.5922586919999999
+          },
+          "distance": 0.5922586919999999,
+          "similarity": 0.4077413080000001
+        }
+      ],
+      "latency_seconds": 9.013,
+      "trace_id": "01a14fb3-0dd3-7693-b938-4377be731632",
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a14fb3-0dd3-7693-b938-4377be731632/run/01a14fb3-0dd3-7693-b938-4377be731632?start_time=2026-10-18T15%3A48%3A16.979990%2B00%3A00",
+      "error": null,
+      "prompt_sha256": "a09754cd27c08a1664ac933e88645ea50fb24c7e14dc0db8d60ecb3bff209f5a"
+    }
+  },
+  {
+    "request": {
+      "question": "Kalau jumlahnya jadi tiga lembar, totalnya berapa?",
+      "session_id": "4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Dengan spesifikasi yang sama—Flexi China 280 GSM cetak standar ukuran 2×3 meter—untuk 3 lembar totalnya *Rp297.000*. Hitungannya 6 m² × 3 lembar × Rp16.500/m².",
+      "session_id": "playground_4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3",
+      "answer_source": "naive_rag",
+      "media_url": null,
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "usage": {
+        "prompt_tokens": 3886,
+        "completion_tokens": 94
+      },
+      "retrieval_context": [
+        {
+          "text": "# DAFTAR ESTIMASI HARGA PRODUK CETAK — CV. ASIA VISUAL GRAFIKA\n# Berlaku untuk kedua cabang: Ciputat & Pamulang\n# Harga dalam satuan Rupiah (IDR). Dapat berubah sewaktu-waktu.\n# Untuk konfirmasi harga terkini, silakan hubungi admin toko.\n# -----------------------------------------------------------------------\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\".\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 0,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "ba6c5b99ba018c4481d6018194f002a2e59e2c18d7b21cd45cd1f2f89c48f28d",
+            "cosine_similarity": 0.457009494,
+            "similarity_score": 0.542990506
+          },
+          "distance": 0.542990506,
+          "similarity": 0.457009494
+        },
+        {
+          "text": "Pilihan Bahan Spanduk Outdoor:\n1. Flexi Standar (China 280 GSM):\n   - Karakteristik: Ini adalah bahan spanduk paling tipis dan paling ringan yang kami sediakan. Permukaannya sedikit mengkilap seperti plastik licin. Kalau dilihat dari belakang saat terkena sinar matahari atau lampu terang, bahan ini agak tembus cahaya (terlihat bayangan terang dari baliknya). Bobotnya ringan sehingga mudah digulung dan dibawa, namun karena tipis, bahan ini tidak sekuat jenis flexi lainnya. Angka 280 GSM menunjukkan berat bahan per meter persegi — semakin besar angkanya, semakin tebal dan berat bahannya.\n   - Ketahanan: Sekitar 3–6 bulan jika dipasang di luar ruangan. Warnanya akan lebih cepat memudar dibanding bahan yang lebih tebal, dan bahannya bisa robek jika terus-menerus tertiup angin kencang dalam waktu lama.\n   - Penggunaan Ideal: Cocok untuk keperluan jangka pendek seperti acara hajatan, spanduk selamat datang, spanduk ulang tahun, latar belakang (backdrop) panggung wisuda, atau promosi mingguan toko dengan anggaran yang terjangkau dan ekonomis.\n   - Pilihan Kualitas Warna: Tersedia dua pilihan hasil cetak. Cetak Standar menghasilkan warna yang sudah bagus untuk kebutuhan sehari-hari dengan harga lebih hemat. Cetak Hires menghasilkan warna yang lebih tajam, lebih pekat, dan lebih detail — cocok jika desainnya banyak foto atau gradasi warna halus.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "ca57c6641782da19586a9f12285e110d61a4febb53f3e782357f38e759dbaacf",
+            "cosine_similarity": 0.454634845,
+            "similarity_score": 0.545365155
+          },
+          "distance": 0.545365155,
+          "similarity": 0.45463484499999995
+        },
+        {
+          "text": "2. Flexi Medium (China 340 GSM):\n   - Karakteristik: Bahan spanduk dengan ketebalan sedang, terasa lebih padat dan kaku saat dipegang dibandingkan Flexi 280 GSM. Seratnya lebih rapat sehingga bahan ini lebih kokoh dan tidak gampang melar atau bergelombang. Kalau dipasang di tiang, bentuknya lebih tegak dan tidak mudah melipat sendiri karena angin.\n   - Ketahanan: Mampu bertahan sekitar 6–12 bulan di luar ruangan. Lebih tahan terhadap terpaan angin dan hujan deras. Jika disambung (untuk ukuran lebar di atas 3,2 meter), sambungan lemnya juga lebih kuat karena serat bahan yang lebih padat mencengkeram lem dengan baik.\n   - Penggunaan Ideal: Spanduk nama toko yang dipajang dalam hitungan bulan, T-banner promosi di pinggir jalan, spanduk proyek konstruksi/pembangunan, dan baliho promosi di depan ruko.",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 3,
+            "document_id": "08c1192e03e34507a46dbbee648be248",
+            "format": "txt",
+            "source": "02_spesifikasi_bahan_dan_finishing.txt",
+            "source_id": "37cfa02e3aac466b9a806aa2bd465fd3",
+            "chunk_id": "c4fd2d14a7e34a7c12d8d9ce912dad9f3842a3bff65db911c7d0cb2e517da2b9",
+            "cosine_similarity": 0.445192516,
+            "similarity_score": 0.554807484
+          },
+          "distance": 0.554807484,
+          "similarity": 0.445192516
+        },
+        {
+          "text": "## PANDUAN RUMUS PERHITUNGAN HARGA (CHAIN-OF-THOUGHT)\n\nPanduan ini berisi seluruh rumus dan langkah perhitungan yang WAJIB digunakan LLM saat pelanggan menanyakan estimasi harga total pesanan. Ikuti langkah demi langkah (step-by-step) secara urut dan tuliskan rincian perhitungan pada jawaban.\n\n### A. RUMUS PERHITUNGAN PRODUK LARGE FORMAT / METERAN (Banner, Spanduk, Stiker Meteran)\n\nBerlaku untuk: cetak spanduk, banner, baliho, backdrop, stiker vinyl meteran, stiker one way vision, poster Albatros meteran, dan laminating meteran.\n\nLangkah Perhitungan:\n1. Hitung luas 1 cetakan: Luas = Panjang (meter) × Lebar (meter).\n2. Hitung total luas seluruh pesanan: Total Luas = Luas × Jumlah pcs.\n3. Tentukan harga per m² sesuai jenis bahan yang dipilih pelanggan (lihat tabel harga di atas).\n4. Hitung harga mentah: Harga Mentah = Total Luas × Harga per m².\n5. Bulatkan ke atas ke kelipatan Rp 500 terdekat: Total Harga = ceiling(Harga Mentah ÷ 500) × 500.\n\nContoh CoT: Pelanggan memesan 2 spanduk Flexi 280 GSM Standar ukuran 3 × 1 meter.\n• Luas per spanduk = 3 × 1 = 3 m².\n• Total luas = 3 × 2 = 6 m².\n• Harga per m² Flexi 280 Standar = Rp 16.500.\n• Harga mentah = 6 × Rp 16.500 = Rp 99.000.\n• Pembulatan ke kelipatan 500 → Rp 99.000 (sudah kelipatan 500).\n• Total estimasi = Rp 99.000.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 39,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "2dea54e57e33195c06ce26756989bd4c6035f6d1e3df8ad9cc95fac659c31ccc",
+            "cosine_similarity": 0.413536578,
+            "similarity_score": 0.586463422
+          },
+          "distance": 0.586463422,
+          "similarity": 0.413536578
+        },
+        {
+          "text": "## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---\n\n## Y-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: Y-Banner, yaitu banner tegak berdiri berbentuk huruf Y yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN X-Banner, BUKAN spanduk meteran.\nUkuran standar Y-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga y banner\", \"y-banner berapa\", \"banner stand y\".\n\nHarga cetak Y-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak Y-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak Y-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak Y-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka Y-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs.\n\n---",
+          "metadata": {
+            "answer_source": "knowledge_base",
+            "chunk_index": 2,
+            "document_id": "ff4d8c8f9e374501a2e53233f7005d9c",
+            "format": "txt",
+            "source": "04_daftar_estimasi_harga.txt",
+            "source_id": "36f51e8a65d64ff8b782187c47b68720",
+            "chunk_id": "90eb4e7183901941215f6bd64895f017ef0ecd7cb901bd43cf92c2fe5690a85c",
+            "cosine_similarity": 0.399677068,
+            "similarity_score": 0.600322932
+          },
+          "distance": 0.600322932,
+          "similarity": 0.399677068
+        }
+      ],
+      "latency_seconds": 8.854,
+      "trace_id": "01a14fb3-3988-7440-bb2a-9c2af28b41e5",
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a14fb3-3988-7440-bb2a-9c2af28b41e5/run/01a14fb3-3988-7440-bb2a-9c2af28b41e5?start_time=2026-10-18T15%3A48%3A28.168755%2B00%3A00",
+      "error": null,
+      "prompt_sha256": "a09754cd27c08a1664ac933e88645ea50fb24c7e14dc0db8d60ecb3bff209f5a"
+    }
+  },
+  {
+    "request": {
+      "question": "Makasih, Min.",
+      "session_id": "4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3"
+    },
+    "status": 200,
+    "response": {
+      "answer": "Sama-sama, Kak! 😊",
+      "session_id": "playground_4bd0a378-0ba7-46e0-9ca4-9eb759ad9de3",
+      "answer_source": "Acknowledgement",
+      "media_url": null,
+      "sources": [],
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0
+      },
+      "retrieval_context": [],
+      "latency_seconds": 0,
+      "trace_id": null,
+      "trace_url": null,
+      "error": null,
+      "prompt_sha256": null
+    }
+  }
+]

@@ -7,11 +7,12 @@
     }
   },
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["bom1"],
   "services": {
     "backend": {
       "root": ".",
       "framework": "fastapi",
-      "entrypoint": "app.main:app"
+      "entrypoint": "pyproject.toml"
     },
     "frontend": {
       "root": "frontend",

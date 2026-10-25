@@ -44,13 +44,15 @@ def test_openrouter_query_passage_and_response_order(monkeypatch):
                c["provider"] == {"allow_fallbacks": False} for c in calls)
 
 
-def test_transient_embedding_retries_are_bounded(monkeypatch):
+@pytest.mark.parametrize("input_type,attempts,timeout", [("query", 2, (5, 20)), ("passage", 3, (10, 60))])
+def test_transient_embedding_retries_are_bounded(monkeypatch, input_type, attempts, timeout):
     calls = []
-    monkeypatch.setattr("requests.post", lambda *a, **k: calls.append(k["json"]) or response([], 429))
+    monkeypatch.setattr("requests.post", lambda *a, **k: calls.append(k) or response([], 429))
     monkeypatch.setattr("time.sleep", lambda _: None)
     with pytest.raises(models.EmbeddingUnavailable, match="429"):
-        models.OpenRouterEmbeddings().embed_query("Alamat?")
-    assert len(calls) == 3
+        models.OpenRouterEmbeddings()._embed(["Alamat?"], input_type)
+    assert len(calls) == attempts
+    assert all(call["timeout"] == timeout for call in calls)
 
 
 @pytest.mark.parametrize("rows", [[], [{"index": 0, "embedding": [1.0] * 384}],

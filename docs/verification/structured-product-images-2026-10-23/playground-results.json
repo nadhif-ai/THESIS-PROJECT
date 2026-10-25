@@ -1,0 +1,3281 @@
+{
+  "date": "2026-10-23",
+  "scope": "Local authenticated Playground through ego-browser; real OpenRouter and Pinecone; isolated loopback PostgreSQL; public approved Storage images.",
+  "baseline_commit": "509f94e",
+  "source_sha256": "b8cab717deae8c27a1c7151b591705f1310ba705cc143b3777afe63aeb15a822",
+  "hashed_files": [
+    "app/backend/chain.py",
+    "app/backend/models.py",
+    "app/backend/product_intent.py",
+    "app/backend/product_image_selection.py",
+    "app/backend/attachment_answer.py",
+    "app/integrations/waha.py",
+    "app/admin/catalog.py",
+    "app/admin/store.py"
+  ],
+  "knowledge_version": "kb-b137be22405b4e2fb10f36ab352240ca",
+  "catalog_revision": 28,
+  "intent_model": "openai/gpt-4.1",
+  "answer_model": "anthropic/claude-haiku-5.5",
+  "embedding": "nvidia/nemotron-3-embed-1b:free / 2048 cosine",
+  "provider": "OpenRouter; individual upstream provider not exposed in retained model metadata",
+  "cost_scope": "Reported model costs for the 54 regression browser cases only; excludes embeddings, development probes, and additional layout/editor checks.",
+  "summary": {
+    "independent_passed": 38,
+    "independent_total": 38,
+    "conversation_passed": 16,
+    "conversation_total": 16,
+    "unique_assets": 27,
+    "fallbacks": 1,
+    "logical_model_calls": 151,
+    "reported_model_cost_usd": 0.328388,
+    "unreported_cost_stages": 0,
+    "median_seconds": 7.5175,
+    "p95_seconds": 18.238,
+    "min_seconds": 0,
+    "max_seconds": 23.118
+  },
+  "independent_cases": [
+    {
+      "index": 0,
+      "question": "Kak kirimin foto spanduk dong",
+      "expected_asset": "banner-spanduk-hero",
+      "actual_asset": "banner-spanduk-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini contoh tampilan spanduk dari kami.\n\nUntuk spanduk, ada beberapa pilihan bahan:\n- *Flexi China 280 GSM*: ekonomis, cocok untuk acara jangka pendek seperti hajatan atau spanduk ulang tahun. Harganya Rp16.500/m² (standar) atau Rp25.000/m² (High Resolution).\n- *Flexi China 340 GSM*: lebih tebal dan kokoh, tidak mudah melar atau bergelombang. Harganya Rp25.000/m² (standar) atau Rp32.000/m² (High Resolution).\n- *Flexi Korea 440 GSM* (High Resolution): Rp45.000/m².\n- *Albatros 200 GSM* (High Resolution, indoor): Rp70.000/m².\n\nUntuk menghitung totalnya, saya perlu tahu ukuran spanduk (panjang × lebar dalam meter), jumlah lembar, dan bahan yang Kakak pilih. Kakak juga mau pakai cetak standar atau High Resolution?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "banner-spanduk-hero",
+        "product_ids": [
+          "banner-spanduk"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 2.199,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1377,
+            "completion_tokens": 38,
+            "cost_usd": 0.00133,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8272,
+            "completion_tokens": 792,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012232,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1660,
+            "completion_tokens": 6,
+            "cost_usd": 0.003368,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 19.63,
+      "usage": {
+        "prompt_tokens": 11309,
+        "completion_tokens": 836
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 1,
+      "question": "Boleh lihat perbandingan gambar spanduk China dan Korea?",
+      "expected_asset": "banner-spanduk-material-comparison",
+      "actual_asset": "banner-spanduk-material-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut perbandingan detail spanduk Flexi China dan Korea, Kak. Gambar yang dikirim adalah ilustrasi, bukan contoh hasil cetak yang persis.\n\n*Flexi China 340 GSM*\nKetebalan sedang, lebih padat dan kaku dibanding 280 GSM. Seratnya lebih rapat, jadi tidak mudah melar atau bergelombang.\n- Standar: Rp 25.000/m²\n- High Resolution: Rp 32.000/m²\n\n*Flexi Korea 440 GSM*\nBahan paling tebal dan berkualitas tertinggi. Permukaannya halus, hasil cetak lebih tajam, dan bagian belakangnya berserat gelap sehingga cahaya tidak tembus. Tahan sekitar 1 sampai 2 tahun di luar ruangan.\n- High Resolution: Rp 45.000/m² (hanya tersedia pilihan ini)\n\nJadi, Flexi Korea cocok untuk pemasangan permanen atau baliho besar, sedangkan China 340 GSM sudah kokoh untuk kebutuhan promosi yang lebih umum.\n\nUntuk menghitung totalnya, saya perlu tahu ukuran spanduk (panjang × lebar dalam meter) dan jumlah lembarnya, Kak. Setelah itu saya hitungkan untuk kedua bahan.",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "banner-spanduk-material-comparison",
+        "product_ids": [
+          "banner-spanduk"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.695,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1382,
+            "completion_tokens": 70,
+            "cost_usd": 0.001596,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8362,
+            "completion_tokens": 1167,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0014197,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1742,
+            "completion_tokens": 6,
+            "cost_usd": 0.003532,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 23.118,
+      "usage": {
+        "prompt_tokens": 11486,
+        "completion_tokens": 1243
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 2,
+      "question": "Minta preview stiker meteran dong",
+      "expected_asset": "stiker-meteran-hero",
+      "actual_asset": "stiker-meteran-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi stiker meteran, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini detail stiker meteran yang bisa dipilih:\n\n*Stiker Vinyl Meteran China (200 GSM)*\nRp 45.000 per m². Tahan air hujan, tidak mudah sobek, dan cocok untuk pemakaian di luar ruangan dengan harga ekonomis.\n\n*Stiker Vinyl Meteran Ritrama (250 GSM)*\nRp 65.000 per m². Kelas premium, lebih elastis dan tebal, mudah ditempel di permukaan melengkung seperti badan mobil, dan tidak meninggalkan noda lem saat dilepas.\n\n*Stiker One Way Vision OWV (250 GSM)*\nRp 85.000 per m².\n\n*Stiker Transparan (200 GSM)*\nRp 75.000 per m².\n\nCara hitungnya: panjang (m) × lebar (m) × harga per m². Hasil akhirnya dibulatkan ke atas ke kelipatan Rp 500.\n\nUntuk menghitung totalnya, saya perlu tahu:\n1. Ukuran stiker yang diinginkan (panjang × lebar dalam meter)\n2. Bahan yang dipilih\n3. Jumlah lembar\n\nKakak mau stiker untuk keperluan apa? Misalnya untuk dinding luar, kaca etalase, atau branding kendaraan. Dengan begitu saya bisa bantu menyarankan bahannya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "stiker-meteran-hero",
+        "product_ids": [
+          "stiker-meteran"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 2.918,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1377,
+            "completion_tokens": 39,
+            "cost_usd": 0.001338,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8613,
+            "completion_tokens": 911,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0013168,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1976,
+            "completion_tokens": 6,
+            "cost_usd": 0.004,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 10.242,
+      "usage": {
+        "prompt_tokens": 11966,
+        "completion_tokens": 956
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 3,
+      "question": "Lihat gambar perbandingan stiker meteran OWV dan transparan dong",
+      "expected_asset": "stiker-meteran-material-comparison",
+      "actual_asset": "stiker-meteran-material-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi stiker meteran, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBaik, Kak. Gambar perbandingannya akan dikirim terpisah sebelum pesan ini. Gambar tersebut ilustrasi katalog, jadi tampilannya bisa sedikit berbeda dengan hasil cetak sebenarnya.\n\nRingkasan kedua stiker meteran:\n\n*Stiker One Way Vision (OWV) 250 GSM*: harga Rp 85.000 per m². Permukaannya berlubang kecil, jadi dari luar gambar terlihat utuh, sementara dari dalam ruangan masih bisa melihat keluar. Cocok untuk kaca depan atau samping ruko, partisi kaca kantor, dan kaca belakang mobil.\n\n*Stiker Transparan 200 GSM*: harga Rp 75.000 per m². Bahannya bening, jadi hanya gambar yang terlihat dan area kosongnya tembus pandang. Cocok untuk dekorasi kaca etalase dan label yang ingin tampil bersih tanpa latar putih.\n\nKalau Kakak sudah punya ukuran dan jumlahnya, saya bisa bantu hitungkan totalnya.",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "stiker-meteran-material-comparison",
+        "product_ids": [
+          "stiker-meteran"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.278,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1385,
+            "completion_tokens": 73,
+            "cost_usd": 0.001626,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8513,
+            "completion_tokens": 638,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011703,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1796,
+            "completion_tokens": 6,
+            "cost_usd": 0.00364,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.343,
+      "usage": {
+        "prompt_tokens": 11694,
+        "completion_tokens": 717
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 4,
+      "question": "Mau liat foto banner-x tegak dong",
+      "expected_asset": "x-banner-hero",
+      "actual_asset": "x-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini X-Banner ukuran 60 x 160 cm, sudah termasuk cetak dan rangka penyangga berbentuk X dari serat fiber yang ringan dan bisa dirakit sendiri tanpa alat khusus.\n\nHarga paketnya (cetak + rangka):\n- Flexi China 280 GSM: Rp 50.000\n- Flexi China 340 GSM: Rp 70.000\n- Flexi Korea 440 GSM: Rp 90.000\n- Albatros dengan laminasi: Rp 75.000\n\nKalau Kak sudah punya cetakan sendiri, tersedia juga rangka saja seharga Rp 30.000 per pcs.\n\nUntuk pilihan bahannya, kira-kira Kak mau dipasang indoor atau di area terbuka? Dari situ saya bisa bantu menyesuaikan pilihan bahannya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "x-banner-hero",
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.535,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1379,
+            "completion_tokens": 37,
+            "cost_usd": 0.001326,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8333,
+            "completion_tokens": 602,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011343,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1654,
+            "completion_tokens": 6,
+            "cost_usd": 0.003356,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.24,
+      "usage": {
+        "prompt_tokens": 11366,
+        "completion_tokens": 645
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 5,
+      "question": "Kirim contoh gambar Y banner",
+      "expected_asset": "y-banner-hero",
+      "actual_asset": "y-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi y banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut detail Y-Banner ukuran 60 x 160 cm, Kak. Harga paket sudah termasuk cetak dan rangka:\n\n- Flexi China 280 GSM: Rp 50.000 per paket\n- Flexi China 340 GSM: Rp 70.000 per paket\n- Flexi Korea 440 GSM: Rp 90.000 per paket\n- Albatros dengan laminasi: Rp 75.000 per paket\n\nRangka Y-Banner saja tanpa cetakan tersedia seharga Rp 30.000 per pcs. Bentuk Y dengan kaki penopang di bagian belakang membuat banner lebih stabil, jadi cocok untuk area semi-outdoor seperti teras toko atau depan pintu masuk.\n\nKalau Kakak ingin memilih bahan, bahan mana yang kira-kira akan dipakai untuk pemasangannya, indoor atau semi-outdoor?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "y-banner-hero",
+        "product_ids": [
+          "y-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.244,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1375,
+            "completion_tokens": 37,
+            "cost_usd": 0.001318,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8320,
+            "completion_tokens": 798,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.001231,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1653,
+            "completion_tokens": 6,
+            "cost_usd": 0.003354,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.895,
+      "usage": {
+        "prompt_tokens": 11348,
+        "completion_tokens": 841
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 6,
+      "question": "Boleh liat rollup bannernya?",
+      "expected_asset": "roll-up-banner-hero",
+      "actual_asset": "roll-up-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi roll up banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail Roll Up Banner, Kak. Produk ini berupa banner tegak dengan mekanisme tarik-gulung otomatis. Cetakannya tersimpan di dalam tabung aluminium saat tidak dipakai, jadi lebih rapi, mudah dibawa, dan terlindung dari lecek atau kusut.\n\nHarga per paket sudah termasuk cetak dan rangka:\n\n*Ukuran 60 x 160 cm*\n- Flexi China 280 GSM: Rp 195.000\n- Flexi China 340 GSM: Rp 210.000\n- Flexi Korea 440 GSM: Rp 240.000\n- Albatros: Rp 250.000\n\n*Ukuran 85 x 200 cm*\n- Flexi China 280 GSM: Rp 245.000\n- Flexi China 340 GSM: Rp 260.000\n- Flexi Korea 440 GSM (High Resolution): Rp 325.000\n- Albatros: Rp 335.000\n\nUntuk memastikan pilihannya, ukuran dan bahan mana yang Kakak minati? Setelah itu saya bantu sesuaikan detailnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "roll-up-banner-hero",
+        "product_ids": [
+          "roll-up-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 3.057,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1379,
+            "completion_tokens": 38,
+            "cost_usd": 0.001334,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8412,
+            "completion_tokens": 800,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012412,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1744,
+            "completion_tokens": 6,
+            "cost_usd": 0.003536,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.943,
+      "usage": {
+        "prompt_tokens": 11535,
+        "completion_tokens": 844
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 7,
+      "question": "Kirim gambar perbandingan X-banner Y-banner dan roll up",
+      "expected_asset": "standing-banner-form-comparison",
+      "actual_asset": "standing-banner-form-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, y banner, roll up banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Berikut perbandingan ketiganya untuk ukuran standar 60 x 160 cm:\n\n*X-Banner*\nBerbentuk huruf X dengan rangka fiber ringan yang bisa dirakit sendiri tanpa alat khusus. Harga paket sudah termasuk cetak dan rangka:\n- Flexi China 280 GSM: Rp 50.000\n- Flexi China 340 GSM: Rp 70.000\n- Flexi Korea 440 GSM: Rp 90.000\n- Albatros dengan laminasi: Rp 75.000\n\n*Y-Banner*\nBentuknya mirip Y dengan kaki penopang di bagian belakang, jadi lebih stabil dan tidak mudah roboh tertiup angin. Cocok untuk area semi-outdoor seperti teras atau depan pintu. Harganya sama dengan X-Banner:\n- Flexi China 280 GSM: Rp 50.000\n- Flexi China 340 GSM: Rp 70.000\n- Flexi Korea 440 GSM: Rp 90.000\n- Albatros dengan laminasi: Rp 75.000\n\n*Roll Up Banner*\nMenggunakan tiang gulung otomatis, jadi praktis dibawa dan disimpan. Harga sudah termasuk cetak dan rangka:\n- Flexi China 280 GSM: Rp 195.000\n- Flexi China 340 GSM: Rp 210.000\n- Flexi Korea 440 GSM: Rp 240.000\n- Albatros: Rp 250.000\n\nHarga di atas per paket. Roll up juga tersedia ukuran 85 x 200 cm, kalau Kakak butuh ukuran itu bisa saya sebutkan harganya.\n\nUntuk pilihan yang Kakak mau, bahan dan jumlahnya mau berapa paket?",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "standing-banner-form-comparison",
+        "product_ids": [
+          "x-banner",
+          "y-banner",
+          "roll-up-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.372,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1382,
+            "completion_tokens": 44,
+            "cost_usd": 0.001388,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8455,
+            "completion_tokens": 1153,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.001422,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1920,
+            "completion_tokens": 6,
+            "cost_usd": 0.003888,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.616,
+      "usage": {
+        "prompt_tokens": 11757,
+        "completion_tokens": 1203
+      },
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 8,
+      "question": "Boleh minta foto contoh stiker A3 plus?",
+      "expected_asset": "stiker-a3-plus-hero",
+      "actual_asset": "stiker-a3-plus-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi stiker a3, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni contoh ilustrasi stiker A3+ ya, Kak. Hasil cetak sebenarnya bisa sedikit berbeda sesuai bahan dan finishing yang dipilih.\n\nStiker A3+ satuan dicetak per lembar dengan area cetak efektif 31 × 47 cm, bisa tanpa kiss cut atau dengan kiss cut (sudah termasuk cutting).\n\nEstimasi harga per lembar:\n- Cromo tanpa kiss cut: Rp 7.000 (1–10 lembar), Rp 5.500 (lebih dari 10 lembar)\n- Cromo dengan kiss cut: Rp 12.500 (1–10 lembar), Rp 10.500 (lebih dari 10 lembar)\n- Vinyl tanpa kiss cut: Rp 12.500 (1–10 lembar), Rp 10.000 (lebih dari 10 lembar)\n- Vinyl dengan kiss cut: Rp 17.500 (1–10 lembar), Rp 15.000 (lebih dari 10 lembar)\n- Transparan tanpa kiss cut: Rp 12.500 (1–10 lembar), Rp 10.000 (lebih dari 10 lembar)\n\nUntuk menghitung totalnya, saya perlu tahu ukuran stiker yang diinginkan (misalnya 5×5 cm), bahannya, dan jumlah lembar yang dipesan. Dengan begitu saya bisa bantu hitung berapa stiker per lembar dan total perkiraannya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "stiker-a3-plus-hero",
+        "product_ids": [
+          "stiker-a3-kiss-cut"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.009,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1381,
+            "completion_tokens": 42,
+            "cost_usd": 0.003098,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9043,
+            "completion_tokens": 1047,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0014278,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2368,
+            "completion_tokens": 6,
+            "cost_usd": 0.004784,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.651,
+      "usage": {
+        "prompt_tokens": 12792,
+        "completion_tokens": 1095
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 9,
+      "question": "Lihat detail hasil potongan kiss cut dong",
+      "expected_asset": "stiker-a3-plus-kiss-cut-detail",
+      "actual_asset": "stiker-a3-plus-kiss-cut-detail",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi stiker a3, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini detail stiker kiss cut dari katalog:\n\n*Stiker kiss cut (sudah termasuk cutting)*\n- Area cetak mesin kiss cut: 29 × 42 cm per lembar A3+.\n- Stiker Cromo dengan kiss cut: Rp 12.500 per lembar (1–10 lembar), Rp 10.500 per lembar (lebih dari 10 lembar).\n- Stiker Vinyl dengan kiss cut: Rp 17.500 per lembar (1–10 lembar), Rp 15.000 per lembar (lebih dari 10 lembar).\n\n*Perkiraan jumlah pcs per lembar A3+ (kiss cut mesin)*\n- 2 × 3 cm: 196 pcs\n- 3 × 4 cm: 98 pcs\n- 4 × 5 cm: 56 pcs\n- 5 × 5 cm: 40 pcs\n\nKalau ukuran stikernya mau dibuat persegi panjang atau persegi, kiss cut mesin dan potong manual punya hasil jumlah pcs yang berbeda. Jadi, ukuran stiker dan bahan yang Kakak pilih akan menentukan hitungan lembar dan totalnya.\n\nUkuran stiker berapa cm yang Kakak butuhkan, dan jumlahnya berapa pcs?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "stiker-a3-plus-kiss-cut-detail",
+        "product_ids": [
+          "stiker-a3-kiss-cut"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 2.225,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 44,
+            "cost_usd": 0.00138,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8830,
+            "completion_tokens": 960,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.001363,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2057,
+            "completion_tokens": 6,
+            "cost_usd": 0.004162,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 13.401,
+      "usage": {
+        "prompt_tokens": 12265,
+        "completion_tokens": 1010
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 10,
+      "question": "Mau lihat ilustrasi digital print A3 plus",
+      "expected_asset": "digital-print-a3-plus-hero",
+      "actual_asset": "digital-print-a3-plus-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi digital print, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni ilustrasi contoh hasil cetak digital print A3+, Kak. Gambarnya hanya gambaran umum, bukan contoh bahan atau varian yang persis.\n\nCetak digital print A3+ dipakai per lembar dengan area efektif 32 x 48 cm. Cocok untuk poster, brosur, sertifikat, map, dan cetak foto.\n\nPilihan bahan dan kegunaannya:\n- Art Paper 150 GSM: poster promosi, brosur, flyer, menu restoran\n- Linen 230 GSM: sertifikat, undangan resmi, cover laporan\n- Concorde 260 GSM: map dokumen, sampul proposal, kartu ucapan\n- Photo Paper 260 GSM: cetak foto, poster foto\n\nContoh tarif per lembar:\n- Art Paper 150 GSM 1 sisi (1S), 1–10 lembar: Rp 5.000\n- Linen 230 GSM 1S: 1–10 lembar Rp 6.500, 11–50 lembar Rp 5.000, 51–100 lembar Rp 4.500\n- Concorde 260 GSM 1S: tarifnya sama dengan Linen 1S\n\nUntuk tarif bahan dan jumlah lain, saya bisa bantu hitungkan setelah Kakak memberi tahu bahan, sisi cetak, dan jumlah lembarnya. Kakak rencananya mau cetak untuk apa dan pakai bahan yang mana?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "digital-print-a3-plus-hero",
+        "product_ids": [
+          "digital-print-a3"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.837,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1379,
+            "completion_tokens": 39,
+            "cost_usd": 0.001342,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8768,
+            "completion_tokens": 1193,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0014733,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2162,
+            "completion_tokens": 6,
+            "cost_usd": 0.004372,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 11.504,
+      "usage": {
+        "prompt_tokens": 12309,
+        "completion_tokens": 1238
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 11,
+      "question": "Boleh lihat perbandingan gambar kertas HVS dan art paper untuk digital print A3?",
+      "expected_asset": "digital-print-a3-plus-paper-comparison",
+      "actual_asset": "digital-print-a3-plus-paper-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi digital print, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut perbandingan singkat kedua bahan untuk cetak digital A3+ (area 32 x 48 cm):\n\n*HVS 100 GSM*\n- Kertas putih polos, tidak mengkilap, nyaman dibaca.\n- Lebih tebal dari kertas fotokopi biasa dan tidak mudah tembus tinta saat cetak dua sisi.\n- Cocok untuk dokumen laporan, modul pelatihan, formulir pendaftaran, dan kertas kop surat.\n\n*Art Paper 150 GSM*\n- Cocok untuk poster A3 promosi, brosur lipat, flyer, leaflet, dan katalog menu restoran.\n- Pilihan ini lebih sesuai jika hasil cetaknya perlu tampil lebih menarik untuk promosi.\n\nUntuk harga Art Paper 150 GSM, informasinya belum tersedia di data kami, jadi perlu dikonfirmasi admin toko. Harga HVS 100 GSM bisa saya hitungkan jika Kak sudah tahu jumlah dan sisi cetaknya.\n\nGambar yang dikirim hanya ilustrasi umum, bukan contoh hasil cetak yang persis.",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "digital-print-a3-plus-paper-comparison",
+        "product_ids": [
+          "digital-print-a3"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.406,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1389,
+            "completion_tokens": 72,
+            "cost_usd": 0.001626,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8683,
+            "completion_tokens": 1145,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0014408,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1999,
+            "completion_tokens": 6,
+            "cost_usd": 0.004046,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.758,
+      "usage": {
+        "prompt_tokens": 12071,
+        "completion_tokens": 1223
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 12,
+      "question": "Kirim contoh gambar ID card kak",
+      "expected_asset": "id-card-hero",
+      "actual_asset": "id-card-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi id card, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ilustrasi contoh ID card sedang saya kirim. Ini gambaran produknya, bukan model persis hasil cetak.\n\nDetail ID Card:\n- Bahan PVC keras 0,76 mm, sama seperti kartu ATM bank, jadi kokoh dan tahan lama.\n- Minimal pemesanan 5 pcs.\n- Pilihan cetak: standar digital laser, atau UV Print (tinta langsung kering dengan sinar UV, anti luntur dan anti gores).\n- Tersedia juga paket lengkap dengan tali lanyard dan holder mika pelindung kartu.\n\nHarga per pcs (semakin banyak semakin murah):\n\nID Card PVC 1 sisi:\n- 5–10 pcs: Rp10.000\n- 11–20 pcs: Rp9.000\n- 21–30 pcs: Rp8.000\n- 31–40 pcs: Rp7.000\n- 41–50 pcs: Rp6.000\n- Lebih dari 50 pcs: Rp5.000\n\nID Card PVC 2 sisi:\n- 5–10 pcs: Rp12.500\n- 11–20 pcs: Rp11.000\n- 21–30 pcs: Rp10.000\n- 31–40 pcs: Rp9.000\n- 41–50 pcs: Rp8.500\n- Lebih dari 50 pcs: Rp7.000\n\nID Card UV 1 sisi:\n- 5–50 pcs: Rp15.000\n- 51–100 pcs: Rp12.500\n- 101–500 pcs: Rp10.000\n- Lebih dari 500 pcs: Rp8.000\n\nID Card UV 2 sisi:\n- 5–50 pcs: Rp20.000\n- 51–100 pcs: Rp17.500\n- 101–500 pcs: Rp15.000\n- Lebih dari 500 pcs: Rp12.500\n\nKalau Kakak sudah tahu jumlah pcs dan mau cetak 1 sisi atau 2 sisi, kabari saja. Nanti saya bantu hitung totalnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "id-card-hero",
+        "product_ids": [
+          "id-card"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.82,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1376,
+            "completion_tokens": 37,
+            "cost_usd": 0.00132,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8702,
+            "completion_tokens": 1660,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0017002,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2155,
+            "completion_tokens": 6,
+            "cost_usd": 0.004358,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 18.238,
+      "usage": {
+        "prompt_tokens": 12233,
+        "completion_tokens": 1703
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 13,
+      "question": "Liat foto kartu nama dong",
+      "expected_asset": "kartu-nama-hero",
+      "actual_asset": "kartu-nama-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi kartu nama, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut ringkasan kartu nama kami, Kak:\n\n- Bahan: Art Carton atau BC (Board Cover)\n- Cetak: 1 sisi (1S) atau 2 sisi (2S), bisa dengan laminasi Glossy/Doff\n- Satuan: per box, 1 box isinya 100 lembar kartu nama\n\nTarif Art Carton per box:\n- 1S: Rp 25.000 (1–10 box), Rp 22.500 (11–20 box), Rp 20.000 (21–30 box), Rp 17.500 (31–40 box)\n- 2S: Rp 50.000 (1–10 box), Rp 45.000 (11–20 box), Rp 40.000 (21–30 box), Rp 35.000 (31–40 box)\n- 1S dengan laminasi Glossy/Doff: Rp 40.000 per box, berlaku untuk jumlah berapa pun\n- 2S dengan laminasi Glossy/Doff: Rp 78.000 per box, berlaku untuk jumlah berapa pun\n\nTarif BC (Board Cover) per box:\n- 1S: Rp 25.000 (1–10 box), Rp 22.500 (11–20 box), Rp 20.000 (21–30 box), Rp 17.500 (31–40 box)\n- 2S: Rp 70.000 (1–10 box), Rp 65.000 (11–20 box), Rp 60.000 (21–30 box), Rp 55.000 (31–40 box)\n\nUntuk menghitung totalnya, saya perlu tahu bahan (Art Carton atau BC), cetak 1S atau 2S, apakah pakai laminasi, dan jumlah box-nya. Kakak mau pilih yang mana?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "kartu-nama-hero",
+        "product_ids": [
+          "kartu-nama"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.312,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1375,
+            "completion_tokens": 39,
+            "cost_usd": 0.001334,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8629,
+            "completion_tokens": 1141,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0014334,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2149,
+            "completion_tokens": 6,
+            "cost_usd": 0.004346,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.097,
+      "usage": {
+        "prompt_tokens": 12153,
+        "completion_tokens": 1186
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 14,
+      "question": "Kirim gambar perbandingan finishing kartu nama glossy dan doff",
+      "expected_asset": "kartu-nama-glossy-doff-comparison",
+      "actual_asset": "kartu-nama-glossy-doff-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi kartu nama, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut detail kartu nama dengan laminasi Glossy/Doff, Kak:\n\n*Art Carton, 1 sisi (1S) dengan laminasi Glossy/Doff:* Rp 40.000 per box\n*Art Carton, 2 sisi (2S) dengan laminasi Glossy/Doff:* Rp 78.000 per box\n\nHarganya sama untuk Glossy maupun Doff, dan berlaku flat untuk semua jumlah. Satu box berisi 100 lembar kartu nama.\n\nUntuk pilihan 1S atau 2S, jumlah box yang Kakak butuhkan berapa? Dengan informasi itu, saya bisa bantu hitung estimasi totalnya.",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "kartu-nama-glossy-doff-comparison",
+        "product_ids": [
+          "kartu-nama"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.469,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1382,
+            "completion_tokens": 78,
+            "cost_usd": 0.003388,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8395,
+            "completion_tokens": 745,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.001212,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1755,
+            "completion_tokens": 6,
+            "cost_usd": 0.003558,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.536,
+      "usage": {
+        "prompt_tokens": 11532,
+        "completion_tokens": 829
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 15,
+      "question": "Minta preview brosur dong kak",
+      "expected_asset": "brosur-flyer-hero",
+      "actual_asset": "brosur-flyer-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi brosur, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini gambaran brosur yang bisa kami cetak:\n\nBahan: Art Paper 150 GSM\nUkuran: A4 atau A5\nPilihan cetak: 1 sisi (1S) atau 2 sisi (2S)\n\nUntuk harga, pesanan 500 pcs ke atas dihitung per rim (1 rim = 500 lembar). Contohnya, cetak 1S untuk 1 rim Rp 450.000, dan 2S untuk 1 rim Rp 650.000. Harga akan turun jika pesanan lebih dari 1 rim.\n\nKalau jumlahnya di bawah 500 pcs, perhitungannya berbeda karena memakai harga per lembar A3+. Supaya saya bisa hitungkan dengan tepat, boleh tahu ukuran brosur, jumlah yang dibutuhkan, dan apakah cetaknya 1 sisi atau 2 sisi?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "brosur-flyer-hero",
+        "product_ids": [
+          "brosur-flyer"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.555,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1376,
+            "completion_tokens": 40,
+            "cost_usd": 0.001344,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7867,
+            "completion_tokens": 675,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011242,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1464,
+            "completion_tokens": 6,
+            "cost_usd": 0.002976,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 12.418,
+      "usage": {
+        "prompt_tokens": 10707,
+        "completion_tokens": 721
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 16,
+      "question": "Kirim foto contoh nota NCR",
+      "expected_asset": "nota-ncr-hero",
+      "actual_asset": "nota-ncr-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi nota, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut detail produk nota NCR, Kak. Harganya per buku (1 buku = 50 lembar):\n\n*Half Folio (setengah folio)*\n- 1 rangkap: Rp 300.000\n- 2 rangkap: Rp 400.000\n- 3 rangkap: Rp 450.000\n- 4 rangkap: Rp 500.000\n\n*Full Folio (folio penuh)*\n- 1 rangkap: Rp 450.000\n- 2 rangkap: Rp 500.000\n- 3 rangkap: Rp 600.000\n- 4 rangkap: Rp 650.000\n\nUntuk menghitung totalnya, saya perlu tahu ukuran dan jumlah rangkap yang Kakak inginkan, serta jumlah bukunya. Misalnya, kalau Kakak pilih Half Folio 2 rangkap sebanyak 3 buku, totalnya 3 × Rp 400.000 = Rp 1.200.000.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "nota-ncr-hero",
+        "product_ids": [
+          "nota-ncr"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.085,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1375,
+            "completion_tokens": 38,
+            "cost_usd": 0.001326,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8339,
+            "completion_tokens": 537,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011024,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1746,
+            "completion_tokens": 6,
+            "cost_usd": 0.00354,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.428,
+      "usage": {
+        "prompt_tokens": 11460,
+        "completion_tokens": 581
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 17,
+      "question": "Ada contoh gambar stempel otomatis?",
+      "expected_asset": "stempel-otomatis-hero",
+      "actual_asset": "stempel-otomatis-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi stempel, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nAda, Kak. Ilustrasinya saya sertakan sebagai gambaran umum. Ini stempel karet otomatis (flash), jadi cukup ditekan sekali untuk menghasilkan cap yang jelas, dan tintanya sudah ada di dalam karet sehingga tidak perlu bantalan tinta terpisah.\n\nPilihan bentuk dan harga per pcs:\n\n*Kotak* (mulai dari 13×43 mm sampai 43×67 mm):\n- 13×43 mm: Rp 50.000\n- 17×55 mm: Rp 65.000\n- 27×67 mm: Rp 75.000\n- 43×55 mm: Rp 120.000\n\n*Bulat* (diameter 23 mm sampai 51 mm):\n- Diameter 23 mm: Rp 50.000\n- Diameter 35 mm: Rp 65.000\n- Diameter 51 mm: Rp 80.000\n\nUntuk stempel kebutuhan Kakak, ukuran yang mau dipakai berapa, dan bentuknya kotak atau bulat? Setelah itu saya hitung totalnya sesuai jumlah yang dibutuhkan.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "stempel-otomatis-hero",
+        "product_ids": [
+          "stempel"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.299,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1376,
+            "completion_tokens": 37,
+            "cost_usd": 0.00132,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8683,
+            "completion_tokens": 901,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0013188,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2011,
+            "completion_tokens": 6,
+            "cost_usd": 0.00407,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.235,
+      "usage": {
+        "prompt_tokens": 12070,
+        "completion_tokens": 944
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 18,
+      "question": "Tunjukin ilustrasi poster albatros dong",
+      "expected_asset": "poster-albatros-hero",
+      "actual_asset": "poster-albatros-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi poster, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ilustrasi poster Albatros akan dikirim terpisah sebelum pesan ini. Gambar itu hanya ilustrasi, bukan contoh varian atau hasil cetak yang persis.\n\nIni detail poster Albatros:\n- Bahan: Albatros 200 GSM, kertas sintetis yang permukaannya halus dan semi-doff\n- Cocok untuk poster yang dipajang dalam bingkai di dinding, portofolio foto besar, atau display seperti X-Banner, Y-Banner, dan Roll Up Banner\n- Wajib dilapisi laminating doff atau glossy agar warna tidak luntur dan permukaannya terlindungi\n- Anti-curl, jadi tepinya tidak mudah menggulung meski dipajang lama di ruangan ber-AC\n\nHarga cetak per pcs (tanpa laminasi):\n- A0 (84 x 119 cm): Rp 65.000\n- A1 (59 x 84 cm): Rp 39.000\n- A2 (42 x 59 cm): Rp 32.500\n\nUntuk harga laminasinya, informasinya belum tersedia, jadi perlu dikonfirmasi admin. Kakak butuh ukuran yang mana dan berapa lembar?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "poster-albatros-hero",
+        "product_ids": [
+          "poster-albatros"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.088,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1379,
+            "completion_tokens": 39,
+            "cost_usd": 0.001342,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7962,
+            "completion_tokens": 809,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012007,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1529,
+            "completion_tokens": 6,
+            "cost_usd": 0.003106,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.454,
+      "usage": {
+        "prompt_tokens": 10870,
+        "completion_tokens": 854
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 19,
+      "question": "Minta foto kalender meja dong",
+      "expected_asset": "kalender-meja-a5-hero",
+      "actual_asset": "kalender-meja-a5-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi kalender, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail Kalender Meja custom, Kak:\n\nUkuran: A5 (14,8 x 21 cm)\nBahan: Art Carton 260 GSM\nIsi: 14 halaman\n\nHarga per pcs:\n- Cetak 1 sisi (1S):\n  - 1–10 pcs: Rp 55.000\n  - 11–50 pcs: Rp 35.500\n  - 51–100 pcs: Rp 30.000\n  - 101–150 pcs: Rp 25.000\n- Cetak 2 sisi (2S):\n  - 1–10 pcs: Rp 70.000\n  - 11–50 pcs: Rp 50.000\n  - 51–100 pcs: Rp 40.500\n  - 101–150 pcs: Rp 35.500\n\nKalau Kakak mau, saya bisa hitungkan total untuk jumlah yang Kakak butuhkan. Kira-kira mau berapa pcs, dan pilih 1 sisi atau 2 sisi?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "kalender-meja-a5-hero",
+        "product_ids": [
+          "kalender-meja"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.538,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1375,
+            "completion_tokens": 39,
+            "cost_usd": 0.001334,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8148,
+            "completion_tokens": 712,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011708,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1655,
+            "completion_tokens": 6,
+            "cost_usd": 0.003358,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.228,
+      "usage": {
+        "prompt_tokens": 11178,
+        "completion_tokens": 757
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 20,
+      "question": "Boleh lihat contoh gambar e-money custom?",
+      "expected_asset": "e-money-custom-uv-hero",
+      "actual_asset": "e-money-custom-uv-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi e money, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni ilustrasi contoh kartu E-Money custom, Kak. Kartu dicetak dengan teknologi UV Print, sehingga warnanya pekat, tajam, dan tahan gores.\n\nTersedia untuk kartu E-Money Mandiri, Brizzi BRI, dan Flazz BCA, dengan pilihan cetak satu sisi atau dua sisi:\n\n*Mandiri*\n- Satu sisi: Rp 60.000 per pcs\n- Dua sisi: Rp 65.000 per pcs\n\n*Brizzi BRI*\n- Satu sisi: Rp 60.000 per pcs\n- Dua sisi: Rp 65.000 per pcs\n\n*Flazz BCA*\n- Satu sisi: Rp 90.000 per pcs\n- Dua sisi: Rp 95.000 per pcs\n\nUntuk estimasi total, saya perlu tahu jenis kartu (Mandiri, Brizzi BRI, atau Flazz BCA), pilihan satu atau dua sisi, dan jumlah kartu yang dibutuhkan.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "e-money-custom-uv-hero",
+        "product_ids": [
+          "e-money-custom-uv"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.537,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 40,
+            "cost_usd": 0.001348,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8137,
+            "completion_tokens": 631,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011292,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1577,
+            "completion_tokens": 6,
+            "cost_usd": 0.003202,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.97,
+      "usage": {
+        "prompt_tokens": 11092,
+        "completion_tokens": 677
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 21,
+      "question": "Hi admin kirimin foto preview plakat akrilik dong",
+      "expected_asset": "plakat-akrilik-hero",
+      "actual_asset": "plakat-akrilik-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi plakat, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini detail plakat akrilik ya:\n\nPlakatnya terbuat dari bahan akrilik tebal, ukuran tinggi 23 cm dan lebar 10 cm, dan harganya sudah termasuk box kemasan. Ada 4 pilihan ketebalan:\n\n- Tipe A (tebal 8 mm): Rp 300.000 per pcs\n- Tipe B (tebal 10 mm): Rp 310.000 per pcs\n- Tipe C (tebal 15 mm): Rp 330.000 per pcs\n- Tipe D (tebal 20 mm): Rp 350.000 per pcs\n\nKalau Kakak sudah punya gambaran tipe atau jumlah yang dibutuhkan, kabari saja ya. Nanti saya bantu hitung totalnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "plakat-akrilik-hero",
+        "product_ids": [
+          "plakat-akrilik"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.031,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1381,
+            "completion_tokens": 40,
+            "cost_usd": 0.001354,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7903,
+            "completion_tokens": 664,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011223,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1443,
+            "completion_tokens": 6,
+            "cost_usd": 0.002934,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.454,
+      "usage": {
+        "prompt_tokens": 10727,
+        "completion_tokens": 710
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 22,
+      "question": "Minta preview buku Yasin dong",
+      "expected_asset": "yasin-buku-saku-hero",
+      "actual_asset": "yasin-buku-saku-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi yasin, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini gambaran buku Yasin custom yang bisa dipilih. Gambar di atas adalah ilustrasi katalog, jadi bukan contoh persis dari varian tertentu.\n\nPilihan covernya:\n- *Soft Cover (SC)*: mulai Rp 13.000 per pcs (HVS 128 halaman)\n- *Hard Cover (BC)*: mulai Rp 18.500 per pcs (HVS 128 halaman)\n- *Hard Cover Samping (BCS)*: mulai Rp 19.000 per pcs (HVS 128 halaman)\n\nSemua pilihan dicetak dua sisi. Harga berbeda sesuai cover dan jumlah halaman. Misalnya, SC HVS 208 halaman Rp 18.000 per pcs, sedangkan SC Minyak Press 208 halaman Rp 19.500 per pcs.\n\nUntuk saya bantu hitung, Kak mau pakai cover yang mana dan kira-kira berapa halaman? Kalau jumlah pcs-nya sudah ada, sekalian saja disebutkan.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "yasin-buku-saku-hero",
+        "product_ids": [
+          "yasin-buku-saku"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.065,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1376,
+            "completion_tokens": 41,
+            "cost_usd": 0.001352,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8508,
+            "completion_tokens": 690,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011958,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1774,
+            "completion_tokens": 6,
+            "cost_usd": 0.003596,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.902,
+      "usage": {
+        "prompt_tokens": 11658,
+        "completion_tokens": 737
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 23,
+      "question": "Boleh lihat gambar tumbler custom?",
+      "expected_asset": "tumbler-custom-hero",
+      "actual_asset": "tumbler-custom-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi tumbler, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail tumblr custom, Kak:\n\n*Tumblr Custom Niagara / Sakura* (cetak satu sisi)\n- 5–50 pcs: Rp 78.000 per pcs\n- 51–100 pcs: Rp 75.000 per pcs\n- Lebih dari 100 pcs: Rp 72.000 per pcs\n\n*Tumblr Custom Smart LED* (cetak satu sisi)\n- 5–50 pcs: Rp 90.000 per pcs\n- 51–100 pcs: Rp 87.500 per pcs\n- Lebih dari 100 pcs: Rp 85.000 per pcs\n\nMinimal pemesanan 5 pcs. Kalau Kakak sudah punya jumlah dan jenis yang diinginkan, saya bisa bantu hitung totalnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "tumbler-custom-hero",
+        "product_ids": [
+          "tumbler-custom"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.026,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1377,
+            "completion_tokens": 39,
+            "cost_usd": 0.001338,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8194,
+            "completion_tokens": 585,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011119,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1551,
+            "completion_tokens": 6,
+            "cost_usd": 0.00315,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.138,
+      "usage": {
+        "prompt_tokens": 11122,
+        "completion_tokens": 630
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 24,
+      "question": "Kirim gambar contoh pin dong",
+      "expected_asset": "pin-aksesoris-hero",
+      "actual_asset": "pin-aksesoris-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi pin, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail pin custom yang tersedia, Kak. Gambarnya hanya ilustrasi, jadi bentuk dan warnanya bisa sedikit berbeda dari hasil cetak.\n\nPilihan pengaitnya:\n- *Pin peniti* (disematkan di baju)\n- *Pin gantungan* (digantung di tas atau kunci)\n\nHarga per pcs, minimal order 24 pcs:\n- Pin peniti 4,4 cm: Rp 4.000\n- Pin peniti 5,8 cm: Rp 4.500\n- Pin gantungan 4,4 cm: Rp 5.000\n- Pin gantungan 5,8 cm: Rp 5.500\n\nUntuk ukuran 4,4 cm cocok untuk pin panitia, sedangkan 5,8 cm lebih mudah terlihat. Pesanan Kak pakai jenis pengait dan ukuran yang mana, dan rencananya berapa pcs?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "pin-aksesoris-hero",
+        "product_ids": [
+          "pin-aksesoris"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 3.407,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1375,
+            "completion_tokens": 40,
+            "cost_usd": 0.001342,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7943,
+            "completion_tokens": 642,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011153,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1466,
+            "completion_tokens": 6,
+            "cost_usd": 0.00298,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.007,
+      "usage": {
+        "prompt_tokens": 10784,
+        "completion_tokens": 688
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 25,
+      "question": "Liat contoh gambar lanyard dong",
+      "expected_asset": "lanyard-custom-hero",
+      "actual_asset": "lanyard-custom-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi lanyard, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail lanyard custom yang tersedia, Kak:\n\n- *Lanyard Polos*: tanpa cetakan, hanya warna polos. Rp 8.000 per pcs.\n- *Lanyard Sablon 1 Warna*: nama atau logo dicetak dengan 1 warna tinta. Rp 10.000 per pcs.\n- *Lanyard Full Color*: nama atau logo dicetak penuh warna di kedua sisi tali, dengan bahan tisu yang lembut dan nyaman di leher. Rp 12.500 per pcs.\n\nMinimal pemesanan 25 pcs untuk semua jenis.\n\nKakak tertarik yang jenis mana? Nanti saya bantu hitung totalnya sesuai jumlah yang dibutuhkan.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "lanyard-custom-hero",
+        "product_ids": [
+          "lanyard"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.044,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1377,
+            "completion_tokens": 37,
+            "cost_usd": 0.001322,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8070,
+            "completion_tokens": 821,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012175,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1500,
+            "completion_tokens": 6,
+            "cost_usd": 0.003048,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.08,
+      "usage": {
+        "prompt_tokens": 10947,
+        "completion_tokens": 864
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 26,
+      "question": "Boleh lihat foto korek api custom?",
+      "expected_asset": "korek-api-custom-hero",
+      "actual_asset": "korek-api-custom-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi korek api, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBaik, Kak. Ilustrasi korek api custom akan saya kirim terpisah. Itu hanya gambaran produknya, jadi tampilan akhirnya bisa sedikit berbeda dari foto.\n\nKorek api custom cetak logo atau desain untuk souvenir atau promosi, dengan minimal order 50 pcs. Cetaknya memakai teknologi UV yang langsung mengeringkan tinta, sehingga warnanya pekat, tajam, dan tahan gores.\n\nHarga per pcs:\n- Cetak 1 sisi: Rp 10.000 (50–100 pcs) dan Rp 8.000 (lebih dari 100 pcs)\n- Cetak 2 sisi: Rp 12.000 (50–100 pcs) dan Rp 10.000 (lebih dari 100 pcs)\n\nUntuk saya hitungkan totalnya, mohon info jumlah pcs yang diinginkan dan apakah desainnya cetak 1 sisi atau 2 sisi.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "korek-api-custom-hero",
+        "product_ids": [
+          "korek-api-custom"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.057,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 39,
+            "cost_usd": 0.00134,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7942,
+            "completion_tokens": 738,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011632,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1447,
+            "completion_tokens": 6,
+            "cost_usd": 0.002942,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.971,
+      "usage": {
+        "prompt_tokens": 10767,
+        "completion_tokens": 783
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 27,
+      "question": "Kirimin foto X-Banner tersedia ukuran 60 × 160 cm dengan rangka berbentuk X",
+      "expected_asset": "x-banner-hero",
+      "actual_asset": "x-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail X-Banner ukuran 60 x 160 cm, Kak. Rangkanya berbentuk huruf X dari serat fiber ringan, mudah dirakit dan dibongkar sendiri tanpa alat khusus.\n\nHarga per paket sudah termasuk cetakan, lubang mata ayam di 4 sudut, dan 1 set rangka X:\n- Flexi China 280 GSM: Rp 50.000\n- Flexi China 340 GSM: Rp 70.000\n- Flexi Korea 440 GSM: Rp 90.000\n- Albatros dengan laminasi: Rp 75.000\n\nKalau Kak sudah punya cetakan sendiri, tersedia juga rangka X saja tanpa cetakan seharga Rp 30.000 per pcs.\n\nBahan mana yang Kak minati, dan butuh berapa paket?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "x-banner-hero",
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.641,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1389,
+            "completion_tokens": 83,
+            "cost_usd": 0.001714,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8614,
+            "completion_tokens": 629,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011759,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1805,
+            "completion_tokens": 6,
+            "cost_usd": 0.003658,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.347,
+      "usage": {
+        "prompt_tokens": 11808,
+        "completion_tokens": 718
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 28,
+      "question": "Kirimin foto banner dong, banner apapun",
+      "expected_asset": "banner-spanduk-hero",
+      "actual_asset": "banner-spanduk-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini ilustrasi banner dan detail produknya. Ilustrasi ini sebagai gambaran saja, jadi tampilan akhirnya bisa sedikit berbeda.\n\nAda dua jenis banner yang tersedia:\n\n*Spanduk/banner meteran (harga per m²):*\n- Flexi China 280 GSM standar: Rp 16.500/m²\n- Flexi China 280 GSM High Resolution: Rp 25.000/m²\n- Flexi China 340 GSM standar: Rp 25.000/m²\n- Flexi China 340 GSM High Resolution: Rp 32.000/m²\n- Flexi Korea 440 GSM High Resolution: Rp 45.000/m²\n- Albatros 200 GSM High Resolution (indoor): Rp 70.000/m²\n\n*Roll Up Banner (per paket, sudah termasuk rangka gulung), ukuran 60x160 cm:*\n- Flexi China 280 GSM: Rp 195.000\n- Flexi China 340 GSM: Rp 210.000\n- Flexi Korea 440 GSM: Rp 240.000\n- Albatros: Rp 250.000\n\n*Roll Up Banner ukuran 85x200 cm:*\n- Flexi China 280 GSM: Rp 245.000\n- Flexi China 340 GSM: Rp 260.000\n- Flexi Korea 440 GSM High Resolution: Rp 325.000\n- Albatros: Rp 335.000\n\nUntuk spanduk meteran, harga dihitung dari panjang × lebar × harga per m² × jumlah, lalu dibulatkan ke atas ke kelipatan Rp 500.\n\nKak mau banner jenis apa, meteran atau roll up? Kalau sudah ada ukuran, jumlah, dan bahan yang diinginkan, saya bantu hitung estimasinya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "banner-spanduk-hero",
+        "product_ids": [
+          "banner-spanduk"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.056,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 38,
+            "cost_usd": 0.001332,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8242,
+            "completion_tokens": 1046,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0013472,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1821,
+            "completion_tokens": 6,
+            "cost_usd": 0.00369,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.851,
+      "usage": {
+        "prompt_tokens": 11441,
+        "completion_tokens": 1090
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 29,
+      "question": "Harga digital print A3 untuk foto berapa?",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Untuk cetak foto A3 dengan bahan Photo Paper 260 GSM, harganya *Rp 10.000 per lembar* untuk cetak satu sisi (1S). Harga ini sama untuk jumlah berapa pun.\n\nUntuk opsi cetak dua sisi, data harga Photo Paper belum tersedia, jadi saya belum bisa memberikan angkanya. Kalau Kakak butuh cetak dua sisi, silakan tanyakan ke admin toko.\n\nKalau Kakak beritahu jumlah lembarnya, saya hitungkan totalnya. Fotonya untuk keperluan apa, Kak? Misalnya wisuda, poster berbingkai, atau photobook.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "digital-print-a3"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.055,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1379,
+            "completion_tokens": 39,
+            "cost_usd": 0.00307,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8031,
+            "completion_tokens": 557,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0010816,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 5.505,
+      "usage": {
+        "prompt_tokens": 9410,
+        "completion_tokens": 596
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 30,
+      "question": "Resolusi foto untuk banner harus berapa?",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Untuk spanduk atau banner outdoor ukuran besar (di atas 2 meter), resolusi minimal yang disarankan adalah 100 sampai 150 DPI pada ukuran asli (1:1). Spanduk dilihat dari jarak jauh, jadi resolusi tersebut sudah cukup tajam.\n\nKalau banner dipasang di dalam ruangan, seperti poster dinding atau bahan Albatros, resolusinya sebaiknya 200 sampai 300 DPI pada ukuran asli.\n\nKalau foto yang dipakai kecil dan dibesarkan sampai ukuran banner, kualitasnya bisa turun. Kalau Kak mau, kirimkan ukuran banner dan rencana pemasangannya (outdoor atau indoor), nanti saya bantu cek kebutuhan resolusinya.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "banner-spanduk"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.07,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 38,
+            "cost_usd": 0.00306,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7664,
+            "completion_tokens": 487,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0010099,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 4.849,
+      "usage": {
+        "prompt_tokens": 9042,
+        "completion_tokens": 525
+      },
+      "sources": [
+        "03_panduan_berkas_siap_cetak.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 31,
+      "question": "Fotonya X-banner jangan dikirim, harga saja",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Baik, Kak, fotonya tidak saya kirim. Ini harga X-Banner ukuran 60 x 160 cm (sudah termasuk rangka):\n\n- Flexi China 280 GSM: Rp 50.000 per paket\n- Flexi China 340 GSM: Rp 70.000 per paket\n- Flexi Korea 440 GSM: Rp 90.000 per paket\n- Albatros dengan laminasi: Rp 75.000 per paket\n\nKalau hanya butuh rangka tanpa cetakan, harganya Rp 30.000 per pcs.\n\nKak mau pakai bahan yang mana, dan jumlahnya berapa paket?",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 3.526,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1380,
+            "completion_tokens": 37,
+            "cost_usd": 0.003056,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7888,
+            "completion_tokens": 303,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0009403,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 6.581,
+      "usage": {
+        "prompt_tokens": 9268,
+        "completion_tokens": 340
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 32,
+      "question": "Minta gambar stikernya dong",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Kak, boleh perjelas produk atau maksud pertanyaannya?\n\nSiap, Kak. Biar gambarnya sesuai, stikernya mau jenis yang mana dan untuk keperluan apa?\n\nPilihan bahannya:\n- *Stiker Cromo (180 GSM, lembaran A3+)*: harga paling ekonomis, permukaannya licin dan mengkilap, bisa ditulis pulpen. Tidak tahan air. Cocok untuk label toples, segel kardus, atau stiker promosi.\n- *Stiker Vinyl Meteran China (200 GSM)*: tahan air dan tidak mudah sobek, dijual per meter. Cocok untuk stiker dinding, plang, atau etalase luar.\n- *Stiker Transparan (vinyl bening)*: hanya bagian desain yang tercetak, area kosongnya bening. Cocok untuk label botol atau dekorasi kaca.\n\nKalau Kakak sudah punya gambaran jenis dan ukurannya, kasih tahu saja, nanti saya bantu jelaskan detail dan estimasinya.",
+      "decision": {
+        "reason": "intent_ambiguous",
+        "asset_id": null,
+        "product_ids": [],
+        "intent_resolution": "ambiguous",
+        "intent_latency_seconds": 1.509,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1376,
+            "completion_tokens": 54,
+            "cost_usd": 0.001456,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8882,
+            "completion_tokens": 708,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012422,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2111,
+            "completion_tokens": 6,
+            "cost_usd": 0.00427,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.529,
+      "usage": {
+        "prompt_tokens": 12369,
+        "completion_tokens": 768
+      },
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "03_panduan_berkas_siap_cetak.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 33,
+      "question": "Roll up bisa kirim ke Bandung?",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Untuk pengiriman ke Bandung, informasinya belum tersedia di data kami, Kak, jadi saya belum bisa memastikan bisa atau tidak, termasuk biaya dan waktunya. Silakan tanyakan langsung ke admin toko untuk memastikan.\n\nKalau Kakak sudah punya gambaran ukuran dan bahan, saya bisa bantu hitung harga Roll Up Banner dulu, lalu admin bisa sekalian mengecek pengirimannya.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "roll-up-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.334,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1377,
+            "completion_tokens": 38,
+            "cost_usd": 0.00133,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7974,
+            "completion_tokens": 315,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0009549,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 4.705,
+      "usage": {
+        "prompt_tokens": 9351,
+        "completion_tokens": 353
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 34,
+      "question": "Berapa harga plakat akrilik?",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Untuk plakat akrilik, tersedia 4 tipe dengan ukuran tinggi 23 cm dan lebar 10 cm, harga per pcs sudah termasuk box kemasan:\n\n- Tipe A (tebal 8 mm): Rp 300.000 per pcs\n- Tipe B (tebal 10 mm): Rp 310.000 per pcs\n- Tipe C (tebal 15 mm): Rp 330.000 per pcs\n- Tipe D (tebal 20 mm): Rp 350.000 per pcs\n\nKalau Kak sudah punya gambaran tipe dan jumlah yang dibutuhkan, boleh diinfokan supaya saya bantu hitung totalnya.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "plakat-akrilik"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.058,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 40,
+            "cost_usd": 0.001348,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7609,
+            "completion_tokens": 246,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0008839,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 4.036,
+      "usage": {
+        "prompt_tokens": 8987,
+        "completion_tokens": 286
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 35,
+      "question": "Kirim perbandingan gambar bahan spanduk satin dan kanvas",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Ilustrasi yang sesuai belum tersedia, Kak.\n\nMaaf, Kak, untuk bahan satin dan kanvas saya belum punya informasi di data kami, jadi belum bisa memberi perbandingan. Untuk spanduk outdoor, pilihan yang tercatat saat ini adalah Flexi China 280 GSM dan 340 GSM, sedangkan untuk indoor ada Albatros 200 GSM. Berikut ringkasannya:\n\n- *Flexi China 280 GSM*: cocok untuk keperluan jangka pendek seperti acara hajatan, spanduk selamat datang, atau promosi mingguan dengan anggaran terjangkau. Harganya Rp 16.500 per m² (cetak standar) dan Rp 25.000 per m² (High Resolution).\n- *Flexi China 340 GSM*: lebih tebal dan padat, sehingga lebih kokoh, tidak mudah melar, dan tidak mudah melipat sendiri karena angin saat dipasang di tiang. Harganya Rp 25.000 per m² (standar) dan Rp 32.000 per m² (High Resolution).\n- *Albatros 200 GSM (High Resolution, indoor)*: harganya Rp 70.000 per m².\n\nKalau Kakak ingin tahu detail satin atau kanvas, silakan tanyakan langsung ke admin toko. Untuk pesanan spanduk outdoor, bahan Flexi 280 GSM atau 340 GSM bisa dibandingkan dulu. Bahan apa yang kira-kira akan dipakai, dan untuk acara atau tempat apa spanduknya?",
+      "decision": {
+        "reason": "no_matching_asset",
+        "asset_id": null,
+        "product_ids": [
+          "banner-spanduk"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.531,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1382,
+            "completion_tokens": 76,
+            "cost_usd": 0.001644,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8295,
+            "completion_tokens": 1282,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0014705,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1746,
+            "completion_tokens": 6,
+            "cost_usd": 0.00354,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.562,
+      "usage": {
+        "prompt_tokens": 11423,
+        "completion_tokens": 1364
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 36,
+      "question": "Lihat gambar kartu nama glossy dan doff",
+      "expected_asset": "kartu-nama-glossy-doff-comparison",
+      "actual_asset": "kartu-nama-glossy-doff-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi kartu nama, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni detail kartu nama dengan laminasi Glossy atau Doff, Kak:\n\n- Bahan: Art Carton\n- Cetak 1 sisi (1S) dengan laminasi: Rp 40.000 per box\n- Cetak 2 sisi (2S) dengan laminasi: Rp 78.000 per box\n- 1 box berisi 100 lembar kartu nama\n- Harganya flat untuk semua jumlah box\n\nUntuk pilihan Glossy atau Doff, tarifnya sama. Jadi, Kak lebih suka hasil yang mengilap (Glossy) atau yang lembut tidak mengilap (Doff)?\n\nKalau sudah menentukan, tinggal sebutkan cetak 1 sisi atau 2 sisi dan jumlah box yang dibutuhkan, nanti saya hitungkan totalnya.",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "kartu-nama-glossy-doff-comparison",
+        "product_ids": [
+          "kartu-nama"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.184,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1378,
+            "completion_tokens": 76,
+            "cost_usd": 0.001636,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8636,
+            "completion_tokens": 688,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012076,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1930,
+            "completion_tokens": 6,
+            "cost_usd": 0.003908,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.357,
+      "usage": {
+        "prompt_tokens": 11944,
+        "completion_tokens": 770
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 37,
+      "question": "Tunjukkan foto yang membuktikan ketebalan plakat akrilik persis 20 mm",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Belum ada ilustrasi yang menunjukkan detail persis itu, Kak.\n\nHarga dan spesifikasi yang belum terkonfirmasi dapat ditanyakan ke admin.",
+      "decision": {
+        "reason": "exact_visual_unavailable",
+        "asset_id": null,
+        "product_ids": [
+          "plakat-akrilik"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.035,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "safe_fallback",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1390,
+            "completion_tokens": 69,
+            "cost_usd": 0.001604,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8082,
+            "completion_tokens": 681,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011487,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1482,
+            "completion_tokens": 6,
+            "cost_usd": 0.003012,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.262,
+      "usage": {
+        "prompt_tokens": 10954,
+        "completion_tokens": 756
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    }
+  ],
+  "conversation": [
+    {
+      "index": 0,
+      "question": "Hi kak mau print banner dong",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Halo, Kak! Boleh, siap dibantu. Banner yang dimaksud yang seperti apa, ya?\n\n- Spanduk meteran (dihitung per m²)\n- X-Banner (ukuran 60 x 160 cm, sudah termasuk rangka)\n\nSetelah jenisnya diketahui, saya tanyakan ukuran, jumlah, dan pilihan bahannya.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "banner-spanduk"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.633,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1375,
+            "completion_tokens": 38,
+            "cost_usd": 0.001326,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7898,
+            "completion_tokens": 337,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0009583,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 12.318,
+      "usage": {
+        "prompt_tokens": 9273,
+        "completion_tokens": 375
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 1,
+      "question": "Mau liat yg banner x tegak",
+      "expected_asset": "x-banner-hero",
+      "actual_asset": "x-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. X-Banner ini berbentuk huruf X dengan rangka sendiri, jadi bisa berdiri tegak tanpa dipasang di dinding.\n\nDetail paketnya:\n- Ukuran 60 x 160 cm\n- Sudah termasuk cetak, lubang mata ayam di 4 sudut, dan 1 set rangka X dari serat fiber ringan\n- Rangka mudah dirakit dan dibongkar sendiri tanpa alat khusus\n\nPilihan bahan dan harga per paket:\n- Flexi China 280 GSM: Rp 50.000\n- Flexi China 340 GSM: Rp 70.000\n- Flexi Korea 440 GSM: Rp 90.000\n- Albatros dengan laminasi: Rp 75.000\n\nKalau Kakak sudah punya cetakan sendiri, rangka X saja tersedia seharga Rp 30.000 per pcs.\n\nUntuk bahan yang mana, dan butuh berapa paket, Kak?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "x-banner-hero",
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.297,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1467,
+            "completion_tokens": 37,
+            "cost_usd": 0.001502,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8483,
+            "completion_tokens": 702,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011993,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1682,
+            "completion_tokens": 6,
+            "cost_usd": 0.003412,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.666,
+      "usage": {
+        "prompt_tokens": 11632,
+        "completion_tokens": 745
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 2,
+      "question": "Iyaa kak X-banner, kirimin preview gambarnya dulu dong",
+      "expected_asset": "x-banner-hero",
+      "actual_asset": "x-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini detail X-Banner ukuran 60 x 160 cm, sudah termasuk cetak, lubang mata ayam di 4 sudut, dan 1 set rangka X dari serat fiber ringan.\n\nPilihan bahan dan harga per paket:\n- Flexi China 280 GSM: Rp 50.000\n- Flexi China 340 GSM: Rp 70.000\n- Flexi Korea 440 GSM: Rp 90.000\n- Albatros dengan laminasi: Rp 75.000\n\nKalau Kakak sudah punya cetakan sendiri, rangka X saja tersedia Rp 30.000 per pcs.\n\nUntuk bahannya mau pilih yang mana, dan butuh berapa paket, Kak?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "x-banner-hero",
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.354,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1698,
+            "completion_tokens": 37,
+            "cost_usd": 0.001964,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8894,
+            "completion_tokens": 265,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0010219,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1630,
+            "completion_tokens": 6,
+            "cost_usd": 0.003308,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 4.92,
+      "usage": {
+        "prompt_tokens": 12222,
+        "completion_tokens": 308
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 3,
+      "question": "Kirim gambar plakat akrilik dong",
+      "expected_asset": "plakat-akrilik-hero",
+      "actual_asset": "plakat-akrilik-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi plakat, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini detail plakat akrilik yang tersedia:\n\n- Tipe A (tebal 8 mm): Rp 300.000 per pcs\n- Tipe B (tebal 10 mm): Rp 310.000 per pcs\n- Tipe C (tebal 15 mm): Rp 330.000 per pcs\n- Tipe D (tebal 20 mm): Rp 350.000 per pcs\n\nSemua tipe berukuran tinggi 23 cm dan lebar 10 cm, sudah termasuk box kemasan.\n\nUntuk pilihan tipenya, Kakak mau yang mana, dan butuh berapa pcs? Setelah itu saya hitungkan totalnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "plakat-akrilik-hero",
+        "product_ids": [
+          "plakat-akrilik"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.267,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1882,
+            "completion_tokens": 40,
+            "cost_usd": 0.002356,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 8793,
+            "completion_tokens": 615,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011868,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1421,
+            "completion_tokens": 6,
+            "cost_usd": 0.00289,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.61,
+      "usage": {
+        "prompt_tokens": 12096,
+        "completion_tokens": 661
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 4,
+      "question": "Kirim gambar X-banner lagi",
+      "expected_asset": "x-banner-hero",
+      "actual_asset": "x-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni ilustrasi X-Banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nDetail X-Banner ukuran 60 x 160 cm, sudah termasuk cetak, lubang mata ayam di 4 sudut, dan 1 set rangka X dari serat fiber ringan:\n\n- Flexi China 280 GSM: Rp 50.000 per paket\n- Flexi China 340 GSM: Rp 70.000 per paket\n- Flexi Korea 440 GSM: Rp 90.000 per paket\n- Albatros dengan laminasi: Rp 75.000 per paket\n\nKalau Kakak sudah punya cetakan sendiri, rangka X saja tersedia Rp 30.000 per pcs.\n\nUntuk bahannya mau pilih yang mana, dan butuh berapa paket, Kak? Setelah itu saya hitungkan totalnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "x-banner-hero",
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.883,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2056,
+            "completion_tokens": 37,
+            "cost_usd": 0.001912,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9519,
+            "completion_tokens": 315,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011094,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1651,
+            "completion_tokens": 6,
+            "cost_usd": 0.00335,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 5.416,
+      "usage": {
+        "prompt_tokens": 13226,
+        "completion_tokens": 358
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 5,
+      "question": "Kirim itu lagi",
+      "expected_asset": "x-banner-hero",
+      "actual_asset": "x-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni ilustrasi x banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nDetail X-Banner ukuran 60 x 160 cm, sudah termasuk cetak, lubang mata ayam di 4 sudut, dan 1 set rangka X dari serat fiber ringan:\n\n- Flexi China 280 GSM: Rp 50.000 per paket\n- Flexi China 340 GSM: Rp 70.000 per paket\n- Flexi Korea 440 GSM: Rp 90.000 per paket\n- Albatros dengan laminasi: Rp 75.000 per paket\n\nKalau Kakak sudah punya cetakan sendiri, rangka X saja tersedia Rp 30.000 per pcs.\n\nUntuk bahannya mau pilih yang mana, dan butuh berapa paket, Kak? Setelah itu saya hitungkan totalnya.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "x-banner-hero",
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.295,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2252,
+            "completion_tokens": 37,
+            "cost_usd": 0.002496,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9897,
+            "completion_tokens": 313,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011462,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1656,
+            "completion_tokens": 6,
+            "cost_usd": 0.00336,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 4.826,
+      "usage": {
+        "prompt_tokens": 13805,
+        "completion_tokens": 356
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 6,
+      "question": "Jangan kirim fotonya, harga saja",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Baik, Kak, tidak saya kirim fotonya. Ini harga X-Banner ukuran 60 x 160 cm, sudah termasuk cetak, lubang mata ayam di 4 sudut, dan 1 set rangka X:\n\n- Flexi China 280 GSM: Rp 50.000 per paket\n- Flexi China 340 GSM: Rp 70.000 per paket\n- Flexi Korea 440 GSM: Rp 90.000 per paket\n- Albatros dengan laminasi: Rp 75.000 per paket\n\nKalau cetakannya sudah ada dan hanya butuh rangka, rangka X saja Rp 30.000 per pcs.\n\nUntuk bahan dan jumlah paketnya, Kakak mau yang mana? Setelah itu saya hitungkan totalnya.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "x-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.167,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2455,
+            "completion_tokens": 37,
+            "cost_usd": 0.002134,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9829,
+            "completion_tokens": 281,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011234,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 3.887,
+      "usage": {
+        "prompt_tokens": 12284,
+        "completion_tokens": 318
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 7,
+      "question": "Lihat perbandingan gambar X-banner dan Y-banner",
+      "expected_asset": "standing-banner-form-comparison",
+      "actual_asset": "standing-banner-form-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, y banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBaik, Kak. Ini perbandingan X-Banner dan Y-Banner ukuran 60 x 160 cm, sudah termasuk cetak dan rangka.\n\nX-Banner berbentuk huruf X dengan rangka dari serat fiber ringan. Mudah dirakit dan dibongkar sendiri tanpa alat khusus.\n\nY-Banner memakai rangka berbentuk huruf Y dengan kaki penopang di bagian belakang bawah. Bentuk ini membuat banner lebih stabil dan tidak mudah roboh jika tertiup angin, jadi lebih cocok untuk area semi-outdoor seperti teras toko atau depan pintu masuk.\n\nHarga paket per bahan:\n- Flexi China 280 GSM: X-Banner Rp 50.000, Y-Banner Rp 50.000\n- Flexi China 340 GSM: X-Banner Rp 70.000, Y-Banner Rp 70.000\n- Flexi Korea 440 GSM: X-Banner Rp 90.000, Y-Banner Rp 90.000\n- Albatros dengan laminasi: X-Banner Rp 75.000, Y-Banner Rp 75.000\n\nKalau cetakan sudah ada dan hanya butuh rangka, rangka X atau Y saja Rp 30.000 per pcs.\n\nUntuk pilihan bentuk dan bahannya, Kakak mau yang mana, dan butuh berapa paket?",
+      "decision": {
+        "reason": "explicit_comparison",
+        "asset_id": "standing-banner-form-comparison",
+        "product_ids": [
+          "x-banner",
+          "y-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.438,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2633,
+            "completion_tokens": 40,
+            "cost_usd": 0.00213,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 10568,
+            "completion_tokens": 505,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0013093,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1767,
+            "completion_tokens": 6,
+            "cost_usd": 0.003582,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.784,
+      "usage": {
+        "prompt_tokens": 14968,
+        "completion_tokens": 551
+      },
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 8,
+      "question": "Kirim itu lagi",
+      "expected_asset": "standing-banner-form-comparison",
+      "actual_asset": "standing-banner-form-comparison",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi x banner, y banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nIni ilustrasi x banner dan y banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBerikut detail X-Banner dan Y-Banner ukuran 60 x 160 cm, sudah termasuk cetak dan rangka:\n\n- Flexi China 280 GSM: Rp 50.000 per paket\n- Flexi China 340 GSM: Rp 70.000 per paket\n- Flexi Korea 440 GSM: Rp 90.000 per paket\n- Albatros dengan laminasi: Rp 75.000 per paket\n\nBedanya, X-Banner memakai rangka berbentuk huruf X yang ringan dan mudah dirakit sendiri. Y-Banner memakai rangka berbentuk huruf Y dengan kaki penopang di belakang bawah, sehingga lebih stabil dan tidak mudah roboh saat tertiup angin. Y-Banner lebih cocok untuk area semi-outdoor seperti teras toko atau depan pintu masuk.\n\nKalau cetakannya sudah ada dan hanya butuh rangka, rangka X atau Y saja Rp 30.000 per pcs.\n\nUntuk bentuk dan bahannya, Kakak mau yang mana, dan butuh berapa paket?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "standing-banner-form-comparison",
+        "product_ids": [
+          "x-banner",
+          "y-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.675,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2944,
+            "completion_tokens": 40,
+            "cost_usd": 0.00256,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 11129,
+            "completion_tokens": 443,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0013344,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1723,
+            "completion_tokens": 6,
+            "cost_usd": 0.003494,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 6.01,
+      "usage": {
+        "prompt_tokens": 15796,
+        "completion_tokens": 489
+      },
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 9,
+      "question": "Minta foto stikernya dong",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Kak, boleh perjelas produk atau maksud pertanyaannya?\n\nUntuk stiker, Kak, ini harga cetak stiker gulungan/cutting per m² yang tersedia:\n\n- Stiker China 200 GSM High Resolution: Rp 45.000 per m²\n- Stiker Vinyl Ritrama 250 GSM High Resolution: Rp 65.000 per m²\n- Stiker One Way Vision OWV 250 GSM High Resolution: Rp 85.000 per m²\n- Stiker Transparan 200 GSM High Resolution: Rp 75.000 per m²\n\nCara hitungnya: panjang (m) × lebar (m) × harga per m², lalu dibulatkan ke atas ke kelipatan Rp 500.\n\nUntuk stikernya mau dipakai di mana (dinding, kaca, atau gulungan), dan ukurannya berapa meter? Dengan ukuran itu nanti saya hitungkan totalnya, Kak.",
+      "decision": {
+        "reason": "intent_ambiguous",
+        "asset_id": null,
+        "product_ids": [],
+        "intent_resolution": "ambiguous",
+        "intent_latency_seconds": 1.34,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 3127,
+            "completion_tokens": 76,
+            "cost_usd": 0.005134,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 11517,
+            "completion_tokens": 313,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0013082,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1650,
+            "completion_tokens": 6,
+            "cost_usd": 0.003348,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 8.922,
+      "usage": {
+        "prompt_tokens": 16294,
+        "completion_tokens": 395
+      },
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 10,
+      "question": "Yang A3 kiss cut kak",
+      "expected_asset": "stiker-a3-plus-hero",
+      "actual_asset": "stiker-a3-plus-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi stiker a3, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nBaik, Kak. Untuk stiker A3+ dengan kiss cut, area cetak efektifnya 31 × 47 cm per lembar. Harganya per lembar A3+:\n\n- Stiker Cromo dengan Kiss Cut: Rp 12.500 per lembar (1–10 lembar), Rp 10.500 per lembar (lebih dari 10 lembar)\n- Stiker Vinyl dengan Kiss Cut: Rp 17.500 per lembar (1–10 lembar), Rp 15.000 per lembar (lebih dari 10 lembar)\n\nJumlah stiker yang muat per lembar tergantung ukurannya. Misalnya, ukuran 3 × 4 cm muat 71 pcs per lembar, dan ukuran 5 × 7 cm muat 28 pcs per lembar. Dari situ kami hitung berapa lembar yang dibutuhkan, lalu dikalikan tarif sesuai jumlah lembarnya.\n\nUntuk saya hitungkan, Kakak mau stiker ukuran berapa, bahannya cromo atau vinyl, dan butuh berapa pcs?",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "stiker-a3-plus-hero",
+        "product_ids": [
+          "stiker-a3-kiss-cut"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.44,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 3107,
+            "completion_tokens": 42,
+            "cost_usd": 0.004822,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 11829,
+            "completion_tokens": 1084,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0017249,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 2073,
+            "completion_tokens": 6,
+            "cost_usd": 0.004194,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 10.545,
+      "usage": {
+        "prompt_tokens": 17009,
+        "completion_tokens": 1132
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 11,
+      "question": "reset",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Kita mulai pembahasan baru, Kak. Konteks percakapan sebelumnya tidak dipakai lagi.\n\nHalo, Sahabat Asia! 👋\n\nSelamat datang di chatbot CV. Asia Visual Grafika. Saya bisa membantu Kakak mencari informasi dan menyiapkan kebutuhan cetak.\n\nMau cari informasi tentang apa?\n1. Bahan cetak dan kegunaannya\n2. Cara menyiapkan file untuk dicetak\n3. Informasi toko dan ketentuan pemesanan\n4. Estimasi harga produk\n\nKetik angka 1, 2, 3, atau 4 untuk melihat contoh pertanyaan, atau langsung ceritakan kebutuhan Kakak. Misalnya: “Mau cetak label makanan 50 pcs, cocoknya pakai bahan apa?”\n\nKetik *menu* untuk melihat pilihan ini lagi, atau *reset* untuk memulai pembahasan baru tanpa memakai konteks sebelumnya.",
+      "decision": {},
+      "latency_seconds": 0,
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0
+      },
+      "sources": [],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 12,
+      "question": "Kirim itu lagi",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Kak, boleh perjelas produk atau maksud pertanyaannya?\n\nSiap, Kak. Ini menunya lagi:\n\nHalo, Sahabat Asia! 👋\n\nSelamat datang di chatbot CV. Asia Visual Grafika. Saya bisa membantu Kakak mencari informasi dan menyiapkan kebutuhan cetak.\n\nMau cari informasi tentang apa?\n1. Bahan cetak dan kegunaannya\n2. Cara menyiapkan file untuk dicetak\n3. Informasi toko dan ketentuan pemesanan\n4. Estimasi harga produk\n\nKetik angka 1, 2, 3, atau 4 untuk melihat contoh pertanyaan, atau langsung ceritakan kebutuhan Kakak. Misalnya: “Mau cetak label makanan 50 pcs, cocoknya pakai bahan apa?”\n\nKetik *menu* untuk melihat pilihan ini lagi, atau *reset* untuk memulai pembahasan baru tanpa memakai konteks sebelumnya.",
+      "decision": {
+        "reason": "intent_ambiguous",
+        "asset_id": null,
+        "product_ids": [],
+        "intent_resolution": "ambiguous",
+        "intent_latency_seconds": 2.098,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1569,
+            "completion_tokens": 56,
+            "cost_usd": 0.001858,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 7890,
+            "completion_tokens": 565,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0010715,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1129,
+            "completion_tokens": 6,
+            "cost_usd": 0.002306,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 9.793,
+      "usage": {
+        "prompt_tokens": 10588,
+        "completion_tokens": 627
+      },
+      "sources": [
+        "01_sop_dan_kebijakan_toko.txt",
+        "04_daftar_estimasi_harga.txt",
+        "01_sop_dan_kebijakan_toko.txt",
+        "01_sop_dan_kebijakan_toko.txt",
+        "01_sop_dan_kebijakan_toko.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 13,
+      "question": "Lihat gambar perbandingan rollup dan plakat akrilik",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Belum ada satu gambar perbandingan yang sesuai, Kak. Mau lihat produk yang mana dahulu?\n\nKak, untuk perbandingan Roll Up Banner dan Plakat Akrilik, ini ringkasannya ya:\n\n*Roll Up Banner* (banner tegak dengan tabung gulung otomatis)\n- Ukuran 60x160 cm: mulai Rp 195.000 per paket (Flexi China 280 GSM)\n- Ukuran 85x200 cm: mulai Rp 245.000 per paket (Flexi China 280 GSM)\n- Harga sudah termasuk cetak dan rangka gulung.\n- Cocok untuk display promosi berdiri yang mudah dibawa dan disimpan rapi.\n\n*Plakat Akrilik* (penghargaan atau souvenir)\n- Tipe A (tebal 8mm, 23x10 cm): Rp 300.000 per pcs\n- Tipe B (tebal 10mm, 23x10 cm): Rp 310.000 per pcs\n- Tipe C (tebal 15mm, 23x10 cm): Rp 330.000 per pcs\n- Tipe D (tebal 20mm, 23x10 cm): Rp 350.000 per pcs\n- Harga sudah termasuk box kemasan.\n\nKalau untuk keperluan apa Kakak butuh? Misalnya untuk promosi di acara, atau untuk penghargaan. Dengan begitu saya bisa bantu menyarankan produk yang lebih pas, dan bahan atau ukurannya bisa kita sesuaikan.",
+      "decision": {
+        "reason": "clarify_multiple_products",
+        "asset_id": null,
+        "product_ids": [
+          "roll-up-banner",
+          "plakat-akrilik"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 2.425,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 1781,
+            "completion_tokens": 44,
+            "cost_usd": 0.001802,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9133,
+            "completion_tokens": 509,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0011678,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1824,
+            "completion_tokens": 6,
+            "cost_usd": 0.003696,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 7.506,
+      "usage": {
+        "prompt_tokens": 12738,
+        "completion_tokens": 559
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 14,
+      "question": "Rollup dulu",
+      "expected_asset": "roll-up-banner-hero",
+      "actual_asset": "roll-up-banner-hero",
+      "passed": true,
+      "image_loaded": true,
+      "answer": "Ini ilustrasi roll up banner, Kak. Ukuran dan spesifikasi mengikuti pesanan.\n\nSiap, Kak. Ini ringkasan Roll Up Banner ya, untuk ukuran dan harganya:\n\n*Ukuran 60x160 cm* (ukuran standar ramping)\n- Flexi China 280 GSM: Rp 195.000 per paket\n- Flexi China 340 GSM: Rp 210.000 per paket\n- Flexi Korea 440 GSM: Rp 240.000 per paket\n- Albatros: Rp 250.000 per paket\n\n*Ukuran 85x200 cm* (ukuran besar, lebih lebar dan tinggi)\n- Flexi China 280 GSM: Rp 245.000 per paket\n- Flexi China 340 GSM: Rp 260.000 per paket\n- Flexi Korea 440 GSM (High Resolution): Rp 325.000 per paket\n- Albatros: Rp 335.000 per paket\n\nHarga per paket sudah termasuk cetak dan rangka gulung otomatis. Cetakannya tersimpan rapi di dalam tabung aluminium, jadi terlindung dari lecek atau kusut.\n\nKakak butuh ukuran yang mana, dan untuk bahan mau yang seperti apa? Kalau sudah punya cetakan sendiri, rangka saja juga tersedia dengan harga Rp 175.000 (60x160) atau Rp 195.000 (85x200) per pcs.",
+      "decision": {
+        "reason": "explicit_example",
+        "asset_id": "roll-up-banner-hero",
+        "product_ids": [
+          "roll-up-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.137,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "answer_validation": "passed",
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2117,
+            "completion_tokens": 38,
+            "cost_usd": 0.004538,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9740,
+            "completion_tokens": 476,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.001212,
+            "finish_reason": "stop"
+          },
+          "validation": {
+            "requests": 1,
+            "prompt_tokens": 1797,
+            "completion_tokens": 6,
+            "cost_usd": 0.003642,
+            "provider": null,
+            "model": "openai/gpt-4.1"
+          }
+        }
+      },
+      "latency_seconds": 5.731,
+      "usage": {
+        "prompt_tokens": 13654,
+        "completion_tokens": 520
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "horizontal_overflow": false
+    },
+    {
+      "index": 15,
+      "question": "Berapa harga 5 pcs?",
+      "expected_asset": null,
+      "actual_asset": null,
+      "passed": true,
+      "image_loaded": null,
+      "answer": "Untuk 5 pcs, total tergantung ukuran dan bahan, Kak. Harga per paket sudah termasuk cetak dan rangka gulung, jadi tinggal dikalikan 5.\n\nContohnya, untuk ukuran 60x160 cm dengan Flexi China 280 GSM, satu paketnya Rp 195.000, sehingga 5 paket totalnya Rp 975.000.\n\nKakak mau ukuran 60x160 cm atau 85x200 cm, dan bahannya yang mana? Setelah itu saya hitung totalnya.",
+      "decision": {
+        "reason": "image_not_requested",
+        "asset_id": null,
+        "product_ids": [
+          "roll-up-banner"
+        ],
+        "intent_resolution": "resolved",
+        "intent_latency_seconds": 1.048,
+        "intent_model": "openai/gpt-4.1",
+        "intent_prompt_sha256": "ed47e6d602d8c524c39d15a696ed0d4dff15679d206fc8d4574cd081af5795cf",
+        "application_version": "509f94e+structured-intent-working-tree",
+        "catalog_revision": 28,
+        "model_usage": {
+          "intent": {
+            "prompt_tokens": 2418,
+            "completion_tokens": 38,
+            "cost_usd": 0.00514,
+            "provider": null,
+            "model": "openai/gpt-4.1",
+            "requests": 1
+          },
+          "answer": {
+            "prompt_tokens": 9777,
+            "completion_tokens": 603,
+            "requests": 1,
+            "model": "anthropic/claude-haiku-5.5",
+            "cost_usd": 0.0012792,
+            "finish_reason": "stop"
+          },
+          "validation": {}
+        }
+      },
+      "latency_seconds": 5.635,
+      "usage": {
+        "prompt_tokens": 12195,
+        "completion_tokens": 641
+      },
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "horizontal_overflow": false
+    }
+  ],
+  "runtime_notes": "The 38 independent cases used the final semantic prompt, GPT-4.1 model, selector, and 2048-token answer budget. The subsequent 16-turn run also includes final client-construction timeout/retry enforcement and persisted conversation diagnostics."
+}

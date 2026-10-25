@@ -1,0 +1,18 @@
+[
+  {"question":"Hi kak mau print banner dong","asset":null},
+  {"question":"Mau liat yg banner x tegak","asset":"x-banner-hero"},
+  {"question":"Iyaa kak X-banner, kirimin preview gambarnya dulu dong","asset":"x-banner-hero"},
+  {"question":"Kirim gambar plakat akrilik dong","asset":"plakat-akrilik-hero"},
+  {"question":"Kirim gambar X-banner lagi","asset":"x-banner-hero"},
+  {"question":"Kirim itu lagi","asset":"x-banner-hero"},
+  {"question":"Jangan kirim fotonya, harga saja","asset":null},
+  {"question":"Lihat perbandingan gambar X-banner dan Y-banner","asset":"standing-banner-form-comparison"},
+  {"question":"Kirim itu lagi","asset":"standing-banner-form-comparison"},
+  {"question":"Minta foto stikernya dong","asset":null},
+  {"question":"Yang A3 kiss cut kak","asset":"stiker-a3-plus-hero"},
+  {"question":"reset","asset":null},
+  {"question":"Kirim itu lagi","asset":null},
+  {"question":"Lihat gambar perbandingan rollup dan plakat akrilik","asset":null},
+  {"question":"Rollup dulu","asset":"roll-up-banner-hero"},
+  {"question":"Berapa harga 5 pcs?","asset":null}
+]

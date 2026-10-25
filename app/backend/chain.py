@@ -1,12 +1,13 @@
+import os
 import logging
 import time
-import hashlib
 from typing import Optional
 from dataclasses import dataclass, field
 from langsmith import traceable, get_current_run_tree
 from app.admin import store
 from app.backend.models import get_llm
-from app.backend.prompt_template import get_chat_prompt, format_context
+from app.backend.prompt_template import get_chat_prompt, format_context, prompt_snapshot
+from app.backend.history import bounded_history, retrieval_question
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
@@ -130,7 +131,6 @@ _GREETINGS = {
     "start",
     "menu",
     "bantuan",
-    "posisi",
     "layanan",
     "info",
     "help",
@@ -152,12 +152,9 @@ _RESET_COMMANDS = {
     "reset percakapan",
     "restart",
     "mulai ulang",
-    "batal",
 }
 
-_RESET_RESPONSE_TEXT = """🔄 *Riwayat percakapan berhasil direset!*
-
-Konteks percakapan sebelumnya telah dibersihkan. Silakan ketik pertanyaan atau topik baru Kakak ya! 😊"""
+_RESET_RESPONSE_TEXT = "Kita mulai pembahasan baru, Kak. Konteks percakapan sebelumnya tidak dipakai lagi."
 
 
 def clear_session_history(session_id: str) -> bool:
@@ -179,20 +176,8 @@ _MENU_MAP = {
     "4": ("04_daftar_estimasi_harga.txt", "Estimasi Harga Produk"),
 }
 
-# ---------------------------------------------------------------------------
-# CONVERSATION HISTORY — History-in-Prompt Strategy
-# Menyimpan 2 giliran percakapan terakhir per session_id (nomor WhatsApp).
-# Histori disisipkan langsung ke dalam prompt Gemini sehingga LLM dapat
-# memahami konteks percakapan tanpa perlu memodifikasi kueri ke ChromaDB.
-# Query asli pelanggan selalu dikirim langsung ke ChromaDB tanpa perubahan.
-# Referensi: Lewis et al. (2020) RAG; Shi et al. (2023) Context-in-Prompt.
-# ---------------------------------------------------------------------------
-
-
-def _format_history_for_prompt(session_id: str) -> str:
-    return "\n".join(
-        f"Pelanggan: {q}\nBot: {a[:300]}" for q, a in store.prompt_turns(session_id)
-    )
+def _format_history_for_prompt(session_id: str, channel=None):
+    return bounded_history(store.prompt_turns(session_id, channel))
 
 
 def get_all_chat_logs() -> list[dict]:
@@ -206,6 +191,8 @@ def _trace_inputs(inputs):
 
 
 def _trace_outputs(output):
+    if output is None:
+        return {}
     return {
         "answer": output.answer,
         "sources": output.sources,
@@ -213,10 +200,11 @@ def _trace_outputs(output):
         "usage": output.usage,
         "latency_seconds": output.latency_seconds,
         "error": output.error,
+        "prompt_sha256": output.prompt_sha256,
     }
 
 
-def _load_menu_from_file(category_number: str, label: str, kb_dir: str) -> str:
+def _load_menu_from_file(category_number: str, label: str, kb_dir: str, raw: str | None = None) -> str:
     """
     Membaca file 05_daftar_pertanyaan_populer.txt dan mengekstrak contoh
     pertanyaan pada blok [KATEGORI_X] yang sesuai dengan angka yang dipilih.
@@ -236,7 +224,7 @@ def _load_menu_from_file(category_number: str, label: str, kb_dir: str) -> str:
     )
     questions = []
     try:
-        raw = faq_file.read_text(encoding="utf-8")
+        raw = faq_file.read_text(encoding="utf-8") if raw is None else raw
         target_tag = f"[KATEGORI_{category_number}]"
         inside_section = False
         for line in raw.splitlines():
@@ -261,30 +249,37 @@ def _load_menu_from_file(category_number: str, label: str, kb_dir: str) -> str:
         questions = ["• Informasi tersedia, silakan ketik pertanyaan lengkap Kakak."]
 
     contoh = "\n".join(questions)
-    footer = "\n\n💬 Siap membantu menjawab ya kak😊" if category_number == "4" else ""
     return (
         f"*{label}*\n\n"
-        f"Berikut contoh pertanyaan yang bisa Kakak ketik langsung:\n\n"
-        f"{contoh}"
-        f"{footer}\n\n"
-        f"Silakan salin atau ketik pertanyaan Kakak ya! 😊"
+        f"Contoh pertanyaan:\n{contoh}\n\n"
+        "Ketik pertanyaan langsung, atau ketik *menu* untuk pilihan lain."
     )
 
 
-_WELCOME_GREETING_TEXT = """Halo Sahabat Asia! 👋
+_WELCOME_GREETING_TEXT = """Halo, Sahabat Asia! 👋
 
-Selamat datang di Chatbot Informasi CV. Asia Visual Grafika.
+Selamat datang di chatbot CV. Asia Visual Grafika. Saya bisa membantu Kakak mencari informasi dan menyiapkan kebutuhan cetak.
 
-📌 *Kategori Informasi yang Tersedia:*
-1. Penjelasan Bahan Cetak 
-2. Cara Pemrosesan File 
-3. Standar Operasional Toko 
-4. Estimasi Harga Produk
+Mau cari informasi tentang apa?
+1. Bahan cetak dan kegunaannya
+2. Cara menyiapkan file untuk dicetak
+3. Informasi toko dan ketentuan pemesanan
+4. Estimasi harga produk
 
-💡 Ketik angka *1*, *2*, *3*, atau *4* untuk melihat contoh pertanyaan setiap kategori.
-🔄 Ketik *reset* kapan saja jika ingin mengulang/membersihkan konteks percakapan.
+Ketik angka 1, 2, 3, atau 4 untuk melihat contoh pertanyaan, atau langsung ceritakan kebutuhan Kakak. Misalnya: “Mau cetak label makanan 50 pcs, cocoknya pakai bahan apa?”
 
-Silakan ketik pertanyaan Kakak secara langsung ya! 😊"""
+Ketik *menu* untuk melihat pilihan ini lagi, atau *reset* untuk memulai pembahasan baru tanpa memakai konteks sebelumnya."""
+_MENU_TEXT = """Pilih contoh pertanyaan:
+1. Bahan cetak
+2. Persiapan file
+3. Kebijakan toko
+4. Estimasi harga
+
+Ketik angka 1 sampai 4, atau langsung tulis pertanyaan.
+Ketik *reset* untuk memulai pembahasan baru tanpa memakai konteks sebelumnya."""
+_HELP_COMMANDS = {"start", "menu", "bantuan", "help", "fitur", "menu utama", "layanan", "info"}
+_THANKS = {"makasih", "makasih min", "makasih kak", "terima kasih", "terimakasih", "thanks", "thank you", "tks"}
+_ACKNOWLEDGEMENTS = {"oke", "ok", "okay", "siap", "baik", "sip", "oke kak", "oke min", "siap kak"}
 
 
 @dataclass
@@ -312,6 +307,10 @@ class RAGResponse:
     trace_id: Optional[str] = None
     trace_url: Optional[str] = None
     error: Optional[str] = None
+    prompt_sha256: Optional[str] = None
+    media_selection: Optional[dict] = None
+    media_decision: Optional[dict] = None
+    media_context: Optional[dict] = None
 
 
 class RAGChain:
@@ -329,9 +328,7 @@ class RAGChain:
         """
         self.llm = get_llm()
         self.prompt = get_chat_prompt()
-        self.prompt_fingerprint = hashlib.sha256(
-            self.prompt.pretty_repr().encode()
-        ).hexdigest()
+        self.prompt_fingerprint = prompt_snapshot()["sha256"]
         self.settings = get_settings()
         logger.info("RAGChain initialized (Naive mode).")
 
@@ -347,12 +344,126 @@ class RAGChain:
         channel: str = "api",
         top_k: Optional[int] = None,
         model: Optional[str] = None,
+        intent_model: Optional[str] = None,
+        prompt_config: Optional[dict] = None,
+        history_turns: Optional[list] = None,
+        media_conversation_key: Optional[str] = None,
     ) -> RAGResponse:
         """
         Menjalankan pipeline RAG secara penuh untuk menjawab pertanyaan pengguna.
         """
         logger.info("[Session %s] Running Naive RAG for: %r", session_id, question)
         t_start = time.monotonic()
+        cleaned_query = (
+            question.strip()
+            .lower()
+            .replace("?", "")
+            .replace("!", "")
+            .replace(".", "")
+            .replace(",", "")
+        )
+
+        catalog_data = None
+        media_context = None
+        if channel in ('whatsapp', 'playground'):
+            from app.admin import catalog
+            catalog_data = catalog.snapshot()
+            if catalog_data['enabled']:
+                media_context = store.catalog_context(
+                    media_conversation_key or channel + ':' + session_id,
+                    reset=cleaned_query in _RESET_COMMANDS,
+                )
+        if cleaned_query in _RESET_COMMANDS:
+            clear_session_history(session_id)
+            history = []
+        else:
+            history = (
+                bounded_history(history_turns)
+                if history_turns is not None
+                else _format_history_for_prompt(session_id, channel)
+            )
+
+        shortcut = None
+        if cleaned_query in _HELP_COMMANDS:
+            shortcut = (_MENU_TEXT, "Menu")
+        elif cleaned_query in _THANKS:
+            shortcut = ("Sama-sama, Kak! 😊", "Acknowledgement")
+        elif cleaned_query in _ACKNOWLEDGEMENTS and not history:
+            shortcut = ("Siap, Kak! 👍", "Acknowledgement")
+        elif cleaned_query in _GREETINGS:
+            greeting = (
+                "Halo lagi, Kak! Ada yang ingin ditanyakan atau dilanjutkan?"
+                if history else _WELCOME_GREETING_TEXT
+            )
+            shortcut = (greeting, "Greeting")
+        elif cleaned_query in _RESET_COMMANDS:
+            shortcut = (_RESET_RESPONSE_TEXT + "\n\n" + _WELCOME_GREETING_TEXT, "Reset")
+        if shortcut:
+            store.record_conversation(session_id, channel, question, shortcut[0],
+                                      latency=time.monotonic() - t_start)
+            return RAGResponse(answer=shortcut[0], session_id=session_id,
+                               answer_source=shortcut[1], sources=[],
+                               usage={"prompt_tokens": 0, "completion_tokens": 0})
+
+        active = None
+        empty_knowledge = False
+        if self.settings.vector_store == "pinecone":
+            from app.admin.global_knowledge import EMPTY_ANSWER
+            if namespace:
+                active = store.version_info(namespace=namespace)
+            else:
+                from app.admin.kb_store import active_info
+                active = active_info()
+            empty_knowledge = active is None or active["manifest"].get("empty")
+            if empty_knowledge and not media_context:
+                response = RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
+                                   answer_source="Empty knowledge", sources=[],
+                                   usage={"prompt_tokens": 0, "completion_tokens": 0})
+                store.record_conversation(session_id, channel, question, response.answer,
+                                          usage=response.usage, latency=time.monotonic() - t_start)
+                return response
+            namespace = active["namespace"] if active else None
+
+        # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
+        # A numeric reply to a branch/quantity question belongs to that conversation.
+        menu_expected = (
+            not history
+            or history[-1].content == _MENU_TEXT
+            or history[-1].content.endswith(_WELCOME_GREETING_TEXT)
+        )
+        if cleaned_query in _MENU_MAP and menu_expected and not empty_knowledge:
+            _, label = _MENU_MAP[cleaned_query]
+            menu_dir = self.settings.structured_kb_dir
+            menu_raw = None
+            if self.settings.vector_store == "pinecone":
+                menu_version = active
+                menu_raw = menu_version["manifest"].get("menu_text")
+                if menu_version["manifest"].get("global_kb") and not menu_raw:
+                    return RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
+                                       answer_source="Empty menu", sources=[],
+                                       usage={"prompt_tokens": 0, "completion_tokens": 0})
+            menu_text = _load_menu_from_file(
+                category_number=cleaned_query,
+                label=label,
+                kb_dir=menu_dir,
+                raw=menu_raw,
+            )
+            logger.info(
+                "[Session %s] Menu shortcut '%s' dipilih → KATEGORI_%s dari file 05",
+                session_id,
+                cleaned_query,
+                cleaned_query,
+            )
+            store.record_conversation(session_id, channel, question, menu_text,
+                                      latency=time.monotonic() - t_start)
+            return RAGResponse(
+                answer=menu_text,
+                session_id=session_id,
+                answer_source="Menu",
+                sources=["05_daftar_pertanyaan_populer.txt"],
+                usage={"prompt_tokens": 0, "completion_tokens": 0},
+            )
+
         top_k = top_k or store.get_setting(
             "semantic_top_k", self.settings.semantic_top_k
         )
@@ -361,10 +472,11 @@ class RAGChain:
         )
         selected_version = None
         if self.settings.vector_store == "pinecone":
-            selected_version = store.version_info(namespace=namespace)
+            selected_version = active
             from app.backend.vectorstore import require_compatible_version
 
-            require_compatible_version(selected_version)
+            if not empty_knowledge:
+                require_compatible_version(selected_version)
             if selected_version:
                 namespace = selected_version["namespace"]
         tree = get_current_run_tree()
@@ -381,68 +493,7 @@ class RAGChain:
                     "backend": self.settings.vector_store,
                     "embedding": selected_version["manifest"].get("embedding") if selected_version else None,
                     "vector_index": selected_version["manifest"].get("vector_index") if selected_version else None,
-                    "prompt_sha256": self.prompt_fingerprint,
                 }
-            )
-
-        cleaned_query = (
-            question.strip()
-            .lower()
-            .replace("?", "")
-            .replace("!", "")
-            .replace(".", "")
-            .replace(",", "")
-        )
-
-        # Penanganan sapaan awal → Tampilkan Pesan Sambutan Resmi
-        if cleaned_query in _GREETINGS:
-            return RAGResponse(
-                answer=_WELCOME_GREETING_TEXT,
-                session_id=session_id,
-                answer_source="Greeting",
-                sources=[],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
-            )
-
-        # Penanganan perintah reset percakapan → Hapus konteks & berikan balasan konfirmasi
-        if cleaned_query in _RESET_COMMANDS:
-            clear_session_history(session_id)
-            logger.info(
-                "[Session %s] Tombol/perintah reset dipicu pengguna.", session_id
-            )
-            return RAGResponse(
-                answer=_RESET_RESPONSE_TEXT,
-                session_id=session_id,
-                answer_source="Reset",
-                sources=[],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
-            )
-
-        # Penanganan ketikan angka 1-4 → Tampilkan Menu Kategori Data-Driven
-        if cleaned_query in _MENU_MAP:
-            _, label = _MENU_MAP[cleaned_query]
-            menu_dir = self.settings.structured_kb_dir
-            if self.settings.vector_store == "pinecone":
-                from app.admin.knowledge import path_for
-
-                menu_dir = str(path_for(selected_version).parent)
-            menu_text = _load_menu_from_file(
-                category_number=cleaned_query,
-                label=label,
-                kb_dir=menu_dir,
-            )
-            logger.info(
-                "[Session %s] Menu shortcut '%s' dipilih → KATEGORI_%s dari file 05",
-                session_id,
-                cleaned_query,
-                cleaned_query,
-            )
-            return RAGResponse(
-                answer=menu_text,
-                session_id=session_id,
-                answer_source="Menu",
-                sources=["05_daftar_pertanyaan_populer.txt"],
-                usage={"prompt_tokens": 0, "completion_tokens": 0},
             )
 
         if isinstance(intent_filter, str):
@@ -450,13 +501,44 @@ class RAGChain:
         else:
             faq_filter = intent_filter if intent_filter else _FAQ_FILTER
 
-        # Query asli langsung dikirim ke ChromaDB tanpa modifikasi apapun
-        # (History-in-Prompt Strategy — konteks ditangani oleh Gemini via prompt)
-        search_question = question
+        from app.admin.prompt_settings import active_snapshot
+
+        captured_prompt = prompt_config if prompt_config is not None else active_snapshot()
+        from app.backend import product_intent
+        from app.admin.catalog import PRODUCTS
+        intent_started = time.monotonic()
+        intent_history = bounded_history(store.prompt_turns(session_id, channel, max_age_hours=24)) if media_context and history_turns is None else history
+        visual_vocabulary = {}
+        for catalog_asset in (catalog_data or {}).get('assets', []):
+            for name, values in catalog_asset.get('visual_attributes', {}).items():
+                visual_vocabulary[name] = sorted(set(visual_vocabulary.get(name, []) + values))
+        intent_model = intent_model or store.get_setting("product_intent_model", self.settings.product_intent_model)
+        intent = product_intent.extract(question, intent_history, (media_context or {}).get('focus', []),
+                                        visual_vocabulary=visual_vocabulary, model=intent_model)
+        intent_latency = round(time.monotonic() - intent_started, 3)
+        requested_image = intent.resolution == 'resolved' and intent.action != 'none'
+        media_response = requested_image or intent.resolution == 'failed' or (intent.action != 'none' and intent.resolution != 'resolved')
+        if empty_knowledge and not requested_image:
+            intent_usage = {k: intent._usage.get(k, 0) for k in ('prompt_tokens', 'completion_tokens')}
+            store.record_conversation(session_id, channel, question, EMPTY_ANSWER, usage=intent_usage,
+                                      latency=time.monotonic() - t_start)
+            return RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
+                               answer_source='Empty knowledge', sources=[],
+                               usage=intent_usage)
+        retrieval_history = [] if intent.resolution == 'resolved' and intent.changes_product else history
+        search_question = retrieval_question(question, retrieval_history)
+        if intent.resolution == 'resolved' and intent.product_ids:
+            labels = ', '.join(PRODUCTS[p][0] for p in intent.product_ids)
+            search_question += '\nProduk yang dimaksud: ' + labels
+        if requested_image:
+            search_question += '\nHarga dan detail bahan, ukuran, serta pilihan produk yang diminta.'
+        if tree:
+            tree.add_metadata({"prompt_sha256": captured_prompt["sha256"],
+                               "history_recipe": "eight-pairs-utf8-bound-v1"})
 
         from app.backend.vectorstore import similarity_search_with_score
 
-        semantic_results = similarity_search_with_score(
+        semantic_results = [] if empty_knowledge else similarity_search_with_score(
             query=search_question,
             k=top_k,
             namespace=namespace,
@@ -468,7 +550,7 @@ class RAGChain:
 
         retrieved_docs = [doc for doc, _ in semantic_results]
 
-        if not retrieved_docs:
+        if not retrieved_docs and not empty_knowledge:
             logger.warning(
                 "[Session %s] Dokumen tidak ditemukan, cari tanpa filter.", session_id
             )
@@ -483,12 +565,60 @@ class RAGChain:
             retrieved_docs = [doc for doc, _ in semantic_results]
 
         media_url = None
-        if retrieved_docs:
+        if requested_image and retrieved_docs and not (catalog_data and catalog_data['enabled']):
             for doc in retrieved_docs:
-                url = doc.metadata.get("media_url")
+                url = doc.metadata.get('media_url')
                 if url and str(url).strip():
                     media_url = str(url).strip()
                     break
+        media_selection = None
+        media_decision = {'reason': 'catalog_disabled', 'asset_id': None,
+                          'product_ids': intent.product_ids, 'intent_resolution': intent.resolution,
+                          'intent_latency_seconds': intent_latency, 'intent_model': intent_model,
+                          'intent_prompt_sha256': product_intent.PROMPT_SHA256,
+                          'application_version': os.getenv('VERCEL_GIT_COMMIT_SHA', 'local')}
+        if media_url:
+            media_selection = {'kind': 'knowledge', 'explicit': True, 'reason': 'explicit_example',
+                               'alt_text': 'Gambar referensi produk dari knowledge.',
+                               'caption': 'Ilustrasi produk terkait pertanyaan Kakak.'}
+        if media_context:
+            from app.backend.product_image_selection import select
+            from app.admin.catalog_storage import public_url
+            decision = select(intent, catalog_data['assets'], focus=media_context['focus'])
+            media_context['next_focus'] = decision['focus']
+            asset = decision['asset']
+            media_decision = {**media_decision, 'reason': decision['reason'], 'asset_id': asset['asset_id'] if asset else None,
+                              'catalog_revision': catalog_data['revision'], 'product_ids': intent.product_ids,
+                              'intent_resolution': intent.resolution, 'intent_latency_seconds': intent_latency}
+            if asset:
+                media_selection = {k: asset[k] for k in ('asset_id','revision','object_key','mime_type','caption','alt_text')}
+                media_selection['kind'] = 'catalog'
+                media_selection['explicit'] = decision['explicit']
+                media_selection['reason'] = decision['reason']
+                media_selection['catalog_revision'] = catalog_data['revision']
+                media_url = public_url(asset['object_key'])
+        media_prompt = []
+        if media_response:
+            from langchain_core.messages import SystemMessage
+            from app.admin.catalog import PRODUCTS
+            if media_selection and media_selection.get('kind') == 'catalog':
+                labels = [PRODUCTS[p][0] for p in decision['focus']]
+                state = 'Ilustrasi katalog terpilih: ' + ', '.join(labels) + '.'
+            elif media_url:
+                state = 'Gambar referensi dari knowledge tersedia untuk dilampirkan.'
+            else:
+                state = 'Tidak ada gambar yang dipilih. Alasan: ' + media_decision['reason'] + '.'
+                if intent.resolution != 'resolved':
+                    state += ' Maksud/produk belum pasti. Jangan menyatakan gambar tidak tersedia di katalog. Jawab bagian yang jelas, lalu minta klarifikasi singkat bila perlu.'
+            media_prompt = [SystemMessage(content=(
+                'STATUS LAMPIRAN TERVERIFIKASI (kontrol aplikasi, bukan sumber harga): ' + state +
+                ' Jika ilustrasi terpilih, aplikasi akan mengirim gambar dahulu, lalu jawaban teks Anda sebagai pesan terpisah. '
+                'Tulis hanya detail produk. Status lampiran dan keterangan ilustrasi ditambahkan aplikasi. Jangan membahas tersedia/tidaknya foto, menjanjikan pengiriman, membuat URL, atau mengklaim gambar sudah diterima. '
+                'Berikan harga dan detail produk relevan secara ringkas dari KONTEKS KNOWLEDGE, meskipun pelanggan hanya meminta gambar. '
+                'Jika harga pasti bergantung pada ukuran/bahan yang belum dipilih, jelaskan opsi yang tersedia atau tanyakan detail yang diperlukan; jangan menebak. '
+                'Jika tidak ada gambar terpilih, jelaskan keterbatasan yang sebenarnya atau klarifikasi produknya, tanpa menyiratkan ada lampiran. '
+                'Gambar katalog adalah ilustrasi, bukan bukti model stok atau varian persis.'
+            ))]
 
         context_str = format_context(retrieved_docs)
 
@@ -503,17 +633,19 @@ class RAGChain:
         generation_error = None
 
         try:
-            # Ambil histori percakapan sesi ini untuk disisipkan ke prompt
-            history_text = _format_history_for_prompt(session_id)
-
-            prompt_value = self.prompt.format_messages(
+            prompt_value = get_chat_prompt(captured_prompt).format_messages(
                 context=context_str,
-                history=history_text,
+                history=history,
                 question=question,
+                media=media_prompt,
             )
             response = get_llm(model).invoke(prompt_value)
             answer = response.content if hasattr(response, "content") else str(response)
             if not isinstance(answer, str) or not answer.strip():
+                raise ValueError("The answering provider returned no usable text.")
+            from app.integrations.waha import plain_text
+            answer = plain_text(answer)
+            if not answer:
                 raise ValueError("The answering provider returned no usable text.")
 
             # Ekstrak token usage dari response OpenRouter/LangChain jika ada
@@ -541,6 +673,45 @@ class RAGChain:
             )
             answer = "Maaf kak, terjadi kesalahan teknis saat memproses pertanyaan. Silakan coba lagi atau hubungi admin langsung ya"
 
+        validation_usage = {}
+        truncated_answer = not generation_error and getattr(response, 'response_metadata', {}).get('finish_reason') == 'length'
+        if not generation_error and media_response:
+            from app.backend import attachment_answer
+            if truncated_answer or not attachment_answer.consistent(answer, selected=bool(media_url),
+                    reason=media_decision['reason'], evidence=context_str, plan={
+                        'product_ids': intent.product_ids, 'view': intent.view,
+                        'exact_visual': intent.exact_visual,
+                        'verified_attributes': decision['asset'].get('visual_attributes', {}) if media_context and decision['asset'] else {}}, metrics=validation_usage):
+                answer = attachment_answer.fallback(bool(media_url), media_decision['reason'])
+                media_decision['answer_validation'] = 'safe_fallback'
+            else:
+                media_decision['answer_validation'] = 'passed'
+
+        answer_usage = dict(usage_dict, requests=1, model=model, cost_usd=None,
+                            finish_reason=getattr(response, 'response_metadata', {}).get('finish_reason') if not generation_error else 'error')
+        if not generation_error:
+            reported = getattr(response, 'response_metadata', {}).get('token_usage') or {}
+            if isinstance(reported.get('cost'), (int, float)):
+                answer_usage['cost_usd'] = reported['cost']
+        stage_usage = {'intent': intent._usage, 'answer': answer_usage, 'validation': validation_usage}
+        media_decision['model_usage'] = stage_usage
+        usage_dict = {key: sum(stage.get(key, 0) for stage in stage_usage.values())
+                      for key in ('prompt_tokens', 'completion_tokens')}
+        if media_selection:
+            media_selection['decision'] = dict(media_decision)
+        if not generation_error and media_response and intent.resolution != 'failed':
+            answer = attachment_answer.explanation(bool(media_url), media_decision['reason'],
+                [PRODUCTS[p][0] for p in intent.product_ids]) + '\n\n' + answer
+
+        if generation_error:
+            media_url = None
+            media_selection = None
+            media_decision = {'reason': 'generation_error', 'asset_id': None}
+            if media_context:
+                media_context.pop('next_focus', None)
+        elif media_context and channel == 'playground':
+            store.catalog_focus(media_context, decision['focus'], preview_asset=decision['asset'])
+
         # Simpan giliran percakapan ini ke histori sesi untuk konteks berikutnya
         total_elapsed = time.monotonic() - t_start
         trace_id = str(tree.id) if tree else None
@@ -556,7 +727,7 @@ class RAGChain:
                 channel,
                 question,
                 answer,
-                usage_dict,
+                {**usage_dict, "image_decision": media_decision},
                 total_elapsed,
                 trace_id,
             )
@@ -590,4 +761,8 @@ class RAGChain:
             trace_id=trace_id,
             trace_url=trace_url,
             error=generation_error,
+            prompt_sha256=captured_prompt["sha256"],
+            media_selection=media_selection,
+            media_decision=media_decision,
+            media_context=media_context,
         )

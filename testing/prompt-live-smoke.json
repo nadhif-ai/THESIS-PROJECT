@@ -1,0 +1,151 @@
+{
+  "observed_date": "2026-10-18",
+  "knowledge_version": "kb-25f39a6805154e86a7507bb93ce1c758",
+  "model": "openai/gpt-6-luna",
+  "temperature": 0,
+  "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+  "history_recipe": "eight-pairs-utf8-bound-v1",
+  "scope": "Small live smoke test. No production conversation writes, prompt saves, WhatsApp sends, or judge quality score. Not a broad quality benchmark.",
+  "cases": [
+    {
+      "case": "clarify",
+      "question": "Spanduk 2×3 meter, dua lembar. Berapa?",
+      "answer": "Bahannya mau pakai apa, Kak?",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "latency_seconds": 9.863,
+      "no_reset": true,
+      "no_html": true
+    },
+    {
+      "case": "followup",
+      "question": "Flexi China 280 GSM standar",
+      "answer": "Untuk Flexi China 280 GSM standar, total 2 lembar ukuran 2 × 3 meter adalah *Rp198.000*, Kak.",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "latency_seconds": 4.235,
+      "no_reset": true,
+      "no_html": true,
+      "expected_total": 198000,
+      "contains_expected_total": true
+    },
+    {
+      "case": "quantity",
+      "question": "Kalau jadi tiga lembar?",
+      "answer": "Kalau jadi 3 lembar, totalnya *Rp297.000*, Kak.",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "latency_seconds": 5.169,
+      "no_reset": true,
+      "no_html": true,
+      "expected_total": 297000,
+      "contains_expected_total": true
+    },
+    {
+      "case": "sticker",
+      "question": "Stiker vinyl A3+ tanpa kiss cut ukuran 5x5 cm 100 pcs berapa?",
+      "answer": "Stiker vinyl A3+ tanpa kiss cut ukuran 5×5 cm muat *54 pcs per lembar*. Untuk 100 pcs perlu 2 lembar.\n\nTarif 1–10 lembar Rp12.500 per lembar, jadi totalnya *Rp25.000*, Kak.",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "03_panduan_berkas_siap_cetak.txt",
+        "04_daftar_estimasi_harga.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt",
+        "06_estimasi_pcs_per_lembar_a3.txt"
+      ],
+      "latency_seconds": 5.371,
+      "no_reset": true,
+      "no_html": true,
+      "expected_total": 25000,
+      "contains_expected_total": true
+    },
+    {
+      "case": "flyer",
+      "question": "Brosur A5 art paper 150 gsm bolak-balik 200 pcs berapa?",
+      "answer": "Untuk 200 brosur A5, muat 4 pcs per lembar A3+, jadi perlu 50 lembar. Tarif cetak Art Paper 150 GSM bolak-balik per lembar A3+ belum tersedia, Kak.",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "latency_seconds": 9.04,
+      "no_reset": true,
+      "no_html": true,
+      "expected_total": 250000,
+      "contains_expected_total": false
+    },
+    {
+      "case": "rounding",
+      "question": "Spanduk flexi 280 standar ukuran 0,7 x 1,1 meter satu lembar berapa?",
+      "answer": "Spanduk Flexi 280 GSM standar ukuran 0,7 × 1,1 meter, 1 lembar: luasnya 0,77 m². Estimasi harga setelah pembulatan: *Rp13.000*, Kak.",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "02_spesifikasi_bahan_dan_finishing.txt"
+      ],
+      "latency_seconds": 4.723,
+      "no_reset": true,
+      "no_html": true,
+      "expected_total": 13000,
+      "contains_expected_total": true
+    },
+    {
+      "case": "unavailable",
+      "question": "Harga jilid hardcover dengan emboss dan foil berapa?",
+      "answer": "Harga jilid hardcover dengan emboss dan foil belum tersedia, Kak. Karena finishing-nya khusus, silakan hubungi admin toko langsung untuk penawaran yang akurat.",
+      "error": null,
+      "prompt_sha256": "ca09c7e60936382fe775dad9a0a40baf9aac3ffbad55189b69910c8b2078831a",
+      "sources": [
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt",
+        "04_daftar_estimasi_harga.txt"
+      ],
+      "latency_seconds": 4.777,
+      "no_reset": true,
+      "no_html": true
+    },
+    {
+      "case": "thanks",
+      "question": "Makasih, Min.",
+      "answer": "Sama-sama, Kak.",
+      "error": null,
+      "prompt_sha256": null,
+      "sources": [],
+      "latency_seconds": 0.0,
+      "no_reset": true,
+      "no_html": true
+    }
+  ]
+}

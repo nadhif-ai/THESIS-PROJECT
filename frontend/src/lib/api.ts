@@ -18,9 +18,14 @@ export async function api<T>(
 ): Promise<T> {
   const headers = new Headers(options.headers);
   const requestCsrf = csrf;
-  const read = ["GET", "HEAD"].includes((options.method || "GET").toUpperCase());
+  const read = ["GET", "HEAD"].includes(
+    (options.method || "GET").toUpperCase(),
+  );
   const signal = read
-    ? AbortSignal.any([...(options.signal ? [options.signal] : []), AbortSignal.timeout(20_000)])
+    ? AbortSignal.any([
+        ...(options.signal ? [options.signal] : []),
+        AbortSignal.timeout(20_000),
+      ])
     : options.signal;
   if (!(options.body instanceof FormData) && options.body)
     headers.set("Content-Type", "application/json");
@@ -50,29 +55,43 @@ export async function api<T>(
     throw new Error(
       "The server returned an unreadable response. Refresh this page and try again.",
     );
-  if (options.method && !["GET", "HEAD", "OPTIONS"].includes(options.method.toUpperCase())) {
-    if (path.startsWith("/versions"))
+  if (
+    options.method &&
+    !["GET", "HEAD", "OPTIONS"].includes(options.method.toUpperCase())
+  ) {
+    if (path.startsWith("/catalog")) void invalidateAdmin("/catalog");
+    else if (path.startsWith("/knowledge") || path.startsWith("/jobs/"))
+      void invalidateAdmin("/knowledge", "/overview", "/jobs");
+    else if (path.startsWith("/versions"))
       void invalidateAdmin("/versions", "/overview", "/jobs");
     else if (path === "/settings") {
       await queryClient.cancelQueries({ queryKey: resourceKey(path) });
       if (requestCsrf && requestCsrf === csrf)
         queryClient.setQueryData(resourceKey(path), data);
-    }
-    else if (path === "/playground")
+    } else if (path === "/playground")
       void invalidateAdmin("/conversations", "/overview");
     else if (path.startsWith("/evaluations/dataset"))
       void invalidateAdmin("/evaluations/dataset");
     else if (path.startsWith("/evaluations"))
       void invalidateAdmin("/jobs", "/overview");
     else if (path.startsWith("/whatsapp/")) {
-      await queryClient.cancelQueries({ queryKey: resourceKey("/whatsapp/status") });
+      await queryClient.cancelQueries({
+        queryKey: resourceKey("/whatsapp/status"),
+      });
       if (requestCsrf && requestCsrf === csrf) {
         if (path === "/whatsapp/replies") {
-          queryClient.setQueryData<WhatsAppStatus>(resourceKey("/whatsapp/status"),
-            (current) => current ? { ...current, bot_replies_enabled: data.bot_replies_enabled } : current);
+          queryClient.setQueryData<WhatsAppStatus>(
+            resourceKey("/whatsapp/status"),
+            (current) =>
+              current
+                ? { ...current, bot_replies_enabled: data.bot_replies_enabled }
+                : current,
+          );
         } else if (path === "/whatsapp/attention/ignore") {
-          queryClient.setQueryData<WhatsAppStatus>(resourceKey("/whatsapp/status"),
-            (current) => current ? { ...current, ...data } : current);
+          queryClient.setQueryData<WhatsAppStatus>(
+            resourceKey("/whatsapp/status"),
+            (current) => (current ? { ...current, ...data } : current),
+          );
         }
         void invalidateAdmin("/whatsapp/status", "/overview", "/conversations");
       }
@@ -89,6 +108,7 @@ export type Version = {
   status: string;
   created_at: string;
   manifest: {
+    synced_at?: string;
     archived?: boolean;
     files: string[];
     index_statistics?: {
@@ -113,7 +133,32 @@ export type Context = {
   similarity: number;
 };
 export type Answer = {
+  media_url?: string | null;
+  media_selection?: {
+    asset_id?: string;
+    alt_text: string;
+    caption: string;
+  } | null;
+  media_decision?: {
+    reason: string;
+    asset_id: string | null;
+    product_ids?: string[];
+    intent_resolution?: string;
+    intent_latency_seconds?: number;
+    intent_model?: string;
+    intent_prompt_sha256?: string;
+    application_version?: string;
+    catalog_revision?: number;
+    answer_validation?: string;
+    model_usage?: Record<string, {
+      model?: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      requests?: number;
+    }>;
+  } | null;
   answer: string;
+  answer_source?: string;
   sources: string[];
   retrieval_context: Context[];
   usage: { prompt_tokens: number; completion_tokens: number };
@@ -126,9 +171,34 @@ export type Metric = {
   reason: string | null;
   passed: boolean | null;
   error?: string;
+  threshold?: number;
+  status?: "scored" | "unavailable";
+  method?: string;
+  calculation?: {
+    formula: string;
+    numerator: number;
+    denominator: number;
+    k?: number;
+    returned?: number;
+    empty_score?: number | null;
+    strict_mode?: boolean;
+    accepted_verdicts?: string[];
+    items: {
+      label: string;
+      detail: string;
+      counted: boolean;
+      verdict?: string;
+      rank?: number;
+      relevant_so_far?: number;
+      precision_at_rank?: number;
+      contribution?: number;
+    }[];
+  } | null;
 };
 export type EvaluationResult = {
   id: string;
+  rescore_of?: string;
+  scoring_error?: string;
   dataset: string;
   model: string;
   judge: string;
@@ -139,8 +209,11 @@ export type EvaluationResult = {
     preprocessing: string;
   };
   evaluation_recipe?: string;
+  runtime_top_k?: number;
+  deepeval_version?: string;
   experiment_url?: string;
   reporting_error?: string;
+  reporting_note?: string;
   averages?: Record<string, number | null>;
   cases: {
     id: string;
@@ -152,10 +225,24 @@ export type EvaluationResult = {
     turns?: { role: string; content: string }[];
     metrics: Metric[];
     trace_url?: string;
+    retrieval_context?: { text: string; metadata?: Record<string, unknown> }[];
     error?: string;
   }[];
 };
+export type EvaluationSummary = {
+  job_id: string;
+  created_at: string;
+  completed_at: string | null;
+  dataset: string;
+  knowledge_version: string | null;
+  runtime_top_k: number | null;
+  case_count: number;
+  averages: Record<string, number | null> | null;
+  scored_cases: Record<string, number>;
+};
 export type Job = {
+  resumable?: boolean;
+  dispatch_error?: string | null;
   id: string;
   kind: string;
   status: string;
@@ -166,6 +253,7 @@ export type Job = {
     dataset?: string;
     limit?: number;
     evaluation_id?: string;
+    rescore_of?: string;
   };
   has_result?: boolean;
   result_case_count?: number | null;
@@ -179,6 +267,8 @@ export type Job = {
     metric?: string | null;
     metrics_completed?: number;
     metrics_total?: number;
+    feedback_completed?: number;
+    feedback_total?: number;
     errors?: number;
   };
   error?: string;
@@ -190,6 +280,7 @@ export type WhatsAppStatus = {
   session_status?: string;
   engine?: string;
   worker_running: boolean;
+  execution_mode?: "vercel_queue" | "local_worker";
   bot_replies_enabled?: boolean;
   attention?: {
     failed: number;
@@ -218,6 +309,7 @@ export type Conversation = {
 export type Providers = {
   openrouter_model: string;
   eval_model: string;
+  product_intent_model: string;
   semantic_top_k: number;
   embedding_model: string;
   dimension: number;

@@ -5,6 +5,7 @@ import json
 import logging
 import threading
 import time
+import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -117,7 +118,7 @@ def close_pool():
 
 
 @contextmanager
-def _connection(purpose=None):
+def _connection(purpose=None, *, exclusive=False):
     open_pool()
     started = time.perf_counter()
     phase = "acquire"
@@ -126,8 +127,11 @@ def _connection(purpose=None):
             phase = "transaction_setup"
             setup = "BEGIN; " + _TRANSACTION_SETUP
             if purpose:
-                cursor = db.execute(setup + "; SELECT * FROM chatbot.runtime_control WHERE id=1 FOR UPDATE")
-                for _ in range(4):
+                lock = "UPDATE" if exclusive else "SHARE"
+                cursor = db.execute(setup + "; UPDATE chatbot.runtime_control SET first_live_write_at=CURRENT_TIMESTAMP::text "
+                    "WHERE id=1 AND cutover_started_at IS NOT NULL AND first_live_write_at IS NULL AND mode<>'closed'; "
+                    "SELECT * FROM chatbot.runtime_control WHERE id=1 FOR " + lock)
+                for _ in range(5):
                     cursor.nextset()
                 control = cursor.fetchone()
                 allowed = (("intake",) if purpose == "reconciliation" else
@@ -135,11 +139,6 @@ def _connection(purpose=None):
                 if not control or control["mode"] not in allowed:
                     raise MaintenanceError(
                         "Chatbot maintenance is active. Please try again later."
-                    )
-                if control["cutover_started_at"] and not control["first_live_write_at"]:
-                    db.execute(
-                        "UPDATE chatbot.runtime_control SET first_live_write_at=%s WHERE id=1",
-                        (now(),),
                     )
             else:
                 db.execute(setup)
@@ -182,7 +181,7 @@ def check_ready():
             "SELECT value FROM chatbot.settings WHERE key='published_version'"
         ).fetchone()
         if not row:
-            raise StateUnavailable("Import administration data before startup.")
+            return
         item = db.execute(
             "SELECT 1 FROM chatbot.versions WHERE id=%s AND status='published'",
             (json.loads(row["value"]),),
@@ -306,8 +305,8 @@ def _bot_replies_enabled(db):
 
 
 def set_bot_replies(enabled):
-    # All write transactions already lock runtime_control, including intake and send claims.
-    with _connection("administration") as db:
+    # Pause must serialize with intake and send claims; unrelated writes share the gate.
+    with _connection("administration", exclusive=True) as db:
         db.execute(
             """INSERT INTO chatbot.settings(key,value) VALUES('bot_replies_enabled',%s)
             ON CONFLICT(key) DO UPDATE SET value=excluded.value""",
@@ -352,7 +351,19 @@ _VERSION_SUMMARY = """SELECT id,namespace,status,created_at,manifest,error,
     COALESCE((manifest::json->>'chunk_count')::integer,
              json_array_length(records::json)) AS chunk_count FROM chatbot.versions"""
 
-_JOB_SUMMARY = """SELECT id,kind,status,payload,progress,error,created_at,updated_at,
+_JOB_EXECUTION = """(SELECT jsonb_build_object(
+    'environment',w.environment,
+    'lease_active',COALESCE(w.lease_until>now(),false),
+    'stalled',chatbot.jobs.status IN ('queued','running') AND
+        CASE WHEN w.lease_until IS NOT NULL THEN w.lease_until<now()
+        ELSE w.updated_at<now()-interval '5 minutes' END)
+    FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id)"""
+
+_JOB_SUMMARY = f"""SELECT id,kind,status,payload,progress,error,created_at,updated_at,
+    {_JOB_EXECUTION} AS execution,
+    EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id
+        AND chatbot.jobs.status<>'completed') AS resumable,
+    (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error,
     result IS NOT NULL AS has_result,
     CASE WHEN json_typeof(result::json->'cases')='array'
          THEN json_array_length(result::json->'cases') END AS result_case_count
@@ -361,10 +372,27 @@ _JOB_SUMMARY = """SELECT id,kind,status,payload,progress,error,created_at,update
 
 _VERSION_JSON = "to_jsonb(item) || jsonb_build_object('manifest',item.manifest::jsonb)"
 _JOB_JSON = """to_jsonb(item) || jsonb_build_object(
-    'payload',item.payload::jsonb,'progress',item.progress::jsonb)"""
+    'payload',item.payload::jsonb,'progress',item.progress::jsonb,
+    'status',CASE WHEN item.status IN ('queued','running') AND
+        COALESCE((item.execution->>'stalled')::boolean,false)
+        THEN 'interrupted' ELSE item.status END,
+    'dispatch_error',COALESCE(item.dispatch_error,
+        CASE WHEN item.status IN ('queued','running') AND
+            COALESCE((item.execution->>'stalled')::boolean,false)
+        THEN 'Execution stopped (' || (item.execution->>'environment') || '). Resume saved work; completed cases are retained.' END))"""
 _CONVERSATION_JSON = """to_jsonb(item) || jsonb_build_object(
     'usage',COALESCE(NULLIF(item.usage,'')::jsonb,'{}'::jsonb))"""
 _PUBLISHED = "(SELECT value::jsonb FROM chatbot.settings WHERE key='published_version')"
+_KNOWLEDGE_CATALOG = f"""SELECT to_jsonb(state) || jsonb_build_object(
+    'sources',(SELECT COALESCE(jsonb_agg(to_jsonb(source)),'[]'::jsonb) FROM (
+        SELECT s.id,s.name,s.enabled,s.updated_at,b.format,b.size_bytes,b.sha256,
+        jsonb_array_length(b.pages) AS page_count FROM chatbot.knowledge_sources s
+        JOIN chatbot.knowledge_blobs b ON b.id=s.blob_id
+        WHERE s.deleted_at IS NULL ORDER BY lower(s.name)) source),
+    'active',(SELECT {_VERSION_JSON} FROM ({_VERSION_SUMMARY} WHERE id=({_PUBLISHED} #>> '{{}}')) item),
+    'active_expected',({_PUBLISHED} IS NOT NULL),
+    'pending',state.revision<>state.applied_revision) AS data
+    FROM chatbot.knowledge_state state WHERE state.id=1"""
 _WHATSAPP_JSON = """jsonb_build_object(
     'bot_replies_enabled',COALESCE((SELECT value::jsonb FROM chatbot.settings
         WHERE key='bot_replies_enabled'),'true'::jsonb),
@@ -383,14 +411,35 @@ _WHATSAPP_JSON = """jsonb_build_object(
     'last_sent_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_inbox WHERE session=%(session)s AND status='sent'),
     'last_ack_at',(SELECT MAX(updated_at) FROM chatbot.whatsapp_receipts))"""
 
+_LATEST_QA = """(SELECT jsonb_build_object(
+    'job_id',id,'created_at',created_at,
+    'completed_at',result::jsonb->>'completed_at',
+    'dataset',result::jsonb->>'dataset',
+    'knowledge_version',result::jsonb->>'knowledge_version',
+    'runtime_top_k',result::jsonb->'runtime_top_k',
+    'averages',result::jsonb->'averages',
+    'case_count',jsonb_array_length(result::jsonb->'cases'),
+    'scored_cases',(SELECT COALESCE(jsonb_object_agg(name,n),'{}'::jsonb) FROM (
+        SELECT metric->>'name' AS name,
+            count(*) FILTER (WHERE jsonb_typeof(metric->'score')='number') AS n
+        FROM jsonb_array_elements(result::jsonb->'cases') c,
+            jsonb_array_elements(c->'metrics') metric
+        GROUP BY metric->>'name') counts))
+    FROM chatbot.jobs WHERE kind='evaluate' AND status='completed'
+        AND result::jsonb->>'dataset' IN ('legacy','audited')
+        AND jsonb_typeof(result::jsonb->'cases')='array'
+    ORDER BY COALESCE((result::jsonb->>'completed_at')::timestamptz,
+        created_at::timestamptz) DESC,created_at DESC,id DESC LIMIT 1)"""
+
 _ADMIN_READS = {
     "me": "'{}'::jsonb",
     "whatsapp": _WHATSAPP_JSON,
+    "knowledge": f"({_KNOWLEDGE_CATALOG})",
     "versions": f"""jsonb_build_object('published',{_PUBLISHED},'versions',
         (SELECT COALESCE(jsonb_agg({_VERSION_JSON}),'[]'::jsonb)
          FROM ({_VERSION_SUMMARY} ORDER BY created_at DESC) item))""",
     "settings": """(SELECT COALESCE(jsonb_object_agg(key,value::jsonb),'{}'::jsonb)
-        FROM chatbot.settings WHERE key IN ('openrouter_model','eval_model','semantic_top_k'))""",
+        FROM chatbot.settings WHERE key IN ('openrouter_model','eval_model','product_intent_model','semantic_top_k'))""",
     "conversations": f"""(SELECT COALESCE(jsonb_agg({_CONVERSATION_JSON}),'[]'::jsonb)
         FROM (SELECT * FROM chatbot.conversations
               WHERE (%(channel)s::text IS NULL OR channel=%(channel)s)
@@ -398,8 +447,13 @@ _ADMIN_READS = {
     "jobs": f"""(SELECT COALESCE(jsonb_agg({_JOB_JSON}),'[]'::jsonb)
         FROM ({_JOB_SUMMARY} ORDER BY created_at DESC LIMIT 100) item)""",
     "job": f"""(SELECT {_JOB_JSON} || jsonb_build_object('result',item.result::jsonb)
-        FROM chatbot.jobs item WHERE id=%(job_id)s)""",
+        FROM (SELECT chatbot.jobs.*, {_JOB_EXECUTION} AS execution,
+            EXISTS(SELECT 1 FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id
+        AND chatbot.jobs.status<>'completed') AS resumable,
+            (SELECT dispatch_error FROM chatbot.admin_work w WHERE w.job_id=chatbot.jobs.id) AS dispatch_error
+            FROM chatbot.jobs WHERE id=%(job_id)s) item)""",
     "overview": f"""jsonb_build_object(
+        'latest_evaluation',{_LATEST_QA},
         'conversations',(SELECT count(*) FROM chatbot.conversations),
         'whatsapp_messages',(SELECT count(*) FROM chatbot.conversations WHERE channel='whatsapp'),
         'average_latency',(SELECT round(avg(NULLIF(latency,0))::numeric,2) FROM chatbot.conversations),
@@ -510,7 +564,7 @@ def save_version(item):
 
 
 def publish(version_id):
-    with _connection("administration") as db:
+    with _connection("administration", exclusive=True) as db:
         row = db.execute(
             "SELECT status,manifest FROM chatbot.versions WHERE id=%s FOR UPDATE", (version_id,)
         ).fetchone()
@@ -564,12 +618,16 @@ def conversations(channel=None, limit=200):
     return [dict(r, usage=json.loads(r["usage"] or "{}")) for r in rows]
 
 
-def prompt_turns(session_id):
+def prompt_turns(session_id, channel=None, *, max_age_hours=None):
     boundary = get_setting("reset:" + session_id, 0)
     with _connection() as db:
         rows = db.execute(
-            "SELECT question,answer FROM chatbot.conversations WHERE session_id=%s AND id>%s ORDER BY id DESC LIMIT 2",
-            (session_id, boundary),
+            """SELECT question,answer FROM chatbot.conversations
+            WHERE session_id=%s AND id>%s AND answer<>''
+            AND (%s::text IS NULL OR channel=%s)
+            AND (%s::integer IS NULL OR created_at::timestamptz >= now() - %s * interval '1 hour')
+            ORDER BY id DESC LIMIT 8""",
+            (session_id, boundary, channel, channel, max_age_hours, max_age_hours),
         ).fetchall()
     return [(r["question"], r["answer"]) for r in reversed(rows)]
 
@@ -707,36 +765,63 @@ def reconcile_intake(session, messages, acknowledgements):
     return inserted
 
 
-def claim_inbox(session):
+def claim_inbox(session, message_id=None):
     with _connection("execution") as db:
+        target = db.execute(
+            """SELECT * FROM chatbot.whatsapp_inbox WHERE session=%s
+            AND (%s::text IS NULL OR message_id=%s) AND status IN ('queued','generating','sending')
+            ORDER BY created_at,message_id LIMIT 1""", (session, message_id, message_id),
+        ).fetchone()
+        if not target or not db.execute(
+            "SELECT pg_try_advisory_xact_lock(hashtextextended(%s,0)) AS acquired",
+            ("whatsapp:" + session + ":" + target["sender"],),
+        ).fetchone()["acquired"]:
+            return None
+        # Expired sends have an unknown outcome. Never retry them automatically.
+        db.execute(
+            """UPDATE chatbot.whatsapp_inbox SET status=CASE WHEN status='sending' THEN 'uncertain' ELSE 'failed' END,
+            error='Execution expired; inspect the message before retrying.',updated_at=%s,
+            delivery_parts=CASE WHEN status='sending' THEN
+              (SELECT COALESCE(jsonb_object_agg(key,CASE WHEN value->>'status'='sending'
+                THEN value || '{"status":"uncertain"}'::jsonb ELSE value END),'{}'::jsonb)
+               FROM jsonb_each(delivery_parts)) ELSE delivery_parts END
+            WHERE session=%s AND sender=%s AND (
+              (status='sending' AND COALESCE(lease_expires_at,updated_at::timestamptz+interval '5 minutes')<CURRENT_TIMESTAMP)
+              OR (status='generating' AND lease_token IS NULL AND updated_at::timestamptz<CURRENT_TIMESTAMP-interval '5 minutes')
+              OR (status='queued' AND created_at::timestamptz<CURRENT_TIMESTAMP-interval '15 minutes'))""",
+            (now(), session, target["sender"]),
+        )
         return db.execute(
-            """WITH candidate AS (
-            SELECT pending.session,pending.message_id FROM chatbot.whatsapp_inbox AS pending
-            WHERE pending.session=%s AND pending.status='queued'
-            AND NOT EXISTS(SELECT 1 FROM chatbot.whatsapp_inbox AS active
-               WHERE active.session=pending.session AND active.sender=pending.sender AND active.status IN ('generating','sending'))
-            ORDER BY pending.created_at,pending.message_id LIMIT 1 FOR UPDATE SKIP LOCKED)
-            UPDATE chatbot.whatsapp_inbox AS inbox SET status='generating',updated_at=%s FROM candidate
-            WHERE inbox.session=candidate.session AND inbox.message_id=candidate.message_id RETURNING inbox.*""",
-            (session, now()),
+            """UPDATE chatbot.whatsapp_inbox AS pending SET status='generating',updated_at=%s,
+            lease_token=%s,lease_expires_at=CURRENT_TIMESTAMP+interval '5 minutes',
+            generation_started_at=COALESCE(generation_started_at,CURRENT_TIMESTAMP)
+            WHERE session=%s AND message_id=%s
+            AND (status='queued' OR (status='generating' AND lease_token IS NOT NULL AND lease_expires_at<CURRENT_TIMESTAMP))
+            AND NOT EXISTS(SELECT 1 FROM chatbot.whatsapp_inbox AS earlier
+                WHERE earlier.session=pending.session AND earlier.sender=pending.sender
+                AND earlier.status IN ('queued','generating','sending') AND earlier.message_id<>pending.message_id
+                AND (earlier.created_at,earlier.message_id)<(pending.created_at,pending.message_id))
+            RETURNING pending.*""", (now(), uuid.uuid4().hex, session, target["message_id"]),
         ).fetchone()
 
 
-def begin_inbox_send(session, message_id):
+def begin_inbox_send(session, message_id, lease_token=None):
     with _connection("execution") as db:
         if not _bot_replies_enabled(db):
             return False
         return bool(db.execute(
-            """UPDATE chatbot.whatsapp_inbox SET status='sending',updated_at=%s
-            WHERE session=%s AND message_id=%s AND status='generating'""",
-            (now(), session, message_id),
+            """UPDATE chatbot.whatsapp_inbox SET status='sending',updated_at=%s,send_started_at=CURRENT_TIMESTAMP
+            WHERE session=%s AND message_id=%s AND status='generating'
+            AND (%s::text IS NULL OR (lease_token=%s AND lease_expires_at>CURRENT_TIMESTAMP))""",
+            (now(), session, message_id, lease_token, lease_token),
         ).rowcount)
 
 
-def update_inbox(session, message_id, fields):
+def update_inbox(session, message_id, fields, lease_token=None):
     from psycopg import sql
 
-    allowed = {"status", "answer", "media_url", "reply_ids", "error"}
+    allowed = {"status", "answer", "media_url", "reply_ids", "error", "media_selection",
+               "delivery_parts", "media_conversation_key", "media_epoch", "media_focus"}
     if not fields or not set(fields) <= allowed:
         raise ValueError("Invalid inbox update fields.")
     if "status" in fields and fields["status"] not in (
@@ -749,17 +834,30 @@ def update_inbox(session, message_id, fields):
         "skipped",
     ):
         raise ValueError("Invalid inbox state.")
+    from psycopg.types.json import Jsonb
     values = dict(fields, updated_at=now())
+    media_focus = values.pop('media_focus', None)
+    for key in ("media_selection", "delivery_parts"):
+        if key in values and values[key] is not None:
+            values[key] = Jsonb(values[key])
+    if fields.get("answer") is not None:
+        values["generated_at"] = now()
+    if fields.get("status") == "sent":
+        values["sent_at"] = now()
     assignments = sql.SQL(",").join(
         sql.SQL("{}=%s").format(sql.Identifier(k)) for k in values
     )
     with _connection("execution") as db:
-        db.execute(
+        result = db.execute(
             sql.SQL(
-                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s AND status<>'skipped'"
+                "UPDATE chatbot.whatsapp_inbox SET {} WHERE session=%s AND message_id=%s AND status<>'skipped' "
+                "AND (%s::text IS NULL OR lease_token=%s)"
             ).format(assignments),
-            (*values.values(), session, message_id),
+            (*values.values(), session, message_id, lease_token, lease_token),
         )
+        if result.rowcount and media_focus is not None:
+            db.execute('UPDATE chatbot.catalog_conversations SET focus=%s WHERE conversation_key=%s AND epoch=%s',
+                       (Jsonb(media_focus),fields.get('media_conversation_key'),fields.get('media_epoch')))
 
 
 def get_inbox(session, message_id):
@@ -797,3 +895,123 @@ def whatsapp_observations(session):
     with _connection() as db:
         data = db.execute("SELECT " + _WHATSAPP_JSON + " AS data", {"session": session}).fetchone()["data"]
     return dict(data, checked_at=now())
+
+
+def catalog_snapshot():
+    with _connection() as db:
+        return db.execute("""SELECT jsonb_build_object('revision',s.revision,'enabled',s.enabled,
+            'assets',COALESCE((SELECT jsonb_agg(a.metadata || jsonb_build_object(
+            'asset_id',a.asset_id,'revision',a.revision,'enabled',a.enabled,
+            'approved_by',a.approved_by,'updated_at',a.updated_at) ORDER BY a.asset_id)
+            FROM chatbot.catalog_assets a),'[]'::jsonb)) AS data
+            FROM chatbot.catalog_state s WHERE id=1""").fetchone()['data']
+
+
+def save_catalog_asset(data, expected_revision, approved_by):
+    from app.admin.catalog import Conflict
+    from psycopg.types.json import Jsonb
+    with _connection('administration') as db:
+        db.execute('SELECT revision FROM chatbot.catalog_state WHERE id=1 FOR UPDATE')
+        old = db.execute('SELECT revision FROM chatbot.catalog_assets WHERE asset_id=%s',
+                         (data['asset_id'],)).fetchone()
+        if (old['revision'] if old else 0) != expected_revision:
+            raise Conflict('This image changed. Reload before saving again.')
+        revision = expected_revision + 1
+        db.execute('''INSERT INTO chatbot.catalog_assets(asset_id,revision,enabled,metadata,approved_by)
+            VALUES(%s,%s,%s,%s,%s) ON CONFLICT(asset_id) DO UPDATE SET
+            revision=excluded.revision,enabled=excluded.enabled,metadata=excluded.metadata,
+            approved_by=excluded.approved_by,updated_at=now()''',
+            (data['asset_id'],revision,data['enabled'],Jsonb(data),approved_by))
+        db.execute('UPDATE chatbot.catalog_state SET revision=revision+1 WHERE id=1')
+        return {**data, 'revision': revision, 'approved_by': approved_by}
+
+
+def catalog_asset_enabled(asset_id):
+    with _connection() as db:
+        row = db.execute('SELECT enabled FROM chatbot.catalog_assets WHERE asset_id=%s', (asset_id,)).fetchone()
+        return bool(row and row['enabled'])
+
+
+def catalog_feature(enabled):
+    with _connection('administration') as db:
+        db.execute('UPDATE chatbot.catalog_state SET enabled=%s,revision=revision+1 WHERE id=1', (enabled,))
+
+
+def catalog_stage_upload(identifier, object_key, size_bytes):
+    with _connection('administration') as db:
+        db.execute('INSERT INTO chatbot.catalog_uploads(id,object_key,size_bytes) VALUES(%s,%s,%s)',
+                   (identifier,object_key,size_bytes))
+
+
+def catalog_upload(identifier):
+    with _connection() as db:
+        row = db.execute('SELECT * FROM chatbot.catalog_uploads WHERE id=%s AND expires_at>now()',
+                         (identifier,)).fetchone()
+        if not row:
+            raise ValueError('Image upload expired or was not found. Upload again.')
+        return row
+
+
+def catalog_context(conversation_key, *, reset=False):
+    from psycopg.types.json import Jsonb
+    with _connection('execution') as db:
+        db.execute('SELECT pg_advisory_xact_lock(hashtextextended(%s,0))', ('catalog:' + conversation_key,))
+        row = db.execute('SELECT *,last_activity<now()-interval \'24 hours\' AS expired FROM chatbot.catalog_conversations WHERE conversation_key=%s FOR UPDATE',
+                         (conversation_key,)).fetchone()
+        fresh = reset or not row or row['expired']
+        epoch = uuid.uuid4().hex if fresh else row['epoch']
+        focus = [] if fresh else row['focus']
+        preview_seen = [] if fresh else row['preview_seen']
+        db.execute('''INSERT INTO chatbot.catalog_conversations(conversation_key,epoch,focus,preview_seen)
+            VALUES(%s,%s,%s,%s) ON CONFLICT(conversation_key) DO UPDATE SET
+            epoch=excluded.epoch,focus=excluded.focus,preview_seen=excluded.preview_seen,last_activity=now()''',
+            (conversation_key,epoch,Jsonb(focus),Jsonb(preview_seen)))
+        rows = db.execute('''SELECT media_selection FROM chatbot.whatsapp_inbox
+            WHERE media_conversation_key=%s AND media_epoch=%s AND
+            (delivery_parts->'image'->>'status') IN ('sending','sent','uncertain')''',
+            (conversation_key,epoch)).fetchall()
+        return {'key': conversation_key, 'epoch': epoch, 'focus': focus,
+                'seen': preview_seen + [r['media_selection']['asset_id'] for r in rows if (r['media_selection'] or {}).get('asset_id')], 'fresh': fresh}
+
+
+def catalog_focus(context, focus, *, preview_asset=None):
+    from psycopg.types.json import Jsonb
+    with _connection('execution') as db:
+        row = db.execute('SELECT preview_seen FROM chatbot.catalog_conversations WHERE conversation_key=%s AND epoch=%s FOR UPDATE',
+                         (context['key'],context['epoch'])).fetchone()
+        if not row:
+            return
+        seen = row['preview_seen']
+        if preview_asset and preview_asset['asset_id'] not in seen:
+            seen.append(preview_asset['asset_id'])
+        db.execute('UPDATE chatbot.catalog_conversations SET focus=%s,preview_seen=%s WHERE conversation_key=%s AND epoch=%s',
+                   (Jsonb(focus),Jsonb(seen),context['key'],context['epoch']))
+
+
+def checkpoint_delivery_part(row, part, state, *, provider_id=None, error=None):
+    from psycopg.types.json import Jsonb
+    with _connection('execution') as db:
+        current = db.execute('''SELECT * FROM chatbot.whatsapp_inbox WHERE session=%s AND message_id=%s
+            AND status<>'skipped' AND (%s::text IS NULL OR (lease_token=%s AND lease_expires_at>now())) FOR UPDATE''',
+            (row['session'],row['message_id'],row.get('lease_token'),row.get('lease_token'))).fetchone()
+        if not current:
+            raise StateUnavailable('Delivery execution lease was lost.')
+        previous = current['delivery_parts'].get(part, {})
+        if previous.get('status') in ('sent','uncertain','sending') and state == 'sending':
+            raise StateUnavailable('A submitted delivery part must not be sent again.')
+        if state == 'sending' and not _bot_replies_enabled(db):
+            return False
+        if state == 'sending' and part == 'image' and (current['media_selection'] or {}).get('asset_id'):
+            asset = db.execute('SELECT enabled FROM chatbot.catalog_assets WHERE asset_id=%s',
+                               (current['media_selection']['asset_id'],)).fetchone()
+            feature = db.execute('SELECT enabled FROM chatbot.catalog_state WHERE id=1').fetchone()
+            if not feature['enabled'] or not asset or not asset['enabled']:
+                return False
+        value = {'status': state, 'provider_id': provider_id, 'error': error}
+        parts = {**current['delivery_parts'], part: value}
+        replies = [p['provider_id'] for p in parts.values() if p.get('provider_id')]
+        db.execute('UPDATE chatbot.whatsapp_inbox SET delivery_parts=%s,reply_ids=%s,updated_at=%s WHERE session=%s AND message_id=%s',
+                   (Jsonb(parts),json.dumps(replies),now(),row['session'],row['message_id']))
+        row['delivery_parts'] = parts
+        row['reply_ids'] = json.dumps(replies)
+        return True

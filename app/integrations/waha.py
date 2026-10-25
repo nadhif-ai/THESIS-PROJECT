@@ -6,16 +6,19 @@ import json
 import logging
 import re
 import threading
+import time
 from contextlib import contextmanager
 
 import requests
 from fastapi import APIRouter, HTTPException, Request
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field, ValidationError
 
 from app.admin import store
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 router = APIRouter(prefix="/chat/waha", tags=["2. Integrasi WhatsApp"])
 _wake = threading.Event()
 _stop = threading.Event()
@@ -63,13 +66,15 @@ def enqueue(message):
 
 
 def update(row, **fields):
-    store.update_inbox(row["session"], row["message_id"], fields)
+    store.update_inbox(row["session"], row["message_id"], fields, lease_token=row.get("lease_token"))
 
 
 def plain_text(answer):
     import html
 
     text = re.sub(r"<br\s*/?>", "\n", answer, flags=re.IGNORECASE)
+    text = re.sub(r"</?(?:b|strong)\b[^>]*>", "*", text, flags=re.IGNORECASE)
+    text = re.sub(r"\*\*([^*\n]+)\*\*", r"*\1*", text)
     return html.unescape(re.sub(r"<[^>]+>", "", text)).strip()
 
 
@@ -81,56 +86,88 @@ def _reply_id(response):
 
 
 def send_reply(row):
+    from app.admin import catalog_storage
+
     settings = get_settings()
     base = {"session": row["session"], "chatId": row["sender"]}
-    replies = []
-    media_error = None
-    media_uncertain = False
-    if row["media_url"]:
-        try:
-            from urllib.parse import urlsplit
+    parts = row.get("delivery_parts") or {}
+    if not parts and json.loads(row.get("reply_ids") or "[]"):
+        update(row, status="uncertain", error="Legacy partial delivery requires operator inspection.")
+        return
 
-            media_url = row["media_url"]
-            parts = urlsplit(media_url)
-            if parts.scheme not in ("https", "http"):
-                raise ValueError("Knowledge image needs an HTTP(S) URL.")
-            if (
-                parts.hostname in ("127.0.0.1", "localhost")
-                and settings.waha_webhook_url
-            ):
-                callback = urlsplit(settings.waha_webhook_url)
-                media_url = parts._replace(
-                    scheme=callback.scheme, netloc=callback.netloc
-                ).geturl()
-            image = api(
-                "POST",
-                "/api/sendImage",
-                {
-                    **base,
-                    "file": {
-                        "url": media_url,
-                        "mimetype": "image/png"
-                        if parts.path.lower().endswith(".png")
-                        else "image/jpeg",
-                        "filename": "preview.png"
-                        if parts.path.lower().endswith(".png")
-                        else "preview.jpg",
-                    },
-                    "caption": "Contoh gambar terkait informasi yang Kakak tanyakan.",
-                },
-                timeout=60,
-            )
-            replies.append(_reply_id(image))
-            update(row, reply_ids=json.dumps(replies))
-        except (requests.RequestException, ValueError) as error:
-            media_uncertain = isinstance(error, requests.RequestException)
-            media_error = f"Image delivery: {type(error).__name__}; text fallback used."
-            logger.warning("WAHA image delivery failed; sending text fallback.")
-    text = api(
-        "POST", "/api/sendText", {**base, "text": row["answer"], "linkPreview": True}
-    )
-    replies.append(_reply_id(text))
-    update(row, status="uncertain" if media_uncertain else "sent", reply_ids=json.dumps(replies), error=media_error)
+    def send_part(name, path, payload, timeout=30):
+        previous = (row.get("delivery_parts") or {}).get(name, {})
+        if previous.get("status") == "sent":
+            return "sent"
+        if previous.get("status") in ("sending", "uncertain"):
+            store.checkpoint_delivery_part(row, name, "uncertain", error="Previous send outcome unknown.")
+            return "uncertain"
+        if previous.get("status") in ("failed", "skipped"):
+            return previous["status"]
+        if not store.checkpoint_delivery_part(row, name, "sending"):
+            store.checkpoint_delivery_part(row, name, "skipped", error="Delivery disabled before send.")
+            return "skipped"
+        try:
+            result = api("POST", path, {**base, **payload}, timeout=timeout)
+            identifier = _reply_id(result)
+        except requests.RequestException as error:
+            item = hashlib.sha256(row["message_id"].encode()).hexdigest()[:12]
+            logger.warning("WhatsApp phase=delivery_uncertain item=%s part=%s error=%s",
+                           item, name, type(error).__name__)
+            store.checkpoint_delivery_part(row, name, "uncertain",
+                                           error=f"{type(error).__name__}: provider outcome unknown; inspect before retrying.")
+            return "uncertain"
+        except ValueError:
+            store.checkpoint_delivery_part(row, name, "failed", error="Provider rejected this delivery part.")
+            return "failed"
+        store.checkpoint_delivery_part(row, name, "sent", provider_id=identifier)
+        return "sent"
+
+    selection = row.get("media_selection")
+    catalog_selection = selection if selection and selection.get("object_key") else None
+    media_url = catalog_storage.public_url(catalog_selection["object_key"]) if catalog_selection else row.get("media_url")
+    explicit = bool(selection and selection.get("explicit"))
+    if not explicit:
+        media_url = None
+    previous_image = (row.get('delivery_parts') or {}).get('image', {}).get('status')
+    image = previous_image if previous_image in ('sent', 'sending', 'uncertain') else None
+    if media_url:
+        from urllib.parse import urlsplit
+        parsed = urlsplit(media_url)
+        if parsed.scheme not in ("http", "https"):
+            store.checkpoint_delivery_part(row, "image", "failed", error="Invalid media URL.")
+            image = "failed"
+        else:
+            if catalog_selection:
+                mime = selection["mime_type"]
+                caption = selection["caption"]
+            else:
+                # Only pre-catalog legacy jobs may use knowledge URLs.
+                if store.catalog_snapshot()['enabled']:
+                    media_url = None
+                mime = "image/png" if parsed.path.lower().endswith(".png") else "image/jpeg"
+                caption = "Ilustrasi produk terkait pertanyaan Kakak."
+            if media_url:
+                image = send_part("image", "/api/sendImage", {
+                    "file": {"url": media_url, "mimetype": mime,
+                             "filename": (catalog_selection["asset_id"] if catalog_selection else "preview") + (".png" if mime == "image/png" else ".jpg")},
+                    "caption": caption,
+                }, timeout=60)
+    text = send_part("text", "/api/sendText", {"text": row["answer"], "linkPreview": True})
+    notice = None
+    if image == "failed" and text == "sent" and explicit:
+        notice = send_part("notice", "/api/sendText", {
+            "text": "Maaf Kak, gambar belum berhasil dikirim. Silakan minta kembali nanti ya.",
+            "linkPreview": False,
+        })
+    uncertain = "uncertain" in (image, text, notice) or any(
+        part.get("status") in ("sending", "uncertain") for part in (row.get("delivery_parts") or {}).values())
+    status = "uncertain" if uncertain else "failed" if text == "failed" else "skipped" if text == "skipped" and image != "sent" else "sent"
+    errors = [name + ' delivery ' + outcome + '.' for name, outcome in
+              (('Image', image), ('Text', text), ('Notice', notice)) if outcome and outcome != 'sent']
+    update(row, status=status,
+           reply_ids=row.get("reply_ids") or "[]",
+           error=' '.join(errors) or None)
 
 
 def _typing(row, action):
@@ -157,7 +194,10 @@ def typing_indicator(row):
 def process(row):
     from app.dependencies import get_rag_chain
 
+    started = time.monotonic()
+    item = hashlib.sha256(row["message_id"].encode()).hexdigest()[:12]
     try:
+        logger.info("WhatsApp phase=generating item=%s", item)
         with typing_indicator(row):
             if not row["answer"]:
                 update(row, status="generating")
@@ -167,6 +207,7 @@ def process(row):
                     question=row["body"],
                     session_id=session_id,
                     channel="whatsapp",
+                    media_conversation_key="waha:" + row["session"] + ":" + row["sender"],
                 )
                 answer = plain_text(response.answer)
                 if response.error:
@@ -176,10 +217,20 @@ def process(row):
                     answer=answer,
                     media_url=response.media_url if not response.error else None,
                 )
-                update(row, answer=row["answer"], media_url=row["media_url"])
-            if not store.begin_inbox_send(row["session"], row["message_id"]):
+                context = getattr(response, "media_context", None) or {}
+                selection = getattr(response, "media_selection", None) if not response.error else None
+                row["media_selection"] = selection
+                update(row, answer=row["answer"], media_url=row["media_url"], media_selection=selection,
+                       media_conversation_key=context.get("key"), media_epoch=context.get("epoch"),
+                       media_focus=context.get('next_focus'))
+            if not store.begin_inbox_send(row["session"], row["message_id"], row.get("lease_token")):
                 return
+        logger.info("WhatsApp phase=sending item=%s generation_ms=%.1f", item, (time.monotonic()-started)*1000)
         send_reply(row)
+        logger.info("WhatsApp phase=delivery_completed item=%s total_ms=%.1f", item, (time.monotonic()-started)*1000)
+    except store.StateUnavailable:
+        # Let durable delivery retry; a transient database outage is not a failed customer answer.
+        raise
     except requests.RequestException as error:
         update(
             row,
@@ -217,6 +268,10 @@ def start():
         return
     if not settings.waha_api_key or not settings.waha_webhook_secret:
         raise ValueError("WAHA API and webhook credentials are required.")
+    from app.integrations.waha_queue import enabled
+    if enabled():
+        logger.info("WhatsApp execution=vercel_queue; polling worker disabled.")
+        return
     initialize()
     _stop.clear()
     _thread = threading.Thread(target=worker, name="whatsapp-inbox", daemon=True)
@@ -232,10 +287,12 @@ def stop():
 
 @router.get("/webhook")
 def webhook_health():
+    from app.integrations.waha_queue import enabled
     return {
         "provider": "waha",
         "session": get_settings().waha_session,
         "worker_running": bool(_thread and _thread.is_alive()),
+        "execution_mode": "vercel_queue" if enabled() else "local_worker",
     }
 
 
@@ -269,7 +326,7 @@ async def webhook(request: Request):
         if event.get("event") == "message.ack":
             message_id, ack = payload.get("id"), payload.get("ack")
             if isinstance(message_id, str) and isinstance(ack, int) and -1 <= ack <= 4:
-                store.record_ack(message_id, ack)
+                await run_in_threadpool(store.record_ack, message_id, ack)
             return {"status": "ack_recorded"}
         if event.get("event") != "message":
             return {"status": "ignored", "reason": "other_event"}
@@ -282,16 +339,28 @@ async def webhook(request: Request):
         return {"status": "ignored", "reason": "not_a_private_chat"}
     if not message.body or not message.body.strip():
         return {"status": "ignored", "reason": "no_text"}
-    inserted = enqueue(message)
+    inserted = await run_in_threadpool(enqueue, message)
+    from app.integrations.waha_queue import enabled, notify
+    if enabled():
+        row = await run_in_threadpool(store.get_inbox, settings.waha_session, message.id)
+        if row["status"] == "queued":
+            try:
+                await notify(settings.waha_session, message.id)
+            except Exception as error:
+                logger.warning("WhatsApp queue notification failed error=%s", type(error).__name__)
+                raise HTTPException(503, "Reply queue is temporarily unavailable; retry this webhook.") from None
+    logger.info("WhatsApp phase=received item=%s duplicate=%s", hashlib.sha256(message.id.encode()).hexdigest()[:12], not inserted)
     return {"status": "queued" if inserted else "duplicate"}
 
 
 def status(observations=None):
     settings = get_settings()
+    from app.integrations.waha_queue import enabled
     result = {
         "provider": settings.whatsapp_provider,
         "session": settings.waha_session,
         "worker_running": bool(_thread and _thread.is_alive()),
+        "execution_mode": "vercel_queue" if enabled() else "local_worker",
         "webhook_url": settings.waha_webhook_url,
         "credentials_configured": bool(
             settings.waha_api_key and settings.waha_webhook_secret

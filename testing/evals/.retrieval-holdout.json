@@ -1,0 +1,502 @@
+[
+  {
+    "id": "retrieval-holdout-01",
+    "input": "Misi, titik patokan atau landmark cabang Pamulang Asia Visual Grafika di mana ya? Biar gampang nyarinya.",
+    "actual_output": null,
+    "expected_output": "Patokan cabang Pamulang: tepat di depan sekolah MTsN Kota Tangerang Selatan.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n2. Cabang Kedua (Pamulang):\n   Alamat: Jl. Pajajaran No. 38, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417. \n   Sharelock: https://maps.app.goo.gl/MWsiFp5HXBQphXTK6\n   Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan.\n   Email Pengiriman Berkas: asiavisualgrafika2@gmail.com"
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "locations",
+      "contrast_intent": "branch-pamulang-address",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 13,
+        "end_line": 17,
+        "excerpt_sha256": "403609b56b4a3202d498770739132dbad9119c7c4937e2dfa8d2fc988cb56677",
+        "supporting_quotes": [
+          "Patokan: Tepat di depan sekolah MTsN Kota Tangerang Selatan."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Landmark request: only the Pamulang landmark is required; do not substitute Ciputat or a contact number."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "locations",
+        "generated_index": 0,
+        "normalization": "Unwrapped generated answer string; discarded evaluator metadata. No answer words changed."
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-02",
+    "input": "Berapa nomor WhatsApp Admin 1 dan Admin 2 di Asia Visual Grafika?",
+    "actual_output": null,
+    "expected_output": "WhatsApp Admin 1: 0896-9241-1115; WhatsApp Admin 2: 0897-3232-322.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\nKontak Layanan Pelanggan:\n- WhatsApp Admin 1: 0896-9241-1115\n- WhatsApp Admin 2: 0897-3232-322\n- Telepon Kantor: (021) 741-4850\n- Akun Media Sosial & Marketplace:\n  - Instagram: @asiavisualgrafika\n  - Shopee: Asia Visual Grafika"
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "locations",
+      "contrast_intent": "general-contact",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 19,
+        "end_line": 25,
+        "excerpt_sha256": "e76eb74b3a252f8bc20a57f0cb9ee1b54b66aa032fbf428cda49c50629b71fc1",
+        "supporting_quotes": [
+          "WhatsApp Admin 1: 0896-9241-1115",
+          "WhatsApp Admin 2: 0897-3232-322"
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "General Admin 1/Admin 2 WhatsApp numbers are not branch-assigned in the source."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "locations",
+        "generated_index": 1,
+        "normalization": null
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-03",
+    "input": "Boleh info alamat lengkap cabang Ciputat Timur ya kak?",
+    "actual_output": null,
+    "expected_output": "Alamat cabang utama Ciputat Timur: Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419. Tepat di seberang SPBU (Pom Bensin) Ciputat.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n1. Cabang Utama (Ciputat Timur)\n   Alamat: Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.\n   Sharelock: https://maps.app.goo.gl/Z4MSgYVkeJ7MTHKdA\n   Patokan: Tepat di seberang SPBU (Pom Bensin) Ciputat.\n   Email Pengiriman Berkas: asiavisualgrafika@gmail.com"
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "locations",
+      "contrast_intent": "branch-ciputat-address-maps",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 8,
+        "end_line": 12,
+        "excerpt_sha256": "ca1e15fcb8c9e97fa59d751954ce6f3a11715e970b17de4a2ed599e0a0d7bf95",
+        "supporting_quotes": [
+          "Alamat: Jl. Ir. H. Juanda No. 17, Cempaka Putih, Kec. Ciputat Timur, Kota Tangerang Selatan, Banten 15419.",
+          "Patokan: Tepat di seberang SPBU (Pom Bensin) Ciputat."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Named branch address and source landmark; source does not authorize choosing a nearest branch for the customer."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "repair",
+        "generated_index": 0,
+        "normalization": null
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-04",
+    "input": "Pak, mau tanya harga cetak backdrop 4x2 meter bahan Flexi China 340 GSM high resolution ya? Itu dihitung per meter persegi?",
+    "actual_output": null,
+    "expected_output": "Ya, dihitung per meter persegi. Backdrop 4x2 m = 8 m² × Rp 32.000/m² (Flexi China 340 GSM High Resolution) = Rp 256.000 (sudah kelipatan Rp 500, tanpa pembulatan).",
+    "context": [
+      "Source document: 04_daftar_estimasi_harga.txt\n\n## BANNER & SPANDUK (Harga Cetak Spanduk per Meter Persegi / m²)\n\nPRODUK INI ADALAH: Cetak spanduk, cetak banner, cetak baliho, cetak backdrop untuk keperluan promosi outdoor dan indoor.\nBUKAN stiker, BUKAN vinyl label, BUKAN cutting stiker.\nCara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar.\nAturan Pembulatan Harga Large Format: Hasil harga akhir dibulatkan ke atas (ceiling rounding) ke kelipatan Rp 500 terdekat.\n\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas standar: Rp 16.500 per m².\nHarga cetak spanduk banner bahan Flexi China 280 GSM kualitas tinggi High Resolution: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas standar: Rp 25.000 per m².\nHarga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².\nHarga cetak spanduk banner bahan Flexi Korea 440 GSM kualitas tinggi High Resolution: Rp 45.000 per m².\nHarga cetak spanduk banner bahan Albatros 200 GSM kualitas tinggi High Resolution Indoor: Rp 70.000 per m².\n\nContoh pertanyaan yang termasuk kategori ini: \"harga banner per meter\", \"harga spanduk 3x1\", \"cetak backdrop\", \"baliho berapa\"."
+    ],
+    "source_file": "04_daftar_estimasi_harga.txt",
+    "additional_metadata": {
+      "family": "pricing",
+      "contrast_intent": "spanduk-area-price",
+      "source_evidence": {
+        "source": "04_daftar_estimasi_harga.txt",
+        "source_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+        "start_line": 7,
+        "end_line": 21,
+        "excerpt_sha256": "994c6c59a10f03ad433f0bdeaac9ab2c9b0a1758bc8cd5c1bc4be525e561f1d7",
+        "supporting_quotes": [
+          "Harga cetak spanduk banner bahan Flexi China 340 GSM kualitas tinggi High Resolution: Rp 32.000 per m².",
+          "Cara hitung: Panjang (meter) × Lebar (meter) × Harga per m² × Jumlah lembar."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Specific backdrop material and quality. Independently checked arithmetic: 4 × 2 × 32,000 = 256,000 per requested backdrop; already a multiple of500."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "pricing",
+        "generated_index": 0,
+        "normalization": null
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-05",
+    "input": "Kalau order paket X-Banner Flexi Korea 440 GSM ukuran 60x160 sebanyak 3 paket, totalnya berapa ya?",
+    "actual_output": null,
+    "expected_output": "Total untuk 3 paket X-Banner Flexi Korea 440 GSM ukuran 60x160 cm (sudah termasuk rangka) adalah Rp 90.000 x 3 = Rp 270.000.",
+    "context": [
+      "Source document: 04_daftar_estimasi_harga.txt\n\n## X-BANNER (Harga per Paket, Ukuran 60 x 160 cm, sudah termasuk rangka)\n\nPRODUK INI ADALAH: X-Banner, yaitu banner tegak berdiri berbentuk huruf X yang dilengkapi rangka/stand sendiri.\nBUKAN Roll Up Banner, BUKAN Y-Banner, BUKAN spanduk meteran.\nUkuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.\nContoh pertanyaan kategori ini: \"harga x banner\", \"x-banner berapa\", \"banner stand x\".\n\nHarga cetak X-Banner Flexi China 280 GSM: Rp 50.000 per paket.\nHarga cetak X-Banner Flexi China 340 GSM: Rp 70.000 per paket.\nHarga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket.\nHarga cetak X-Banner Albatros dengan Laminasi: Rp 75.000 per paket.\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs."
+    ],
+    "source_file": "04_daftar_estimasi_harga.txt",
+    "additional_metadata": {
+      "family": "pricing",
+      "contrast_intent": "x-banner-package",
+      "source_evidence": {
+        "source": "04_daftar_estimasi_harga.txt",
+        "source_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+        "start_line": 41,
+        "end_line": 52,
+        "excerpt_sha256": "9600a477c0e32dd95d329d4ffdfb2b89685c158dbc854416037c24c0c2ab0516",
+        "supporting_quotes": [
+          "Ukuran standar X-Banner: 60 cm x 160 cm. Harga paket sudah termasuk cetak + rangka.",
+          "Harga cetak X-Banner Flexi Korea 440 GSM: Rp 90.000 per paket."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Specific package, material, size and quantity. Independently checked arithmetic: 3 × 90,000 = 270,000; frame already included."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "repair",
+        "generated_index": 1,
+        "normalization": null
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-06",
+    "input": "Halo, mau tanya harga rangka X-Banner aja tanpa cetak banner, per pcs-nya berapa ya?",
+    "actual_output": null,
+    "expected_output": "Harga rangka X-Banner saja tanpa cetak adalah Rp 30.000 per pcs.",
+    "context": [
+      "Source document: 04_daftar_estimasi_harga.txt\n\nHarga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs."
+    ],
+    "source_file": "04_daftar_estimasi_harga.txt",
+    "additional_metadata": {
+      "family": "pricing",
+      "contrast_intent": "x-banner-frame-only",
+      "source_evidence": {
+        "source": "04_daftar_estimasi_harga.txt",
+        "source_sha256": "048fc683a95b9c5884d01348770f2a815a51d5bd998766dbff6249bc2f67b048",
+        "start_line": 52,
+        "end_line": 52,
+        "excerpt_sha256": "9ab95a89dfed92794a1228388a5408db1cbfa5ffc789946f199df46ecd41414d",
+        "supporting_quotes": [
+          "Harga rangka X-Banner saja tanpa cetak (satuan): Rp 30.000 per pcs."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Frame-only price; no printed visual included. Do not substitute package price or price per square metre."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "pricing",
+        "generated_index": 2,
+        "normalization": "Unwrapped generated answer string; discarded evaluator metadata. No answer words changed."
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-07",
+    "input": "Kalo cetakan salah ukuran atau salah bahan karena kesalahan toko, apakah bisa dicetak ulang gratis dengan bawa bukti produk fisiknya?",
+    "actual_output": null,
+    "expected_output": "Ya, bisa. Kesalahan ukuran atau bahan akibat kelalaian operator toko dicetak ulang gratis tanpa biaya tambahan, dengan syarat menyerahkan bukti fisik produk yang salah ke toko.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n3. Kebijakan Garansi dan Cetak Ulang (Re-Print):\n   - Kesalahan dari Pihak Toko/Produksi: Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko."
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "claims",
+      "contrast_intent": "production-error-reprint",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 93,
+        "end_line": 94,
+        "excerpt_sha256": "f3ba7494da64fd5395d2a1d39fe29a552969371e3735ea817830a00d16932ce1",
+        "supporting_quotes": [
+          "Kesalahan dari Pihak Toko/Produksi: Apabila hasil cetak cacat yang disebabkan kelalaian operator toko (salah ukuran, salah bahan, cacat mesin cetak, atau warna bergaris parah), CV. Asia Visual Grafika bertanggung jawab penuh melakukan cetak ulang (re-print) tanpa biaya tambahan dengan menyerahkan bukti fisik produk yang salah ke toko."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Free reprint applies to operator/shop errors and physical product proof; no automatic cash refund is established."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "claims",
+        "generated_index": 0,
+        "normalization": "Unwrapped generated answer string; discarded evaluator metadata. No answer words changed."
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-08",
+    "input": "Gan, kalau file foto yang saya kirim resolusinya kurang bagus sampai hasil cetaknya pecah, itu tanggung jawaban siapa ya? Ada kebijakan ganti rugi nggak?",
+    "actual_output": null,
+    "expected_output": "Tanggung jawab pelanggan; toko tidak memberikan ganti rugi atau cetak ulang gratis untuk resolusi gambar pecah akibat berkas asli yang dikirimkan buram.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n   - Kesalahan dari Pihak Pelanggan: Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan, salah pemilihan ukuran berkas dari pelanggan, atau resolusi gambar pecah akibat berkas asli yang dikirimkan buram."
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "claims",
+      "contrast_intent": "customer-file-error",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 95,
+        "end_line": 95,
+        "excerpt_sha256": "0f6d13fc15e044980a465adadac7b5c017bf7930029dca3833d3542c581cc46d",
+        "supporting_quotes": [
+          "Kesalahan dari Pihak Pelanggan: Toko tidak bertanggung jawab dan tidak memberikan ganti rugi/cetak ulang gratis jika terjadi kesalahan desain, salah ketik teks dari pemesan, salah pemilihan ukuran berkas dari pelanggan, atau resolusi gambar pecah akibat berkas asli yang dikirimkan buram."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Negative policy outcome: low resolution in the original customer file does not qualify for compensation or free reprint."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "claims",
+        "generated_index": 1,
+        "normalization": "Unwrapped generated answer string; discarded evaluator metadata. No answer words changed."
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-09",
+    "input": "Kak, kalau saya batalkan pesanan hari ini, bisa dibatalkan sampai kapan ya? Soalnya file-nya belum diproses kan?",
+    "actual_output": null,
+    "expected_output": "Pembatalan hanya bisa dilakukan maksimal kurang dari 2 jam setelah pembayaran disepakati dan sebelum berkas diproses oleh operator mesin cetak.",
+    "context": [
+      "Source document: 01_sop_dan_kebijakan_toko.txt\n\n1. Kebijakan Pembatalan Pesanan:\n   - Pembatalan pesanan hanya dapat dilakukan maksimal dalam kurun waktu kurang dari 2 jam setelah pembayaran disepakati dan sebelum berkas diproses oleh operator mesin cetak.\n   - Apabila berkas sudah diproses cetak oleh mesin, pesanan tidak dapat dibatalkan, diubah, maupun ditarik kembali.\n2. Kebijakan Pengembalian Dana (Refund):\n   - Refund dana akibat kelebihan transfer atau pembatalan sah diproses melalui transfer rekening Bank BCA dalam waktu 1 hari kerja (tidak diperkenankan refund tunai)."
+    ],
+    "source_file": "01_sop_dan_kebijakan_toko.txt",
+    "additional_metadata": {
+      "family": "claims",
+      "contrast_intent": "cancellation-refund-conditions",
+      "source_evidence": {
+        "source": "01_sop_dan_kebijakan_toko.txt",
+        "source_sha256": "31bc29dd769d698d0e9988f8d12dd26757a5303348fd441fba8295022f965fdc",
+        "start_line": 88,
+        "end_line": 92,
+        "excerpt_sha256": "1facf3e5aa3e3215f55df8368d5722ed5101d122d9c71fd4a9cbdc04ea63cbbf",
+        "supporting_quotes": [
+          "Pembatalan pesanan hanya dapat dilakukan maksimal dalam kurun waktu kurang dari 2 jam setelah pembayaran disepakati dan sebelum berkas diproses oleh operator mesin cetak."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Both elapsed-time and pre-production conditions apply; the assistant cannot claim it has checked actual order status."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "claims",
+        "generated_index": 2,
+        "normalization": null
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-10",
+    "input": "Misi, stiker Cromo 180 GSM A3+ itu bisa ditulis pakai pulpen biasa nggak? Rencananya buat label stoples selai.",
+    "actual_output": null,
+    "expected_output": "Bisa. Permukaan stiker Cromo 180 GSM A3+ dapat ditulis dengan pulpen biasa, dan bahan ini cocok untuk label stoples selai karena termasuk penggunaan untuk label kemasan makanan kering atau stoples. Perlu diingat, stiker ini tidak tahan air — terkena air akan merusak cetakan dan mengendurkan lem tempelnya.",
+    "context": [
+      "Source document: 02_spesifikasi_bahan_dan_finishing.txt\n\n1. Stiker Cromo / Chromo (180 GSM - Lembaran A3+):\n   - Karakteristik: Stiker yang bahannya terbuat dari kertas (bukan plastik), dengan permukaan licin dan mengkilap. Perekatnya cukup kuat untuk menempel di permukaan kering. Namun, karena berbahan kertas, stiker ini tidak tahan air — jika terkena air akan merusak cetakan dan mengendurkan lem tempelnya. Harganya paling murah di antara semua jenis stiker. Kelebihan tambahannya, permukaan stiker ini bisa ditulis dengan pulpen biasa.\n   - Penggunaan: Label kemasan makanan kering atau stoples, stiker segel penutup kardus katering, stiker promosi kampanye/pilkada, dan stiker alamat pengiriman paket.\n   - Cocok untuk cetak produk turunan: lembaran stiker label (sticker sheet), stiker label toples/botol kering, stiker segel kemasan box, label harga/barcode, stiker suvenir acara, stiker kampanye murah."
+    ],
+    "source_file": "02_spesifikasi_bahan_dan_finishing.txt",
+    "additional_metadata": {
+      "family": "materials",
+      "contrast_intent": "cromo-indoor-dry",
+      "source_evidence": {
+        "source": "02_spesifikasi_bahan_dan_finishing.txt",
+        "source_sha256": "448fc0a469256712acda22d22aea4a674210b828a3e0761260ed5ee38d4a7352",
+        "start_line": 74,
+        "end_line": 77,
+        "excerpt_sha256": "14c5a3636c183f8ba322c11c0a3bbe6b108cffef2b7d1bc54124b516bfcd3f29",
+        "supporting_quotes": [
+          "Kelebihan tambahannya, permukaan stiker ini bisa ditulis dengan pulpen biasa.",
+          "Label kemasan makanan kering atau stoples",
+          "stiker ini tidak tahan air — jika terkena air akan merusak cetakan dan mengendurkan lem tempelnya."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Cromo may be written on with a pen and used as a dry jar label. The source explicitly says it is not waterproof; no food-contact certification claim."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "repair",
+        "generated_index": 2,
+        "normalization": null
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-11",
+    "input": "Bang, buat car wrapping badan mobil pilih vinyl Ritrama atau vinyl China ya? Yang penting saat dilepas nggak nyisain residu lem di cat. Mana yang lebih cocok?",
+    "actual_output": null,
+    "expected_output": "Pilih Stiker Vinyl Meteran Ritrama (250 GSM). Vinyl Ritrama punya perekat sangat kuat dan tahan lama, tapi saat dikupas tidak meninggalkan bekas noda lem di permukaan, dan bahannya lebih elastis serta tebal sehingga mudah ditempel pada permukaan melengkung seperti badan mobil. Vinyl China tidak disebut memiliki sifat bebas residu lem tersebut.",
+    "context": [
+      "Source document: 02_spesifikasi_bahan_dan_finishing.txt\n\n2. Stiker Vinyl Meteran China (200 GSM):\n   - Karakteristik: Stiker berbahan plastik vinyl yang lentur dan bisa ditarik sedikit tanpa langsung robek. Tahan air hujan dan tidak mudah sobek, sehingga cocok untuk penggunaan di luar ruangan. Dijual dalam satuan meteran (panjang x lebar) sehingga bisa mencetak ukuran besar sesuai kebutuhan. Harganya termasuk ekonomis untuk kelas stiker vinyl tahan air.\n   - Penggunaan: Cetak stiker ukuran besar untuk promosi tempel di dinding ruko, papan neon box, atau media promosi outdoor berukuran besar.\n   - Cocok untuk cetak produk turunan: stiker dinding promosi outdoor, stiker papan nama usaha/plang ruko, stiker etalase kaca luar, stiker decal besar.\n3. Stiker Vinyl Meteran Ritrama (250 GSM):\n   - Karakteristik: Stiker vinyl kelas premium buatan Eropa dengan kualitas perekat terbaik — daya rekatnya sangat kuat dan tahan lama, tapi saat dikupas/dilepas tidak meninggalkan bekas noda lem di permukaan tempelan (baik di body kendaraan, kaca, maupun dinding). Bahannya lebih elastis dan lebih tebal dibanding vinyl China, sehingga lebih mudah ditempelkan pada permukaan melengkung seperti badan mobil.\n   - Penggunaan: Branding kendaraan operasional perusahaan (car branding/wrapping mobil), dekorasi kaca etalase toko, dan label stiker luar ruangan yang butuh ketahanan jangka panjang.\n   - Cocok untuk cetak produk turunan: branding mobil/motor (car wrapping/decal), stiker kaca etalase toko premium, stiker label luar ruangan tahan cuaca bertahun-tahun."
+    ],
+    "source_file": "02_spesifikasi_bahan_dan_finishing.txt",
+    "additional_metadata": {
+      "family": "materials",
+      "contrast_intent": "vinyl-outdoor",
+      "source_evidence": {
+        "source": "02_spesifikasi_bahan_dan_finishing.txt",
+        "source_sha256": "448fc0a469256712acda22d22aea4a674210b828a3e0761260ed5ee38d4a7352",
+        "start_line": 78,
+        "end_line": 85,
+        "excerpt_sha256": "6b303e2f63130c5f03a101bca24b06b15bdace32c38c9ef88da0d6bb9b2a484f",
+        "supporting_quotes": [
+          "saat dikupas/dilepas tidak meninggalkan bekas noda lem di permukaan tempelan (baik di body kendaraan, kaca, maupun dinding).",
+          "Bahannya lebih elastis dan lebih tebal dibanding vinyl China, sehingga lebih mudah ditempelkan pada permukaan melengkung seperti badan mobil."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Ritrama no-residue and curved-body use are directly supported. Lack of a China no-residue claim is not evidence that China necessarily leaves residue."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "materials",
+        "generated_index": 1,
+        "normalization": "Unwrapped generated answer string; discarded evaluator metadata. No answer words changed."
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  },
+  {
+    "id": "retrieval-holdout-12",
+    "input": "Misi, stiker one way vision itu dari luar kelihatan apa dan dari dalam gimana ya? Mau pasang di kaca ruko saya.",
+    "actual_output": null,
+    "expected_output": "Dari luar, stiker one way vision terlihat seperti gambar utuh dan penuh seperti stiker biasa. Dari dalam, Anda tetap bisa melihat tembus ke luar melalui lubang-lubang perforasinya, seperti kaca satu arah — cocok dipasang di kaca depan/samping ruko.",
+    "context": [
+      "Source document: 02_spesifikasi_bahan_dan_finishing.txt\n\n5. Stiker One Way Vision:\n   - Karakteristik: Stiker vinyl khusus yang unik karena memiliki lubang-lubang kecil berlubang (perforasi) di seluruh permukaannya. Efeknya: jika dilihat dari sisi luar (depan), gambar terlihat utuh dan penuh seperti stiker biasa karena mata manusia secara alami menggabungkan gambar di antara lubang-lubang kecil tersebut. Namun dari sisi dalam (belakang), orang yang berada di dalam ruangan tetap bisa melihat tembus ke luar melalui lubang-lubang tersebut. Jadi fungsinya seperti kaca satu arah — dari luar terlihat gambar, dari dalam tetap bisa melihat keluar.\n   - Penggunaan: Kaca depan/samping ruko agar terlihat promosi dari luar tapi dari dalam toko masih bisa melihat ke jalan, partisi kaca kantor, dan kaca belakang mobil untuk promosi/iklan berjalan."
+    ],
+    "source_file": "02_spesifikasi_bahan_dan_finishing.txt",
+    "additional_metadata": {
+      "family": "materials",
+      "contrast_intent": "one-way-vision",
+      "source_evidence": {
+        "source": "02_spesifikasi_bahan_dan_finishing.txt",
+        "source_sha256": "448fc0a469256712acda22d22aea4a674210b828a3e0761260ed5ee38d4a7352",
+        "start_line": 90,
+        "end_line": 92,
+        "excerpt_sha256": "7d4df92e4dd2c649ca81e232a265539a3ee55e16ebfa1a6e82e2078fd8af5f0e",
+        "supporting_quotes": [
+          "jika dilihat dari sisi luar (depan), gambar terlihat utuh dan penuh seperti stiker biasa",
+          "orang yang berada di dalam ruangan tetap bisa melihat tembus ke luar melalui lubang-lubang tersebut."
+        ]
+      },
+      "source_validation": {
+        "reviewer": "Codex agent",
+        "status": "agent_source_validated",
+        "human_reviewed": false,
+        "notes": "Outside graphic and inward outward visibility match the source; no new lighting, night-privacy or installation guarantee is authorized."
+      },
+      "generation": {
+        "framework": "deepeval generate",
+        "version": "4.2.8",
+        "method": "contexts",
+        "model": "z-ai/glm-5.3-flash",
+        "batch": "materials",
+        "generated_index": 2,
+        "normalization": "Unwrapped generated response string; discarded evaluator metadata. No answer words changed."
+      },
+      "frozen_at": "2026-10-23T18:19:38.554252+00:00",
+      "holdout_rule": "Do not use these questions, references, or pipeline outputs to tune retrieval or answer rules during this comparison."
+    }
+  }
+]
