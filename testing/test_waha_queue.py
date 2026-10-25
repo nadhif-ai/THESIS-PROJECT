@@ -4,6 +4,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+from vercel.queue import RetryAfter
 
 from app.admin import store
 from app.integrations import waha, waha_queue
@@ -109,8 +110,9 @@ def test_out_of_order_queue_callbacks_retry_until_previous_reply_finishes(pg_liv
         store.update_inbox("asia-chatbot", identifier, {"answer": identifier})
     sends = []
     monkeypatch.setattr(waha, "api", lambda method, path, payload, **kwargs: sends.append(payload["text"]) or {"id": "reply-"+payload["text"]})
-    with pytest.raises(RuntimeError, match="pending"):
-        waha_queue.consume({"session": "asia-chatbot", "message_id": "later"})
+    with pytest.raises(RetryAfter) as retry:
+        asyncio.run(waha_queue.reply({"session": "asia-chatbot", "message_id": "later"}))
+    assert retry.value.timeout_seconds == 10
     for identifier in ("earlier", "later"):
         waha_queue.consume({"session": "asia-chatbot", "message_id": identifier})
     assert sends == ["earlier", "later"]
@@ -124,3 +126,27 @@ def test_bot_off_never_publishes_a_reply_callback(client, monkeypatch):
     monkeypatch.setattr(waha_queue, "notify", unexpected)
     assert signed_post(client, event()).status_code == 200
     assert store.get_inbox("asia-chatbot", "test-message-1")["status"] == "skipped"
+
+
+def test_transport_failure_is_visible_without_secrets_or_false_sent_log(pg_live, monkeypatch, caplog):
+    import logging
+    import requests
+
+    incoming("transport-failure")
+    store.update_inbox("asia-chatbot", "transport-failure", {"answer": "Prepared answer"})
+    calls = []
+
+    def unavailable(*args, **kwargs):
+        calls.append(args)
+        raise requests.exceptions.SSLError("private-provider-url secret-token customer-text")
+
+    monkeypatch.setattr(waha, "api", unavailable)
+    with caplog.at_level(logging.INFO):
+        waha_queue.consume({"session": "asia-chatbot", "message_id": "transport-failure"})
+        waha_queue.consume({"session": "asia-chatbot", "message_id": "transport-failure"})
+    assert len(calls) == 1
+    assert store.get_inbox("asia-chatbot", "transport-failure")["status"] == "uncertain"
+    assert "error=SSLError" in caplog.text
+    assert "phase=sent" not in caplog.text
+    assert "secret-token" not in caplog.text
+    assert "customer-text" not in caplog.text
