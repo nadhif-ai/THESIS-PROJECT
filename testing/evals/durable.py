@@ -28,13 +28,15 @@ from testing.evals.calculations import RECIPE, ANNOTATED_RECIPE, retrieval_manif
 
 
 def submit(dataset, limit):
+    from app.backend.models import answer_defaults
+
     rows = load_cases(dataset, limit)
     if not rows:
         raise ValueError("The selected reference dataset has no eligible cases.")
     settings = get_settings()
     configuration = store.get_settings_values(
         {
-            "openrouter_model": settings.openrouter_model,
+            **answer_defaults(settings),
             "eval_model": settings.eval_model,
             "semantic_top_k": settings.semantic_top_k,
             "product_intent_model": settings.product_intent_model,
@@ -136,18 +138,21 @@ def _report(state):
 
 
 def _prepare(identifier, state):
+    from app.backend.models import answer_selection
     from app.dependencies import get_rag_chain
 
     snapshot, config = state.pop("snapshot"), state["configuration"]
     manifest = snapshot["manifest"]
     from app.backend.retrieval_ranking import RETRIEVAL_RECIPE
+    model_provider, model = answer_selection(config)
     result = {
         "id": identifier,
         "dataset": json.loads(kb_store.work(identifier)["payload"])["dataset"],
         "knowledge_version": snapshot["id"],
         "namespace": snapshot["namespace"],
         "started_at": store.now(),
-        "model": config["openrouter_model"],
+        "model": model,
+        "model_provider": model_provider,
         "judge": config["eval_model"],
         "intent_model": config.get("product_intent_model", get_settings().product_intent_model),
         "runtime_top_k": config["semantic_top_k"],
@@ -276,6 +281,7 @@ def _answer(identifier, state, row):
                     intent_model=result.get("intent_model"),
                     top_k=result["runtime_top_k"],
                     model=result["model"],
+                    model_provider=result.get("model_provider", "openrouter"),
                     **({"prompt_config": captured_prompt} if captured_prompt else {}),
                 )
                 record.update(
@@ -311,6 +317,7 @@ def _answer(identifier, state, row):
                         channel="evaluation",
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        model_provider=result.get("model_provider", "openrouter"),
                         intent_model=result.get("intent_model"),
                         **({"prompt_config": captured_prompt} if captured_prompt else {}),
                         history_turns=[

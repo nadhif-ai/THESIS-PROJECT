@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ImagePlus, Pencil, Download, Search } from "lucide-react";
 import { toast } from "sonner";
 import { api, jsonBody, type Answer } from "@/lib/api";
+import { providerModelLabel } from "@/lib/provider-models";
 import { useResource } from "@/hooks/use-resource";
 import { Button } from "@/components/ui/button";
 import {
@@ -442,7 +443,7 @@ export function MediaPreview({ answer, diagnostics = true }: { answer: Answer; d
             <p>Intent: {answer.media_decision.intent_resolution}</p>
             <p>Product: {answer.media_decision.product_ids?.join(", ") || "Unresolved"}</p>
             <p>Asset: {answer.media_decision.asset_id || "None"} · Catalog revision: {answer.media_decision.catalog_revision ?? "—"}</p>
-            <p>Intent model: {answer.media_decision.intent_model} · {answer.media_decision.intent_latency_seconds}s</p>
+            <p>Intent model: {answer.media_decision.intent_model ? providerModelLabel(answer.media_decision.intent_model) : "Not recorded"} · {answer.media_decision.intent_latency_seconds}s</p>
             <p>Prompt: {answer.media_decision.intent_prompt_sha256?.slice(0, 12)}</p>
             <p>App: {answer.media_decision.application_version}</p>
             <p>Answer check: {answer.media_decision.answer_validation || "Not required"}</p>

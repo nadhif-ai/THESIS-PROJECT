@@ -30,6 +30,7 @@ def chain():
 @pytest.fixture(scope="module")
 def knowledge_snapshot(chain):
     from app.admin import store
+    from app.backend.models import answer_defaults
     from app.config.settings import get_settings
 
     if os.getenv("EVAL_KNOWLEDGE_VERSION"):
@@ -38,7 +39,7 @@ def knowledge_snapshot(chain):
     if not selected["records"]:
         raise ValueError("Sync searchable knowledge before evaluation.")
     settings = get_settings()
-    config = store.get_settings_values({"openrouter_model": settings.openrouter_model,
+    config = store.get_settings_values({**answer_defaults(settings),
             "eval_model": settings.eval_model, "semantic_top_k": settings.semantic_top_k})
     from app.admin.prompt_settings import active_snapshot
     config["prompt_snapshot"] = active_snapshot()
@@ -68,12 +69,14 @@ def check_and_report(case, metrics, run_id, client):
 )
 @pytest.mark.parametrize("row", ROWS, ids=[r["id"] for r in ROWS])
 def test_single_question(row, chain, knowledge_snapshot):
+    from app.backend.models import answer_selection
     from deepeval.test_case import LLMTestCase
     from langsmith import Client, trace, tracing_context
     from testing.evals.metrics import single_turn_metrics
 
     client = Client()
     selected, config = knowledge_snapshot
+    model_provider, model = answer_selection(config)
     metrics = single_turn_metrics(row.get("review_notes"), config["eval_model"])
     with tracing_context(client=client):
         with trace(
@@ -87,7 +90,7 @@ def test_single_question(row, chain, knowledge_snapshot):
                 channel="evaluation",
                 history_turns=[],
                 namespace=selected["namespace"],
-                model=config["openrouter_model"], top_k=config["semantic_top_k"],
+                model=model, model_provider=model_provider, top_k=config["semantic_top_k"],
                 prompt_config=config["prompt_snapshot"],
             )
             assert not response.error, response.error
@@ -108,6 +111,7 @@ def test_single_question(row, chain, knowledge_snapshot):
     reason="Select EVAL_DATASET=conversations after human dataset review.",
 )
 def test_conversation(chain, knowledge_snapshot):
+    from app.backend.models import answer_selection
     from deepeval.dataset import ConversationalGolden
     from deepeval.simulator import ConversationSimulator
     from deepeval.test_case import Turn
@@ -117,6 +121,7 @@ def test_conversation(chain, knowledge_snapshot):
 
     rows = load_cases("conversations", LIMIT)
     selected, config = knowledge_snapshot
+    model_provider, model = answer_selection(config)
     client = Client()
     for row in rows:
 
@@ -125,7 +130,7 @@ def test_conversation(chain, knowledge_snapshot):
                 question=input,
                 session_id="eval-pytest-" + str(thread_id),
                 channel="evaluation",
-                namespace=selected["namespace"], model=config["openrouter_model"], top_k=config["semantic_top_k"],
+                namespace=selected["namespace"], model=model, model_provider=model_provider, top_k=config["semantic_top_k"],
                 prompt_config=config["prompt_snapshot"],
                 history_turns=[
                     (turns[i].content, turns[i + 1].content)

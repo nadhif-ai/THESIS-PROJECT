@@ -31,6 +31,7 @@ import { ReplyText, GenerationDetails, Typing } from "@/components/playground-re
 import brandMark from "@/assets/brand-mark.png";
 import printingDesk from "@/assets/printing-desk.jpg";
 import { api, ApiError, jsonBody, setCsrf } from "@/lib/api";
+import { NINEROUTER_MODELS, NINEROUTER_MODEL_OPTIONS, providerModelLabel } from "@/lib/provider-models";
 import { dashboardPriorities } from "@/lib/dashboard-priorities";
 import { adminPagePath, readAdminPage } from "@/lib/admin-navigation";
 import { replyProcessing } from "@/lib/whatsapp-status";
@@ -1155,6 +1156,10 @@ function ProvidersPage() {
     return (
       <Loading label="Loading model settings and provider configuration…" />
     );
+  const answerModelKey = form.answer_provider === "9router" ? "ninerouter_model" : "openrouter_model";
+  const answerModels = form.answer_provider === "9router"
+    ? NINEROUTER_MODELS
+    : ["openai/gpt-6-luna", "anthropic/claude-haiku-5.5", "minimax/minimax-m3.1-flash"];
   async function save(event: FormEvent) {
     event.preventDefault();
     setSaving(true);
@@ -1176,19 +1181,31 @@ function ProvidersPage() {
           <form onSubmit={save} className="flex flex-col gap-6">
             <FieldGroup>
               <Field>
+                <FieldLabel htmlFor="answer-provider">Answering provider</FieldLabel>
+                <NativeSelect
+                  id="answer-provider"
+                  value={form.answer_provider}
+                  onChange={(event) => setForm({ ...form, answer_provider: event.target.value as Providers["answer_provider"] })}
+                >
+                  <NativeSelectOption value="openrouter">OpenRouter</NativeSelectOption>
+                  <NativeSelectOption value="9router">9Router (OpenAI-compatible)</NativeSelectOption>
+                </NativeSelect>
+                <FieldDescription>Used for customer replies in WhatsApp, Playground, and evaluations.</FieldDescription>
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="answer-model">Answering model</FieldLabel>
                 <NativeSelect
                   id="answer-model"
-                  value={form.openrouter_model}
+                  value={form[answerModelKey]}
                   onChange={(e) =>
-                    setForm({ ...form, openrouter_model: e.target.value })
+                    setForm({ ...form, [answerModelKey]: e.target.value })
                   }
                   required
                 >
-                  {[...new Set([data?.openrouter_model || form.openrouter_model, "openai/gpt-6-luna", "anthropic/claude-haiku-5.5", "minimax/minimax-m3.1-flash"])].map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
+                  {[...new Set([form[answerModelKey], ...answerModels])].map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
                 </NativeSelect>
                 <FieldDescription>
-                  OpenRouter model identifier used for customer replies.
+                  Model identifier used for customer replies.
                 </FieldDescription>
               </Field>
               <Field>
@@ -1203,19 +1220,19 @@ function ProvidersPage() {
                   }
                   required
                 >
-                  {[...new Set([data?.eval_model || form.eval_model, "deepseek/deepseek-v4.1-flash", "z-ai/glm-5.3-flash", "anthropic/claude-haiku-5.5"])].map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
+                  {[...new Set([form.eval_model, "deepseek/deepseek-v4.1-flash", "z-ai/glm-5.3-flash", "anthropic/claude-haiku-5.5", ...NINEROUTER_MODEL_OPTIONS])].map((model) => <NativeSelectOption key={model} value={model}>{providerModelLabel(model)}</NativeSelectOption>)}
                 </NativeSelect>
                 <FieldDescription>
-                  DeepEval uses this model to score answers.
+                  DeepEval uses the selected provider and model to score answers.
                 </FieldDescription>
               </Field>
               <Field>
                 <FieldLabel htmlFor="intent-model">Intent model</FieldLabel>
                 <NativeSelect id="intent-model" value={form.product_intent_model || ""} onChange={(event) => setForm({ ...form, product_intent_model: event.target.value })} required>
                   {!form.product_intent_model && <NativeSelectOption value="" disabled>Choose an intent model</NativeSelectOption>}
-                  {[...new Set([data?.product_intent_model || form.product_intent_model, "z-ai/glm-5.3-flash", "openai/gpt-oss-20b"])].filter(Boolean).map((model) => <NativeSelectOption key={model} value={model}>{model}</NativeSelectOption>)}
+                  {[...new Set([form.product_intent_model, "z-ai/glm-5.3-flash", "openai/gpt-oss-20b", ...NINEROUTER_MODEL_OPTIONS])].filter(Boolean).map((model) => <NativeSelectOption key={model} value={model}>{providerModelLabel(model)}</NativeSelectOption>)}
                 </NativeSelect>
-                <FieldDescription>Identifies product and image requests before the answering model replies.</FieldDescription>
+                <FieldDescription>Identifies product and image requests using the selected provider. The model must support structured JSON output.</FieldDescription>
               </Field>
               <Field>
                 <FieldLabel htmlFor="top-k">Retrieved passages</FieldLabel>
@@ -1249,10 +1266,10 @@ function ProvidersPage() {
             <TableBody>
               {Object.entries(form.providers).map(([name, connected]) => (
                 <TableRow key={name}>
-                  <TableCell className="capitalize">{name}</TableCell>
+                  <TableCell className="capitalize">{name === "9router" ? "9Router" : name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {connected ? "Configured" : "Missing key"}
+                      {connected ? "Configured" : name === "9router" ? "Missing key or endpoint" : "Missing key"}
                     </Badge>
                   </TableCell>
                 </TableRow>
@@ -2140,11 +2157,11 @@ function Evaluations() {
                   · Up to {limit || 0} cases
                 </p>
                 <p>
-                  Answer: {providers.data?.openrouter_model || "Loading model…"}
+                  Answer: {(providers.data?.answer_provider === "9router" ? providers.data.ninerouter_model : providers.data?.openrouter_model) || "Loading model…"}
                 </p>
                 <p>
                   Scoring:{" "}
-                  {providers.data?.eval_model || "Loading scoring model…"}
+                  {providers.data?.eval_model ? providerModelLabel(providers.data.eval_model) : "Loading scoring model…"}
                 </p>
               </div>
               <Button
@@ -2354,7 +2371,7 @@ function Evaluations() {
             <div><dt>Dataset</dt><dd>{result.dataset}</dd></div>
             <div><dt>Knowledge snapshot</dt><dd>{result.knowledge_version || "Not recorded"}</dd></div>
             <div><dt>Answering model</dt><dd>{result.model || "Not recorded"}</dd></div>
-            <div><dt>Scoring model</dt><dd>{result.judge || "Not recorded"}</dd></div>
+            <div><dt>Scoring model</dt><dd>{result.judge ? providerModelLabel(result.judge) : "Not recorded"}</dd></div>
           </dl>
           <p className="help-copy mb-4">Scores average only the cases with a recorded score. Missing scores remain unavailable.</p>
           <div className="evaluation-metrics">

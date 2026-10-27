@@ -143,7 +143,7 @@ def test_cached_chain_observes_saves_and_uses_order_history_in_retrieval(pg_live
     assert pinned.prompt_sha256 == first.prompt_sha256
     assert "Instruksi kedua." in captured[1][0].content
     assert "dua lembar" in searches[1] and "flexi 280" in searches[1]
-    assert [m.type for m in captured[1]] == ["system", "system", "human", "ai", "human"]
+    assert [m.type for m in captured[1]] == ["system", "human", "ai", "system", "human"]
     assert first.answer == "Total *Rp 25.000*."
 
 

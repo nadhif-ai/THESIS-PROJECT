@@ -62,6 +62,51 @@ def test_failed_intent_preserves_factual_answer_without_publishing_image_status(
     assert result.answer == answer
 
 
+def test_social_intent_skips_knowledge_retrieval(pg_live, monkeypatch):
+    from app.backend import product_intent
+
+    seed_active()
+    intent = product_intent.ProductIntent(action='none', product_ids=[], view='hero', attributes=[],
+        exact_visual=False, resolution='resolved', clarification='', changes_product=False,
+        needs_knowledge=False)
+    monkeypatch.setattr(product_intent, 'extract', lambda *args, **kwargs: intent)
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score',
+                        lambda **kwargs: pytest.fail('Social messages must not retrieve knowledge'))
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(
+        invoke=lambda messages: SimpleNamespace(content='Halo, Kak! Ada yang bisa saya bantu?')))
+
+    result = chain.RAGChain().run('Halo adminn', 'social-intent', channel='playground')
+
+    assert result.answer == 'Halo, Kak! Ada yang bisa saya bantu?'
+    assert result.retrieval_context == []
+
+
+def test_address_context_is_adjacent_to_question(pg_live, monkeypatch):
+    from app.backend import product_intent
+
+    seed_active()
+    address = 'Ciputat Timur: Jl. Ir. H. Juanda No. 17. Pamulang: Jl. Pajajaran No. 38.'
+    intent = product_intent.ProductIntent(action='none', product_ids=[], view='hero', attributes=[],
+        exact_visual=False, resolution='resolved', clarification='', changes_product=False,
+        needs_knowledge=True)
+    monkeypatch.setattr(product_intent, 'extract', lambda *args, **kwargs: intent)
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score', lambda **kwargs: [
+        (Document(page_content=address, metadata={'source': 'sop.txt'}), .1)])
+    captured = []
+
+    def invoke(messages):
+        captured.extend(messages)
+        return SimpleNamespace(content=address)
+
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=invoke))
+    result = chain.RAGChain().run('Alamat toko ada dimana min?', 'address-grounding', channel='playground')
+
+    assert address in captured[-2].content
+    assert captured[-2].type == 'system'
+    assert captured[-1].content == 'Alamat toko ada dimana min?'
+    assert result.answer == address
+
+
 def test_provider_schema_reserves_failed_resolution_for_application(monkeypatch):
     from app.backend import product_intent
 
@@ -255,6 +300,7 @@ def test_truncated_visual_details_use_complete_controlled_prose(pg_live, monkeyp
 def test_failed_semantic_provider_cannot_fall_back_to_keyword_selection(pg_live, monkeypatch, failure):
     from app.backend import product_intent, attachment_answer
     seed_active(); catalog.save(record(),0,'operator'); store.catalog_feature(True)
+    store.set_setting('product_intent_model', '9router::cx/gpt-6-luna[1m]')
     def provider(*a, **kw):
         if failure == 'timeout':
             raise TimeoutError('Provider timed out')
@@ -273,6 +319,7 @@ def test_failed_semantic_provider_cannot_fall_back_to_keyword_selection(pg_live,
     monkeypatch.setattr(attachment_answer, 'consistent', check)
     result=chain.RAGChain().run('Kirim foto roll up banner','failed-intent',channel='playground')
     assert len(guarded) == 1 and guarded[0]['selected'] is False
+    assert guarded[0]['model'] == '9router::cx/gpt-6-luna[1m]'
     assert result.media_url is None
     assert result.media_decision['reason']=='intent_failed'
     assert result.media_decision['answer_validation']=='safe_fallback'

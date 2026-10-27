@@ -307,7 +307,9 @@ export type Conversation = {
   usage: Record<string, number>;
 };
 export type Providers = {
+  answer_provider: "openrouter" | "9router";
   openrouter_model: string;
+  ninerouter_model: string;
   eval_model: string;
   product_intent_model: string;
   semantic_top_k: number;

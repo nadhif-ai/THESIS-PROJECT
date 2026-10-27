@@ -3,14 +3,21 @@ import logging
 import time
 from typing import Optional
 from dataclasses import dataclass, field
-from langsmith import traceable, get_current_run_tree
+from langsmith import trace, traceable, get_current_run_tree
 from app.admin import store
-from app.backend.models import get_llm
+from app.backend.models import answer_defaults, answer_selection, get_llm
 from app.backend.prompt_template import get_chat_prompt, format_context, prompt_snapshot
 from app.backend.history import bounded_history, retrieval_question
 from app.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
+
+
+@traceable(name="product-intent")
+def _extract_product_intent(*args, **kwargs):
+    from app.backend import product_intent
+    return product_intent.extract(*args, **kwargs)
+
 
 _FAQ_FILTER = None
 
@@ -348,6 +355,7 @@ class RAGChain:
         prompt_config: Optional[dict] = None,
         history_turns: Optional[list] = None,
         media_conversation_key: Optional[str] = None,
+        model_provider: Optional[str] = None,
     ) -> RAGResponse:
         """
         Menjalankan pipeline RAG secara penuh untuk menjawab pertanyaan pengguna.
@@ -365,14 +373,15 @@ class RAGChain:
 
         catalog_data = None
         media_context = None
-        if channel in ('whatsapp', 'playground'):
-            from app.admin import catalog
-            catalog_data = catalog.snapshot()
-            if catalog_data['enabled']:
-                media_context = store.catalog_context(
-                    media_conversation_key or channel + ':' + session_id,
-                    reset=cleaned_query in _RESET_COMMANDS,
-                )
+        with trace("catalog-context", inputs={"channel": channel}):
+            if channel in ('whatsapp', 'playground'):
+                from app.admin import catalog
+                catalog_data = catalog.snapshot()
+                if catalog_data['enabled']:
+                    media_context = store.catalog_context(
+                        media_conversation_key or channel + ':' + session_id,
+                        reset=cleaned_query in _RESET_COMMANDS,
+                    )
         if cleaned_query in _RESET_COMMANDS:
             clear_session_history(session_id)
             history = []
@@ -409,12 +418,13 @@ class RAGChain:
         empty_knowledge = False
         if self.settings.vector_store == "pinecone":
             from app.admin.global_knowledge import EMPTY_ANSWER
-            if namespace:
-                active = store.version_info(namespace=namespace)
-            else:
-                from app.admin.kb_store import active_info
-                active = active_info()
-            empty_knowledge = active is None or active["manifest"].get("empty")
+            with trace("knowledge-version", inputs={"namespace": namespace}):
+                if namespace:
+                    active = store.version_info(namespace=namespace)
+                else:
+                    from app.admin.kb_store import active_info
+                    active = active_info()
+                empty_knowledge = active is None or active["manifest"].get("empty")
             if empty_knowledge and not media_context:
                 response = RAGResponse(answer=EMPTY_ANSWER, session_id=session_id,
                                    answer_source="Empty knowledge", sources=[],
@@ -464,12 +474,17 @@ class RAGChain:
                 usage={"prompt_tokens": 0, "completion_tokens": 0},
             )
 
-        top_k = top_k or store.get_setting(
-            "semantic_top_k", self.settings.semantic_top_k
-        )
-        model = model or store.get_setting(
-            "openrouter_model", self.settings.openrouter_model
-        )
+        with trace("runtime-settings", inputs={"model_override": bool(model), "top_k_override": top_k}):
+            top_k = top_k or store.get_setting(
+                "semantic_top_k", self.settings.semantic_top_k
+            )
+            if not model:
+                answer_config = store.get_settings_values(answer_defaults(self.settings))
+                if model_provider is not None:
+                    answer_config["answer_provider"] = model_provider
+                model_provider, model = answer_selection(answer_config)
+            else:
+                model_provider = model_provider or "openrouter"
         selected_version = None
         if self.settings.vector_store == "pinecone":
             selected_version = active
@@ -485,6 +500,7 @@ class RAGChain:
                 {
                     "channel": channel,
                     "model": model,
+                    "model_provider": model_provider,
                     "top_k": top_k,
                     "namespace": namespace,
                     "knowledge_version": selected_version["id"]
@@ -513,9 +529,11 @@ class RAGChain:
             for name, values in catalog_asset.get('visual_attributes', {}).items():
                 visual_vocabulary[name] = sorted(set(visual_vocabulary.get(name, []) + values))
         intent_model = intent_model or store.get_setting("product_intent_model", self.settings.product_intent_model)
-        intent = product_intent.extract(question, intent_history, (media_context or {}).get('focus', []),
-                                        visual_vocabulary=visual_vocabulary, model=intent_model)
+        intent = _extract_product_intent(question, intent_history, (media_context or {}).get('focus', []),
+                                         visual_vocabulary=visual_vocabulary, model=intent_model)
         intent_latency = round(time.monotonic() - intent_started, 3)
+        if tree:
+            tree.add_metadata({"needs_knowledge": intent.needs_knowledge})
         requested_image = intent.resolution == 'resolved' and intent.action != 'none'
         media_response = requested_image or intent.resolution == 'failed' or (intent.action != 'none' and intent.resolution != 'resolved')
         if empty_knowledge and not requested_image:
@@ -538,7 +556,7 @@ class RAGChain:
 
         from app.backend.vectorstore import similarity_search_with_score
 
-        semantic_results = [] if empty_knowledge else similarity_search_with_score(
+        semantic_results = [] if empty_knowledge or not intent.needs_knowledge else similarity_search_with_score(
             query=search_question,
             k=top_k,
             namespace=namespace,
@@ -550,7 +568,7 @@ class RAGChain:
 
         retrieved_docs = [doc for doc, _ in semantic_results]
 
-        if not retrieved_docs and not empty_knowledge:
+        if not retrieved_docs and not empty_knowledge and intent.needs_knowledge:
             logger.warning(
                 "[Session %s] Dokumen tidak ditemukan, cari tanpa filter.", session_id
             )
@@ -639,7 +657,7 @@ class RAGChain:
                 question=question,
                 media=media_prompt,
             )
-            response = get_llm(model).invoke(prompt_value)
+            response = get_llm(model, model_provider).invoke(prompt_value)
             answer = response.content if hasattr(response, "content") else str(response)
             if not isinstance(answer, str) or not answer.strip():
                 raise ValueError("The answering provider returned no usable text.")
@@ -667,7 +685,7 @@ class RAGChain:
                 }
 
         except Exception as e:
-            logger.error("[Session %s] Gagal memanggil LLM: %s", session_id, e)
+            logger.error("[Session %s] Answer provider failed: %s", session_id, type(e).__name__)
             generation_error = (
                 "The answering provider failed. Check model access and retry."
             )
@@ -681,13 +699,13 @@ class RAGChain:
                     reason=media_decision['reason'], evidence=context_str, plan={
                         'product_ids': intent.product_ids, 'view': intent.view,
                         'exact_visual': intent.exact_visual,
-                        'verified_attributes': decision['asset'].get('visual_attributes', {}) if media_context and decision['asset'] else {}}, metrics=validation_usage):
+                        'verified_attributes': decision['asset'].get('visual_attributes', {}) if media_context and decision['asset'] else {}}, metrics=validation_usage, model=intent_model):
                 answer = attachment_answer.fallback(bool(media_url), media_decision['reason'])
                 media_decision['answer_validation'] = 'safe_fallback'
             else:
                 media_decision['answer_validation'] = 'passed'
 
-        answer_usage = dict(usage_dict, requests=1, model=model, cost_usd=None,
+        answer_usage = dict(usage_dict, requests=1, model=model, provider=model_provider, cost_usd=None,
                             finish_reason=getattr(response, 'response_metadata', {}).get('finish_reason') if not generation_error else 'error')
         if not generation_error:
             reported = getattr(response, 'response_metadata', {}).get('token_usage') or {}

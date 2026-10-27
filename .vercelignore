@@ -17,3 +17,11 @@ doc
 docs
 ngrok.exe
 frontend/dist
+dataset/image-product
+testing/comparisons
+testing/catalog-verification
+testing/prompt-playground-e2e
+testing/prompt-editor
+testing/evidence
+testing/prompt-playground-warm-style
+testing/*.png

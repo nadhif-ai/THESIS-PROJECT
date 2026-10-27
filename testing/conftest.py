@@ -30,6 +30,8 @@ def offline_boundary(monkeypatch, request):
         "DATABASE_URL": LOCAL_ADMIN.replace("/postgres?", "/fixture_required?"),
         "DATABASE_MIGRATION_URL": LOCAL_ADMIN,
         "OPENROUTER_API_KEY": "offline-test-key",
+        "OPENAI_API_KEY": "offline-test-key",
+        "OPENAI_ENDPOINT": "",
         "PINECONE_API_KEY": "",
         "SUPABASE_SECRET_KEY": "",
         "SUPABASE_SERVICE_ROLE_KEY": "",

@@ -32,6 +32,7 @@ class ProductIntent(BaseModel):
     resolution: Literal['resolved', 'ambiguous', 'unsupported', 'failed']
     clarification: str = Field(max_length=240)
     changes_product: bool
+    needs_knowledge: bool = True
     _usage: dict = PrivateAttr(default_factory=lambda: {'requests': 1})
 
     @model_validator(mode='after')
@@ -61,6 +62,9 @@ use show (or compare/repeat as appropriate). This classifies their request, not 
 image availability is checked later by the application. Never use none because a URL is unknown.
 Only show/compare/repeat when a visual is requested. Price, material, shipping, artwork-file/resolution
 questions alone are action none. Do not infer a visual request from discussing a new product.
+Set needs_knowledge false only for purely social messages such as greetings, thanks, acknowledgements,
+or farewells that require no business facts. Set it true for every business question, visual request,
+uncertain interpretation, or message that could benefit from store knowledge.
 Current explicit product overrides previous focus. Implicit 'itu/gambarnya/kirim lagi' can use unambiguous
 focus or conversation. Unknown or ambiguous products require clarification; never invent an ID.
 Resolution describes interpretation of the request, not whether pricing, stock or an image is available.

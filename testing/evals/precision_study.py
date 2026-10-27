@@ -40,6 +40,7 @@ def run_case(manifest, phase, row, folder):
             response = get_rag_chain().run(question=row['input'],
                 session_id=f"study-{fingerprint[:24]}", channel='evaluation',
                 namespace=phase['namespace'], model=config['model'], top_k=config['top_k'],
+                model_provider=config.get('model_provider', 'openrouter'),
                 intent_model=config['intent_model'], prompt_config=config['prompt_snapshot'], history_turns=[])
         result = {'fingerprint': fingerprint, 'id': row['id'], 'phase': phase,
                   'input': row['input'], 'expected_output': row['expected_output'],

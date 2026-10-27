@@ -1,6 +1,7 @@
 import logging
 import hashlib
-import pandas as pd
+import csv
+from datetime import datetime
 from pathlib import Path
 from typing import Tuple
 from langchain_core.documents import Document
@@ -87,9 +88,39 @@ def _load_text_file(file_path: Path, splitter: RecursiveCharacterTextSplitter) -
     return chunks
 
 
+def load_pdf_pages(file_path: Path) -> list[Document]:
+    """Read page documents with the metadata used by existing knowledge snapshots."""
+    from pypdf import PdfReader
+
+    reader = PdfReader(str(file_path))
+    metadata = {"producer": "PyPDF", "creator": "PyPDF", "creationdate": ""}
+    for name, value in (reader.metadata or {}).items():
+        key = name.lstrip("/").lower()
+        value = value if type(value) in (str, int) else str(value)
+        if key in ("creationdate", "moddate"):
+            try:
+                value = datetime.strptime(value.replace("'", ""), "D:%Y%m%d%H%M%S%z").isoformat("T")
+            except (ValueError, AttributeError):
+                pass
+        elif isinstance(value, str):
+            value = value.strip()
+        if key in ("page_count", "file_path"):
+            metadata[{"page_count": "total_pages", "file_path": "source"}[key]] = value
+        metadata[key] = value
+    metadata.update(source=str(file_path), total_pages=len(reader.pages))
+    labels = reader.page_labels
+    return [
+        Document(
+            page_content=(page.extract_text(extraction_mode="plain") or "").strip(),
+            metadata={**metadata, "page": number, "page_label": labels[number]},
+        )
+        for number, page in enumerate(reader.pages)
+    ]
+
+
 def _load_pdf_file(file_path: Path, splitter: RecursiveCharacterTextSplitter) -> list[Document]:
     """
-    Memuat berkas PDF halaman per halaman menggunakan PyPDFLoader dari LangChain,
+    Memuat berkas PDF halaman per halaman menggunakan pypdf,
     lalu memotong teks hasil ekstraksi menggunakan splitter yang sama.
 
     Membutuhkan dependensi: pip install pypdf
@@ -102,16 +133,7 @@ def _load_pdf_file(file_path: Path, splitter: RecursiveCharacterTextSplitter) ->
         Daftar objek Document siap ingest ke ChromaDB.
     """
     try:
-        from langchain_community.document_loaders import PyPDFLoader
-    except ImportError:
-        logger.error(
-            "PyPDFLoader tidak ditemukan. Jalankan: pip install pypdf langchain-community"
-        )
-        return []
-
-    try:
-        loader = PyPDFLoader(str(file_path))
-        pages  = loader.load()
+        pages = load_pdf_pages(file_path)
     except Exception as e:
         logger.error("Gagal memuat PDF %s: %s", file_path.name, e)
         return []
@@ -144,21 +166,27 @@ def _load_csv_file(file_path: Path) -> list[Document]:
         Daftar objek Document siap ingest ke ChromaDB.
     """
     try:
-        df = pd.read_csv(
-            file_path,
-            dtype=str,
-            keep_default_na=False,
-            engine="python",
-            on_bad_lines="skip",
-            encoding="utf-8-sig",
-        )
-        df.columns = [c.lstrip("\ufeff").strip() for c in df.columns]
+        with file_path.open(encoding="utf-8-sig", newline="") as stream:
+            reader = csv.reader(stream, strict=True)
+            columns = next((row for row in reader if row), [])
+            columns = [c.lstrip("\ufeff").strip() for c in columns]
+            rows = []
+            while True:
+                try:
+                    values = next(reader)
+                except StopIteration:
+                    break
+                except csv.Error:
+                    continue
+                if not values or len(values) > len(columns):
+                    continue
+                rows.append({name: values[i] if i < len(values) else None for i, name in enumerate(columns)})
     except Exception as e:
         logger.error("Gagal membaca CSV %s: %s", file_path.name, e)
         return []
 
     documents: list[Document] = []
-    for _, row in df.iterrows():
+    for row in rows:
         doc_id      = str(row.get("doc_id",      "")).strip()
         intent_type = str(row.get("intent_type", "")).strip()
         title       = str(row.get("title",       "")).strip()
@@ -184,7 +212,7 @@ def _load_csv_file(file_path: Path) -> list[Document]:
             )
         )
 
-    logger.info("  [CSV] %s → %d baris → %d dokumen", file_path.name, len(df), len(documents))
+    logger.info("  [CSV] %s → %d baris → %d dokumen", file_path.name, len(rows), len(documents))
     return documents
 
 

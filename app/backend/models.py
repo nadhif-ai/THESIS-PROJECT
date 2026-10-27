@@ -94,36 +94,62 @@ def get_embedding_model():
     return OpenRouterEmbeddings()
 
 
-@lru_cache(maxsize=8)
-def get_llm(model: str | None = None, *, structured=False, timeout=45) -> ChatOpenAI:
-    """
-    Membuat klien model jawaban melalui layanan OpenRouter.
+def answer_defaults(settings):
+    return {"answer_provider": "openrouter", "openrouter_model": settings.openrouter_model,
+            "ninerouter_model": settings.ninerouter_model}
 
-    Returns:
-        Instance ChatOpenAI yang siap digunakan untuk memanggil LLM.
-    """
+
+def answer_selection(values):
+    provider = values.get("answer_provider", "openrouter")
+    if provider not in ("openrouter", "9router"):
+        raise ValueError("Unknown answering provider.")
+    return provider, values["ninerouter_model" if provider == "9router" else "openrouter_model"]
+
+
+def model_selection(model, provider="openrouter"):
+    if model.startswith("9router::"):
+        provider, model = "9router", model.removeprefix("9router::")
+    if not model:
+        raise ValueError("A model identifier is required.")
+    return provider, model
+
+
+def provider_connection(settings, provider):
+    if provider == "9router":
+        if not settings.openai_api_key or not settings.openai_endpoint:
+            raise ValueError("9Router requires OPENAI_API_KEY and OPENAI_ENDPOINT.")
+        return {"api_key": settings.openai_api_key, "base_url": settings.openai_endpoint}
+    if provider != "openrouter":
+        raise ValueError("Unknown model provider.")
+    return {"api_key": settings.openrouter_api_key, "base_url": settings.openrouter_base_url}
+
+
+@lru_cache(maxsize=8)
+def get_llm(model: str | None = None, provider: str = "openrouter", *, structured=False, timeout=45) -> ChatOpenAI:
+    """Create an OpenAI-compatible answering or structured-output client."""
     settings = get_settings()
 
-    selected_model = model or settings.openrouter_model
-    bounded_reasoning = structured and selected_model in {"openai/gpt-oss-20b", "z-ai/glm-5.3-flash"}
+    selected_model = model or (settings.ninerouter_model if provider == "9router" else settings.openrouter_model)
+    provider, selected_model = model_selection(selected_model, provider)
+    connection = provider_connection(settings, provider)
+    bounded_reasoning = structured and provider == "openrouter" and selected_model in {"openai/gpt-oss-20b", "z-ai/glm-5.3-flash"}
     structured_parameters = {"provider": {"require_parameters": True}}
     if bounded_reasoning:
         structured_parameters["reasoning"] = {"effort": "low"}
-    logger.info("Initializing LLM: %s via OpenRouter", selected_model)
+    logger.info("Initializing LM: %s via %s", selected_model, provider)
 
     llm = ChatOpenAI(
         model=selected_model,
-        api_key=settings.openrouter_api_key,
-        base_url=settings.openrouter_base_url,
+        **connection,
         temperature=0.0,
         max_tokens=4096 if bounded_reasoning else 2048,
         request_timeout=timeout,
         max_retries=0 if structured else 1,
-        extra_body=structured_parameters if structured else None,
+        extra_body=structured_parameters if structured and provider == "openrouter" else None,
         default_headers={
             "HTTP-Referer": "https://printing-rag-chatbot.local",
             "X-Title": "Digital Printing RAG Chatbot",
-        },
+        } if provider == "openrouter" else None,
     )
 
     logger.info("LLM initialized successfully.")
@@ -159,6 +185,7 @@ def structured_response(schema, messages, *, timeout, model=None):
     from app.admin import store
 
     selected_model = model or store.get_setting("product_intent_model", get_settings().product_intent_model)
+    provider, _ = model_selection(selected_model)
     model = get_llm(selected_model, structured=True, timeout=timeout)
     try:
         asyncio.get_running_loop()
@@ -182,6 +209,6 @@ def structured_response(schema, messages, *, timeout, model=None):
         'prompt_tokens': usage.get('input_tokens', reported.get('prompt_tokens', 0)),
         'completion_tokens': usage.get('output_tokens', reported.get('completion_tokens', 0)),
         'cost_usd': cost if isinstance(cost, (int, float)) else None,
-        'provider': metadata.get('provider'), 'model': metadata.get('model_name'),
+        'provider': provider, 'model': metadata.get('model_name'),
         'requests': 1,
     }

@@ -9,7 +9,7 @@ from pathlib import Path
 from langchain_core.documents import Document
 from app.admin import store
 from app.admin.chunking import Chunking, LEGACY, PREPROCESSING, split_document, token_statistics
-from app.backend.loader import _load_csv_file
+from app.backend.loader import _load_csv_file, load_pdf_pages
 from app.backend.models import get_embedding_model, embedding_identity
 from app.config.settings import get_settings
 from app.backend.vectorstore import ingest_records
@@ -144,9 +144,7 @@ def draft_documents(file, config, *, preprocessing=PREPROCESSING):
     if extension in (".txt", ".md"):
         raw = [Document(page_content=file.read_text(encoding="utf-8-sig"))]
     elif extension == ".pdf":
-        from langchain_community.document_loaders import PyPDFLoader
-
-        raw = PyPDFLoader(str(file)).load()
+        raw = load_pdf_pages(file)
     else:
         raw = _load_csv_file(file)
     documents = []

@@ -1,5 +1,5 @@
 id,question,kategori_variasi,expected_source,ground_truth
-1,"Min bisa share lokasi toko? alamatnya dimana","Fakta Langsung","01_sop_dan_kebijakan_toko.txt","Cabang Utama (Ciputat Timur): Jl. Ir. H. Juanda No. 17, Cempaka Putih. Cabang Kedua (Pamulang): Jl. Pajajaran No. 38. Buka pukul 08.30 s.d. 02.30 dini hari."
+1,"Alamat toko ada dimana min?","Fakta Langsung","01_sop_dan_kebijakan_toko.txt","Cabang Utama (Ciputat Timur): Jl. Ir. H. Juanda No. 17, Cempaka Putih. Cabang Kedua (Pamulang): Jl. Pajajaran No. 38. Buka pukul 08.30 s.d. 02.30 dini hari."
 2,"Kalo mau cetak bisa dibayar pas ambil apa harus DP?","Fakta Langsung","01_sop_dan_kebijakan_toko.txt","Pesanan kustom wajib membayar uang muka minimal sebesar 50% hingga 60% dari total nilai transaksi sebelum berkas dinaikkan ke antrean cetak mesin."
 3,"Berapa harga cetak stiker label makanan yang tahan air?","Fakta Langsung","04_daftar_estimasi_harga.txt","Stiker tahan air menggunakan bahan Stiker Vinyl Ritrama 250 GSM dengan harga Rp 65.000 per m² atau Stiker Vinyl A3+ tanpa kiss cut Rp 12.500 per lembar."
 4,"File yang dikirim pakenya format apa? jpeg bisa?","Fakta Langsung","03_panduan_berkas_siap_cetak.txt","Format file yang disarankan adalah PDF Print, CDR (CorelDRAW), AI, atau JPEG High Quality resolusi minimal 300 DPI dengan mode warna CMYK. Kirim sebagai Dokumen agar tidak dikompresi."

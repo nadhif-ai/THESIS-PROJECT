@@ -439,7 +439,7 @@ _ADMIN_READS = {
         (SELECT COALESCE(jsonb_agg({_VERSION_JSON}),'[]'::jsonb)
          FROM ({_VERSION_SUMMARY} ORDER BY created_at DESC) item))""",
     "settings": """(SELECT COALESCE(jsonb_object_agg(key,value::jsonb),'{}'::jsonb)
-        FROM chatbot.settings WHERE key IN ('openrouter_model','eval_model','product_intent_model','semantic_top_k'))""",
+        FROM chatbot.settings WHERE key IN ('answer_provider','openrouter_model','ninerouter_model','eval_model','product_intent_model','semantic_top_k'))""",
     "conversations": f"""(SELECT COALESCE(jsonb_agg({_CONVERSATION_JSON}),'[]'::jsonb)
         FROM (SELECT * FROM chatbot.conversations
               WHERE (%(channel)s::text IS NULL OR channel=%(channel)s)

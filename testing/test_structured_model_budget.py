@@ -50,13 +50,14 @@ def test_answer_model_budget_and_reasoning_remain_provider_default(captured_clie
 
 @pytest.fixture
 def structured_provider(monkeypatch):
-    state = SimpleNamespace(drip=False, requests=[], disconnected=threading.Event())
+    state = SimpleNamespace(drip=False, requests=[], authorizations=[], disconnected=threading.Event())
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
             pass
 
         def do_POST(self):
+            state.authorizations.append(self.headers.get("Authorization"))
             state.requests.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -127,7 +128,7 @@ def test_structured_calls_across_new_loops_preserve_payload_and_usage(structured
         assert parsed == {"consistent": True}
         assert usage == {
             "prompt_tokens": 11, "completion_tokens": 7, "cost_usd": 0.0002,
-            "provider": None, "model": "local/provider-model", "requests": 1,
+            "provider": "openrouter", "model": "local/provider-model", "requests": 1,
         }
     assert len(structured_provider.requests) == 2
     for payload in structured_provider.requests:
@@ -136,6 +137,24 @@ def test_structured_calls_across_new_loops_preserve_payload_and_usage(structured
         assert payload["reasoning"] == {"effort": "low"}
         assert payload["provider"] == {"require_parameters": True}
         assert payload["response_format"]["json_schema"]["strict"] is True
+
+
+@pytest.mark.parametrize("selected", ["azure/gpt-5.6-terra-20260709-global", "azure/gpt-5.6-luna-20260709-global", "cx/gpt-6-luna[1m]", "glm/glm-5.3-flash"])
+def test_9router_intent_uses_its_endpoint_key_and_structured_schema(structured_provider, monkeypatch, selected):
+    settings = models.get_settings()
+    settings.openai_api_key = "9router-only-key"
+    settings.openai_endpoint = settings.openrouter_base_url
+    monkeypatch.setattr(models, "get_settings", lambda: settings)
+    models.get_llm.cache_clear()
+    result, usage = models.structured_response(CONSISTENCY_SCHEMA, [("user", "Check consistency")],
+                                               timeout=2, model="9router::" + selected)
+    assert result == {"consistent": True}
+    assert usage["provider"] == "9router"
+    assert structured_provider.authorizations == ["Bearer 9router-only-key"]
+    payload = structured_provider.requests[0]
+    assert payload["model"] == selected
+    assert payload["response_format"]["json_schema"]["strict"] is True
+    assert "provider" not in payload and "reasoning" not in payload
 
 
 def test_structured_deadline_inside_running_loop_keeps_context_and_closes_io(

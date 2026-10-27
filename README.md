@@ -2,7 +2,7 @@
 
 Chatbot informasi percetakan untuk satu bisnis. Pelanggan menggunakan WhatsApp melalui WAHA; administrator mengelola dokumen, menguji jawaban, mengatur model, dan melihat evaluasi di dashboard React + shadcn. Integrasi Fonnte tersedia untuk rollback.
 
-Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding Nemotron melalui OpenRouter → pencarian Pinecone → jawaban OpenRouter. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
+Pipeline yang sama dipakai WhatsApp, playground, dan evaluasi: embedding Nemotron melalui OpenRouter → pencarian Pinecone → jawaban melalui OpenRouter atau 9Router. LangSmith menyimpan trace dan hasil eksperimen; DeepEval menghitung metrik kualitas. Chatbot memberikan informasi; pemesanan dan pembayaran tetap ditangani admin toko.
 
 Panduan lokal: [macOS](#menjalankan-di-macos) · [Windows / PowerShell](#menjalankan-di-windows-powershell).
 
@@ -175,7 +175,8 @@ Evaluasi berbayar tidak diperlukan untuk memeriksa instalasi ini. Dependency Chr
 | Variabel | Keterangan |
 | --- | --- |
 | `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | Indeks `chatbot-nadhif`, vector dense **2048 dimensi, cosine** |
-| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | Provider dan model pemberi jawaban |
+| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | OpenRouter untuk embedding dan default model jawaban; juga tersedia untuk intent dan judge |
+| `OPENAI_API_KEY`, `OPENAI_ENDPOINT` | Kunci dan base URL `/v1` untuk model 9Router; tersedia untuk jawaban, intent, dan scoring di Providers |
 | `EVAL_MODEL` | Model judge terpisah; default `google/gemini-2.5-flash` |
 | `PRODUCT_INTENT_MODEL` | Model klasifikasi permintaan produk/gambar; default `openai/gpt-4.1`. Pilihan tersimpan di Providers menggantikan default untuk permintaan berikutnya. |
 | `SEMANTIC_TOP_K` | Jumlah passage untuk jawaban; dapat diubah di Providers |
@@ -190,7 +191,7 @@ Evaluasi berbayar tidak diperlukan untuk memeriksa instalasi ini. Dependency Chr
 | `DATA_DIR` | Berkas knowledge, artefak evaluasi, dan backup lokal; default `./data` |
 | `COOKIE_SECURE`, `ALLOWED_ORIGINS` | Cookie dan origin untuk lingkungan HTTPS atau origin tambahan |
 
-Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di PostgreSQL; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Runtime aktif memakai `nvidia/nemotron-3-embed-1b:free` melalui OpenRouter dengan `EMBEDDING_DIMENSIONS=2048`. Versi menyimpan identitas embedding dan index; versi E5 lama hanya menjadi arsip. Pergantian embedding memerlukan reindex. Prosedur persiapan, evaluasi, dan peralihan WhatsApp tersedia di [runbook migrasi Nemotron](docs/runbooks/nemotron-embedding-migration.md).
+Kunci tidak dikirim ke browser. Pengaturan model dan retrieval disimpan di PostgreSQL; nilai dashboard yang telah disimpan memiliki prioritas terhadap default `.env`. Pilihan provider jawaban berlaku untuk WhatsApp, Playground, dan jawaban dalam evaluasi. Dropdown intent dan scoring menampilkan label provider dan model; keduanya bisa memakai OpenRouter atau 9Router secara terpisah. Pilihan 9Router disimpan sebagai `9router::<model-id>` pada field model, sehingga snapshot dan resume evaluasi menyimpan provider yang sama; ID lama tanpa prefiks tetap memakai OpenRouter. Intent dan scoring memerlukan model yang mendukung structured JSON output. Runtime aktif memakai `nvidia/nemotron-3-embed-1b:free` melalui OpenRouter dengan `EMBEDDING_DIMENSIONS=2048`. Versi menyimpan identitas embedding dan index; versi E5 lama hanya menjadi arsip. Pergantian embedding memerlukan reindex. Prosedur persiapan, evaluasi, dan peralihan WhatsApp tersedia di [runbook migrasi Nemotron](docs/runbooks/nemotron-embedding-migration.md).
 
 ## Menggunakan dashboard
 

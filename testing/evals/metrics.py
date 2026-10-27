@@ -15,6 +15,7 @@ from deepeval.metrics import (
 from deepeval.test_case import SingleTurnParams, MultiTurnParams
 from app.admin import store
 from app.config.settings import get_settings
+from app.backend.models import model_selection, provider_connection
 from deepeval.models.llms.utils import trim_and_load_json
 from openai import APIStatusError
 from langsmith.wrappers import wrap_openai
@@ -35,12 +36,13 @@ class JudgeOutputError(ValueError):
 
 
 def judge_settings(model):
+    provider, model = model_selection(model)
     # Calibrated DeepSeek reasoning needs headroom for both reasoning and visible JSON.
     effort = {
         "deepseek/deepseek-v4.1-flash": "low",
         "z-ai/glm-5.3-flash": "low",
         "anthropic/claude-haiku-5.5": "low",
-    }.get(model, "provider_default")
+    }.get(model, "provider_default") if provider == "openrouter" else "provider_default"
     budget = 16384 if model == "deepseek/deepseek-v4.1-flash" else 4096
     return {"temperature": 0, "max_tokens": budget, "truncation_retry_max_tokens": budget * 2,
             "output_style": "compact-evidence-v1", "reasoning_effort": effort, "threshold": THRESHOLD}
@@ -61,7 +63,7 @@ def configuration_error(error):
     return JudgeConfigurationError(f"Judge request rejected (HTTP {status}). {guidance} No quality score was produced.")
 
 
-class OpenRouterJudge(OpenRouterModel):
+class ProviderJudge(OpenRouterModel):
     def generate(self, prompt, schema=None):
         # DeepEval 4.2.8's sync path leaves async transports on a closed event loop.
         # A scoped synchronous client preserves the native model contract.
@@ -128,10 +130,10 @@ def judge(model_name=None):
     s = get_settings()
     selected = model_name or store.get_setting("eval_model", s.eval_model)
     config = judge_settings(selected)
-    return OpenRouterJudge(
+    provider, selected = model_selection(selected)
+    client = ProviderJudge(
         model=selected,
-        api_key=s.openrouter_api_key,
-        base_url=s.openrouter_base_url,
+        **provider_connection(s, provider),
         temperature=0,
         timeout=90,
         max_retries=1,
@@ -140,6 +142,11 @@ def judge(model_name=None):
             **({"extra_body": {"reasoning": {"effort": config["reasoning_effort"]}}} if config["reasoning_effort"] != "provider_default" else {}),
         },
     )
+    if provider == "9router":
+        client.PROVIDER_LABEL = "9Router"
+        client.API_KEY_ENV_VAR = "OPENAI_API_KEY"
+        client.cost_per_input_token = client.cost_per_output_token = None
+    return client
 
 
 def single_turn_metrics(review_notes=None, judge_model=None, recipe=RECIPE):

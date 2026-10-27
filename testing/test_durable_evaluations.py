@@ -159,6 +159,7 @@ def test_single_turn_retry_ignores_persisted_history_without_deleting_audit(pg_l
         [(message.type, message.content) for message in prompt if message.type in ("human", "ai")]
         == [("human", row["question"])] for prompt in prompts
     )
+    assert all("Synthetic evidence" in prompt[-2].content for prompt in prompts)
     assert store.prompt_turns(session_id, "evaluation") == [
         stale_pair, (row["question"], "Isolated answer"), (row["question"], "Isolated answer"),
     ]
@@ -215,8 +216,11 @@ def test_answer_and_each_metric_checkpoint_survive_worker_recreation(
     seed()
     module, calls = setup_runtime(monkeypatch)
     configuration = {
+        "answer_provider": "9router",
         "openrouter_model": "answer/fixed",
-        "eval_model": "judge/fixed",
+        "ninerouter_model": "cx/gpt-6-luna[1m]",
+        "eval_model": "9router::glm/glm-5.3-flash",
+        "product_intent_model": "9router::cx/gpt-6-luna[1m]",
         "semantic_top_k": 3,
     }
     rows = [
@@ -229,6 +233,7 @@ def test_answer_and_each_metric_checkpoint_survive_worker_recreation(
     identifier = kb_store.create_evaluation(
         {"dataset": "legacy"}, {"configuration": configuration, "rows": rows}
     )
+    store.set_settings({"answer_provider": "openrouter", "ninerouter_model": "changed", "eval_model": "judge/changed", "product_intent_model": "intent/changed"})
 
     class Metric:
         threshold = 0.7
@@ -263,7 +268,10 @@ def test_answer_and_each_metric_checkpoint_survive_worker_recreation(
     assert result["averages"] == {"first": 0.8, "second": None}
     assert result["cases"][0]["metrics"][1]["error"] == "RuntimeError"
     assert result["namespace"] == "kb-active"
-    assert calls[0]["model"] == "answer/fixed"
+    assert calls[0]["model"] == "cx/gpt-6-luna[1m]"
+    assert calls[0]["model_provider"] == "9router"
+    assert calls[0]["intent_model"] == "9router::cx/gpt-6-luna[1m]"
+    assert result["judge"] == "9router::glm/glm-5.3-flash"
     assert calls[0]["top_k"] == 3
     assert len(calls) == 1
     assert store.job(identifier)["status"] == "completed"

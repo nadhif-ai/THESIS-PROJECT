@@ -17,6 +17,7 @@ def conversation(monkeypatch):
     monkeypatch.setattr(store, "record_conversation", lambda session, channel, question, answer, *args, **kwargs: turns.append((question, answer)))
     monkeypatch.setattr(chain, "clear_session_history", lambda session: turns.clear())
     monkeypatch.setattr(store, "get_setting", lambda key, default=None: default)
+    monkeypatch.setattr(store, "get_settings_values", lambda defaults: defaults)
 
     def invoke(messages):
         prompts.append(messages)
@@ -29,7 +30,7 @@ def conversation(monkeypatch):
     monkeypatch.setattr(chain, "get_llm", lambda *args: SimpleNamespace(invoke=invoke))
     monkeypatch.setattr(vectorstore, "similarity_search_with_score", search)
     rag = chain.RAGChain.__new__(chain.RAGChain)
-    rag.settings = SimpleNamespace(vector_store="offline", semantic_top_k=4, openrouter_model="offline", product_intent_model="offline")
+    rag.settings = SimpleNamespace(vector_store="offline", semantic_top_k=4, openrouter_model="offline", ninerouter_model="offline", product_intent_model="offline")
     return SimpleNamespace(rag=rag, turns=turns, prompts=prompts, searches=searches)
 
 
@@ -51,7 +52,7 @@ def test_approval_preserves_specifications_and_retrieves_next_step_information(c
     conversation.turns.append(("Stiker vinyl 10 x 10 cm 50 pcs", "Harga perlu konfirmasi admin. Mau saya rangkum untuk dilanjutkan ke cabang?"))
     result = conversation.rag.run("oke", "customer", channel="whatsapp")
     assert result.answer_source == "naive_rag"
-    assert conversation.prompts[0][-3].content == "Stiker vinyl 10 x 10 cm 50 pcs"
+    assert conversation.prompts[0][-4].content == "Stiker vinyl 10 x 10 cm 50 pcs"
     assert "alamat" in conversation.searches[0] and "admin" in conversation.searches[0]
 
 
@@ -73,7 +74,7 @@ def test_numeric_branch_answer_does_not_open_category_menu(conversation):
     conversation.turns.append(("Mau pesan stiker", "Pilih cabang: 1. Cabang A atau 2. Cabang B?"))
     result = conversation.rag.run("2", "customer")
     assert result.answer_source == "naive_rag"
-    assert conversation.prompts[0][-2].content.startswith("Pilih cabang")
+    assert conversation.prompts[0][-3].content.startswith("Pilih cabang")
 
 
 def test_explicit_menu_still_accepts_category_numbers(conversation, tmp_path):
@@ -109,7 +110,7 @@ def test_cancel_order_request_does_not_reset_conversation(conversation):
     conversation.turns.append(("Pesanan kemarin mau diubah", "Hubungi admin untuk pengecekan."))
     result = conversation.rag.run("batal", "customer")
     assert result.answer_source == "naive_rag"
-    assert conversation.prompts[0][-3].content == "Pesanan kemarin mau diubah"
+    assert conversation.prompts[0][-4].content == "Pesanan kemarin mau diubah"
 
 
 def test_greetings_persist_per_channel_and_reset_preserves_audit(pg_live, monkeypatch):

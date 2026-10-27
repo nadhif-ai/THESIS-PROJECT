@@ -14,7 +14,7 @@ class AnswerCheck(BaseModel):
     consistent: bool
 
 
-def consistent(answer, *, selected, reason, evidence, plan=None, metrics=None):
+def consistent(answer, *, selected, reason, evidence, plan=None, metrics=None, model=None):
     try:
         if metrics is not None:
             metrics['requests'] = 1
@@ -27,7 +27,7 @@ def consistent(answer, *, selected, reason, evidence, plan=None, metrics=None):
                 'For intent_failed/ambiguous, do not claim the catalog lacks an image. '
                 'Otherwise return true. Compare prices to evidence, allowing correct arithmetic.'),
             HumanMessage(content=json.dumps({'answer': answer, 'selected': selected,
-                'reason': reason, 'evidence': evidence, 'plan': plan}, ensure_ascii=False))], timeout=15)
+                'reason': reason, 'evidence': evidence, 'plan': plan}, ensure_ascii=False))], timeout=15, model=model)
         if metrics is not None:
             metrics.update(usage)
         return AnswerCheck.model_validate(result).consistent

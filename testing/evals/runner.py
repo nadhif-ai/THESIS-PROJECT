@@ -142,10 +142,16 @@ def generate_candidates(version_id):
         )
     )
     s = get_settings()
+    from app.backend.models import model_selection, provider_connection
+
+    provider, model = model_selection(store.get_setting("eval_model", s.eval_model))
+    connection = provider_connection(s, provider)
     env = dict(
         os.environ,
         USE_OPENROUTER_MODEL="1",
-        OPENROUTER_MODEL_NAME=store.get_setting("eval_model", s.eval_model),
+        OPENROUTER_MODEL_NAME=model,
+        OPENROUTER_BASE_URL=connection["base_url"],
+        OPENROUTER_API_KEY=connection["api_key"],
     )
     command = [
         str(Path(sys.executable).parent / "deepeval"),
@@ -295,6 +301,7 @@ def _sync_dataset(client, name, rows, kind):
 
 
 def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configuration=None):
+    from app.backend.models import answer_defaults, answer_selection
     from app.dependencies import get_rag_chain
     from app.admin.jobs import update_progress
     from app.admin.prompt_settings import active_snapshot
@@ -311,20 +318,22 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
     progress(phase="preparing", completed=0, total=len(rows), errors=0)
     s = get_settings()
     configuration = configuration or store.get_settings_values({
-        "openrouter_model": s.openrouter_model,
+        **answer_defaults(s),
         "eval_model": s.eval_model,
         "semantic_top_k": s.semantic_top_k,
         "product_intent_model": s.product_intent_model,
     })
     folder = store.data_path() / "evaluations" / job_id
     folder.mkdir(parents=True, exist_ok=True)
+    model_provider, model = answer_selection(configuration)
     result = {
         "id": job_id,
         "dataset": dataset,
         "knowledge_version": item["id"],
         "namespace": item["namespace"],
         "started_at": store.now(),
-        "model": configuration["openrouter_model"],
+        "model": model,
+        "model_provider": model_provider,
         "judge": configuration["eval_model"],
         "intent_model": configuration.get("product_intent_model", s.product_intent_model),
         "runtime_top_k": configuration["semantic_top_k"],
@@ -401,6 +410,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                         history_turns=[],
                         top_k=result["runtime_top_k"],
                         model=result["model"],
+                        model_provider=result["model_provider"],
                         intent_model=result.get("intent_model"),
                         prompt_config=captured_prompt,
                     )
@@ -442,6 +452,7 @@ def run_evaluation(job_id, version_id=None, dataset="legacy", limit=10, configur
                             channel="evaluation",
                             top_k=result["runtime_top_k"],
                             model=result["model"],
+                            model_provider=result["model_provider"],
                             intent_model=result.get("intent_model"),
                             prompt_config=captured_prompt,
                             history_turns=[

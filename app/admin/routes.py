@@ -4,7 +4,7 @@ import secrets
 import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import (
     APIRouter,
@@ -324,9 +324,11 @@ def settings(request: Request):
 
 
 def provider_settings(values):
+    from app.backend.models import answer_defaults
+
     s = get_settings()
     return {
-        "openrouter_model": s.openrouter_model,
+        **answer_defaults(s),
         "eval_model": s.eval_model,
         "product_intent_model": s.product_intent_model,
         "semantic_top_k": s.semantic_top_k,
@@ -339,6 +341,7 @@ def provider_settings(values):
         "langsmith_project": __import__("os").getenv("LANGSMITH_PROJECT", "default"),
         "providers": {
             "openrouter": bool(s.openrouter_api_key),
+            "9router": bool(s.openai_api_key and s.openai_endpoint),
             "pinecone": bool(s.pinecone_api_key),
             "langsmith": bool(__import__("os").getenv("LANGSMITH_API_KEY")),
             "whatsapp": bool(s.waha_api_key and s.waha_webhook_secret)
@@ -381,22 +384,29 @@ def ignore_attention(body: IgnoreAttention):
 
 
 class ProviderSettings(BaseModel):
+    answer_provider: Literal["openrouter", "9router"] | None = None
     openrouter_model: str = Field(
         min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:-]+$"
     )
+    ninerouter_model: str | None = Field(
+        default=None, min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:\[\]-]+$"
+    )
     eval_model: str = Field(
-        min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:-]+$"
+        min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:\[\]-]+$"
     )
     semantic_top_k: int = Field(ge=1, le=20)
     product_intent_model: str | None = Field(
-        default=None, min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:-]+$"
+        default=None, min_length=3, max_length=160, pattern=r"^[a-zA-Z0-9_./:\[\]-]+$"
     )
 
 
 @protected.put("/settings")
 def save_settings(body: ProviderSettings):
+    from app.backend.models import answer_defaults
+
     store.set_settings(body.model_dump(exclude_none=True))
     return provider_settings(store.get_settings_values({
+        **answer_defaults(get_settings()),
         **body.model_dump(exclude_none=True),
         "product_intent_model": body.product_intent_model or get_settings().product_intent_model,
     }))
