@@ -81,6 +81,28 @@ def test_social_intent_skips_knowledge_retrieval(pg_live, monkeypatch):
     assert result.retrieval_context == []
 
 
+def test_misclassified_visual_intent_still_fetches_business_evidence(pg_live, monkeypatch):
+    from app.backend import product_intent
+
+    seed_active()
+    intent = product_intent.ProductIntent(action='show', product_ids=['roll-up-banner'],
+        view='hero', attributes=[], exact_visual=False, resolution='resolved',
+        clarification='', changes_product=False, needs_knowledge=False)
+    monkeypatch.setattr(product_intent, 'extract', lambda *args, **kwargs: intent)
+    calls = []
+    def search(**kwargs):
+        calls.append(kwargs)
+        return [(Document(page_content='Roll up 60x160: Rp 195.000 termasuk rangka.',
+                          metadata={'source': 'harga.txt'}), .2)]
+    monkeypatch.setattr(vectorstore, 'similarity_search_with_score', search)
+    monkeypatch.setattr(chain, 'get_llm', lambda *args: SimpleNamespace(invoke=lambda messages:
+        SimpleNamespace(content='Roll up 60x160 Rp 195.000 termasuk rangka.')))
+    result = chain.RAGChain().run('Lihat gambar roll up', 'visual-evidence', channel='playground')
+    assert len(calls) == 1
+    assert result.retrieval_context[0]['text'].startswith('Roll up')
+    assert result.media_decision['retrieval_reason'] == 'business_evidence'
+
+
 def test_address_context_is_adjacent_to_question(pg_live, monkeypatch):
     from app.backend import product_intent
 

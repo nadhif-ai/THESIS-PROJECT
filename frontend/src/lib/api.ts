@@ -129,8 +129,8 @@ export type Version = {
 export type Context = {
   text: string;
   metadata: Record<string, unknown>;
-  distance: number;
-  similarity: number;
+  distance: number | null;
+  similarity: number | null;
 };
 export type Answer = {
   media_url?: string | null;
@@ -140,6 +140,9 @@ export type Answer = {
     caption: string;
   } | null;
   media_decision?: {
+    retrieval_reason?: string;
+    retrieval_recovery?: boolean;
+    answer_recovery?: string;
     reason: string;
     asset_id: string | null;
     product_ids?: string[];

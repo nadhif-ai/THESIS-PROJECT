@@ -132,8 +132,10 @@ def get_llm(model: str | None = None, provider: str = "openrouter", *, structure
     selected_model = model or (settings.ninerouter_model if provider == "9router" else settings.openrouter_model)
     provider, selected_model = model_selection(selected_model, provider)
     connection = provider_connection(settings, provider)
-    bounded_reasoning = structured and provider == "openrouter" and selected_model in {"openai/gpt-oss-20b", "z-ai/glm-5.3-flash"}
-    structured_parameters = {"provider": {"require_parameters": True}}
+    bounded_reasoning = provider == "openrouter" and selected_model in {
+        "openai/gpt-oss-20b", "z-ai/glm-5.3-flash", "anthropic/claude-haiku-5.5",
+    }
+    structured_parameters = {"provider": {"require_parameters": True}} if structured else {}
     if bounded_reasoning:
         structured_parameters["reasoning"] = {"effort": "low"}
     logger.info("Initializing LM: %s via %s", selected_model, provider)
@@ -142,10 +144,10 @@ def get_llm(model: str | None = None, provider: str = "openrouter", *, structure
         model=selected_model,
         **connection,
         temperature=0.0,
-        max_tokens=4096 if bounded_reasoning else 2048,
+        max_tokens=4096 if bounded_reasoning or not structured else 2048,
         request_timeout=timeout,
-        max_retries=0 if structured else 1,
-        extra_body=structured_parameters if structured and provider == "openrouter" else None,
+        max_retries=0,
+        extra_body=structured_parameters if provider == "openrouter" and structured_parameters else None,
         default_headers={
             "HTTP-Referer": "https://printing-rag-chatbot.local",
             "X-Title": "Digital Printing RAG Chatbot",

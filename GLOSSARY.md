@@ -35,6 +35,10 @@ A candidate set of business information that an administrator can inspect and te
 **Published knowledge version**:
 The set of business information selected by the administrator for answering customer conversations.
 
+**Staged knowledge**:
+Changes to the maintained business information awaiting synchronization before they become available in customer conversations.
+_Avoid_: Active knowledge when referring to unsynchronized source changes.
+
 **Reference answer**:
 A reviewed answer that describes the business facts an evaluation case expects the chatbot to communicate.
 

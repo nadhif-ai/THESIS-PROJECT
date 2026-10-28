@@ -41,16 +41,22 @@ def test_unknown_structured_model_keeps_provider_parameters(captured_client):
     assert captured_client["max_tokens"] == 2048
 
 
-def test_answer_model_budget_and_reasoning_remain_provider_default(captured_client):
+def test_answer_budget_leaves_room_for_visible_output_without_hidden_retries(captured_client):
     models.get_llm("openai/gpt-6-luna")
-    assert captured_client["max_tokens"] == 2048
+    assert captured_client["max_tokens"] == 4096
     assert captured_client["extra_body"] is None
-    assert captured_client["max_retries"] == 1
+    assert captured_client["max_retries"] == 0
+
+
+def test_current_anthropic_answer_model_bounds_reasoning(captured_client):
+    models.get_llm('anthropic/claude-haiku-5.5')
+    assert captured_client['max_tokens'] == 4096
+    assert captured_client['extra_body'] == {'reasoning': {'effort': 'low'}}
 
 
 @pytest.fixture
 def structured_provider(monkeypatch):
-    state = SimpleNamespace(drip=False, requests=[], authorizations=[], disconnected=threading.Event())
+    state = SimpleNamespace(drip=False, truncate_first=False, requests=[], authorizations=[], disconnected=threading.Event())
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -72,7 +78,7 @@ def structured_provider(monkeypatch):
                 self.wfile.write(json.dumps({
                     "id": "local-completion", "object": "chat.completion", "created": 1,
                     "model": "local/provider-model",
-                    "choices": [{"index": 0, "finish_reason": "stop", "message": {
+                    "choices": [{"index": 0, "finish_reason": "length" if state.truncate_first and len(state.requests) == 1 else "stop", "message": {
                         "role": "assistant", "content": '{"consistent":true}',
                     }}],
                     "usage": {"prompt_tokens": 11, "completion_tokens": 7,
@@ -137,6 +143,19 @@ def test_structured_calls_across_new_loops_preserve_payload_and_usage(structured
         assert payload["reasoning"] == {"effort": "low"}
         assert payload["provider"] == {"require_parameters": True}
         assert payload["response_format"]["json_schema"]["strict"] is True
+
+
+def test_answer_recovery_sends_larger_budget_through_actual_http_client(structured_provider):
+    from app.backend.answer_generation import generate
+    from langchain_core.messages import HumanMessage
+
+    structured_provider.truncate_first = True
+    result = generate(models.get_llm('openai/gpt-6-luna'), [HumanMessage(content='Harga?')])
+    assert result['recovery'] == 'regenerated'
+    assert result['usage']['requests'] == 2
+    assert result['usage']['completion_tokens'] == 14
+    assert result['usage']['cost_usd'] == .0004
+    assert [request['max_completion_tokens'] for request in structured_provider.requests] == [4096, 8192]
 
 
 @pytest.mark.parametrize("selected", ["azure/gpt-5.6-terra-20260709-global", "azure/gpt-5.6-luna-20260709-global", "cx/gpt-6-luna[1m]", "glm/glm-5.3-flash"])

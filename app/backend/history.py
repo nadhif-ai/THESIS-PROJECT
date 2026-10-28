@@ -24,6 +24,7 @@ def bounded_history(turns):
 
 def retrieval_question(question, history):
     include_history = len(question) <= 160
+    information = re.search(r'\b(?:alamat|lokasi|kontak|nomor|jam\s+(?:buka|operasional)|layanan)\b', question, re.I)
     choice = question.strip(" .!")
     offered_branch = bool(choice and history) and re.search(
         r"(?:\bcabang\s+|\b\d+[.)]\s*)" + re.escape(choice) + r"(?=\W|$)",
@@ -43,7 +44,7 @@ def retrieval_question(question, history):
     if branch_followup or next_step:
         question += "\nInformasi untuk langkah berikutnya: lokasi cabang, alamat, tautan Maps, kontak admin dan alur pemesanan."
     # Short replies often supply just a material or quantity; retrieve the original product too.
-    if not history or not include_history:
+    if not history or not include_history or (information and not branch_followup and not next_step):
         return question
     previous, used = [], 0
     for message in reversed(history):
@@ -54,4 +55,6 @@ def retrieval_question(question, history):
             break
         previous.insert(0, message.content)
         used += cost
+        if re.search(r'\b(?:sekarang|ganti\s+(?:produk|topik)|beralih)\b', message.content, re.I):
+            break
     return question + ("\nKonteks pelanggan sebelumnya:\n" + "\n".join(previous) if previous else "")
