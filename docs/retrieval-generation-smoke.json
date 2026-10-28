@@ -1,0 +1,100 @@
+{
+  "scope": "Local modified context assembly and generation; exported active business passages, no production database used by smoke script; no judge metrics",
+  "snapshot_id": "kb-0f089af2f6ca4d1391185ae8d91dc790",
+  "results": [
+    {
+      "input": "Apa perbedaan tujuh jenis kertas digital A3+ itu? Saya mau cetak 20 lembar A3+ satu sisi untuk sertifikat. Bahan mana yang cocok dan berapa estimasinya?",
+      "output": "Berikut perbedaan ketujuh bahan digital A3+ di katalog kami, Kak:\n\n1. *HVS 100 GSM*: kertas putih polos, tidak mengkilap, cocok untuk dokumen, modul, dan formulir.\n2. *Art Paper 150 GSM*: tipis, licin mengkilap, mudah dilipat. Cocok untuk brosur, flyer, dan menu.\n3. *Art Carton 260 GSM*: tebal, kaku, mengkilap di kedua sisi. Cocok untuk kartu nama, tent card, dan cover.\n4. *BW 230 GSM* (di daftar harga tertulis BC/Board Cover 230 GSM): tebal, putih bersih, doff, dan mudah ditulis pulpen atau pensil. Cocok untuk piagam, sertifikat penghargaan, dan kartu absen.\n5. *Linen 230 GSM*: tebal, bertekstur garis halus seperti kain linen, kesannya mewah. Cocok untuk sertifikat kelulusan formal dan undangan resmi.\n6. *Concorde 260 GSM*: tebal, bertekstur klasik dengan warna putih gading hangat. Cocok untuk map resmi, sampul laporan, dan sertifikat bernuansa klasik.\n7. *Photo Paper 260 GSM*: berlapis glossy khusus foto, warnanya pekat dan tajam. Cocok untuk cetak foto, bukan sertifikat.\n\nUntuk sertifikat, pilihan yang tercantum di katalog adalah BW/BC 230 GSM, Linen 230 GSM, atau Concorde 260 GSM. Jika ingin kesan formal dan eksklusif, Linen biasanya dipilih untuk sertifikat kelulusan. Jika ingin tampilan klasik, Concorde cocok. Untuk piagam penghargaan yang praktis dan doff, BW/BC bisa jadi pilihan.\n\nEstimasi untuk 20 lembar cetak satu sisi (1S), di tier 11–50 lembar:\n\n- *BW/BC 230 GSM 1S*: 20 lembar × Rp 5.000 = *Rp 100.000*\n- *Linen 230 GSM 1S*: 20 lembar × Rp 5.000 = *Rp 100.000*\n- *Concorde 260 GSM 1S*: 20 lembar × Rp 5.000 = *Rp 100.000*\n\nKetiganya memakai tarif yang sama untuk jumlah ini, jadi pilihannya bisa berdasarkan tampilan dan kesan yang diinginkan. Ini estimasi dari daftar harga; total final perlu dikonfirmasi admin setelah file desain diperiksa.\n\nApakah sertifikat ini untuk kelulusan yang formal, atau penghargaan yang lebih umum?",
+      "finish_reason": "stop",
+      "recovery": "not_needed",
+      "usage": {
+        "prompt_tokens": 13956,
+        "completion_tokens": 2068,
+        "requests": 1,
+        "cost_usd": 0.0024296
+      },
+      "passages": 14,
+      "context_characters": 12162,
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a181e2-e303-7703-bdb3-d2132c3cef74/run/01a181e2-e303-7703-bdb3-d2132c3cef74?start_time=2026-10-28T09%3A41%3A32.547413%2B00%3A00"
+    },
+    {
+      "input": "Apa perbedaan tujuh jenis kertas digital A3+ itu? Saya mau cetak 20 lembar A3+ satu sisi untuk sertifikat. Bahan mana yang cocok dan berapa estimasinya?",
+      "output": "Berikut perbedaan bahan A3+ yang tercantum di katalog, khususnya untuk sertifikat.\n\n*Perbedaan tujuh jenis kertas:*\n- *HVS 100 GSM*: kertas putih polos, tidak mengkilap, cocok untuk dokumen, modul, dan kop surat.\n- *Art Paper 150 GSM*: tipis, licin mengkilap, mudah dilipat. Cocok untuk brosur, flyer, dan poster promosi.\n- *Art Carton 260 GSM*: versi tebal Art Paper, mengkilap, dan bisa berdiri sendiri. Cocok untuk kartu nama, tent card, dan cover.\n- *BW/BC 230 GSM*: tebal, doff (tidak mengkilap), dan mudah ditulisi pulpen. Teksturnya halus. Cocok untuk piagam dan sertifikat penghargaan.\n- *Linen 230 GSM*: tebal dengan tekstur garis halus bersilang yang memberi kesan mewah. Cocok untuk sertifikat kelulusan formal dan piagam eksklusif.\n- *Concorde 260 GSM*: tebal dengan tekstur garis bergelombang dan pori-pori halus, warna putih gading. Cocok untuk sertifikat klasik dan nuansa retro.\n- *Photo Paper 260 GSM*: khusus foto, glossy, warna sangat pekat. Lebih cocok untuk cetak foto daripada sertifikat.\n\n*Untuk sertifikat*, pilihan yang sesuai katalog adalah:\n- *BC (Board Cover) 230 GSM*: untuk piagam dan sertifikat penghargaan.\n- *Linen 230 GSM*: untuk sertifikat kelulusan atau formal.\n- *Concorde 260 GSM*: untuk sertifikat klasik retro.\n\nJika sertifikatnya untuk penghargaan umum, BC 230 sudah cukup. Jika untuk kelulusan atau acara resmi, Linen lebih sesuai. Jika ingin kesan klasik, pilih Concorde.\n\n*Estimasi untuk 20 lembar, cetak 1 sisi (1S):*\nJumlah 20 lembar masuk tier 11–50 lembar.\n- BC 230 GSM 1S: 20 lembar × Rp 5.000 = *Rp 100.000*\n- Linen 230 GSM 1S: 20 lembar × Rp 5.000 = *Rp 100.000*\n- Concorde 260 GSM 1S: 20 lembar × Rp 5.000 = *Rp 100.000*\n\nKetiga tarif ini berlaku untuk opsi 1 sisi pada tier 11–50 lembar. Total belum termasuk biaya lain di luar daftar, dan harga final perlu dikonfirmasi admin toko.\n\nBoleh tahu sertifikatnya untuk kesan formal, penghargaan, atau klasik? Dari situ saya bisa bantu memilih bahan yang paling sesuai.",
+      "finish_reason": "stop",
+      "recovery": "not_needed",
+      "usage": {
+        "prompt_tokens": 13956,
+        "completion_tokens": 2006,
+        "requests": 1,
+        "cost_usd": 0.0023986
+      },
+      "passages": 14,
+      "context_characters": 12162,
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a181e3-0eba-7412-b45d-eef0c43e300d/run/01a181e3-0eba-7412-b45d-eef0c43e300d?start_time=2026-10-28T09%3A41%3A43.738909%2B00%3A00"
+    },
+    {
+      "input": "Apa perbedaan tujuh jenis kertas digital A3+ itu? Saya mau cetak 20 lembar A3+ satu sisi untuk sertifikat. Bahan mana yang cocok dan berapa estimasinya?",
+      "output": "Berikut perbedaan ketujuh bahan kertas A3+ berdasarkan katalog kami:\n\n1. *HVS 100 GSM*: kertas putih polos, tidak mengkilap, lebih tebal dari kertas fotokopi biasa. Cocok untuk dokumen laporan, modul, dan formulir.\n2. *Art Paper 150 GSM*: tipis, ringan, dan licin mengkilap di kedua sisi. Mudah dilipat, cocok untuk brosur, flyer, dan menu.\n3. *Art Carton 260 GSM*: versi tebal dan kaku dari Art Paper, mengkilap di kedua sisi, dan bisa berdiri sendiri. Cocok untuk kartu nama, poster dinding, dan kemasan.\n4. *BW (Blues White) 230 GSM*: putih bersih, halus, dan doff (tidak mengkilap). Mudah ditulis dengan pulpen atau pensil. Cocok untuk piagam, sertifikat, dan undangan minimalis.\n5. *Linen 230 GSM*: bertekstur garis halus bersilang seperti kain tenun, dengan kesan premium. Ketebalannya sama dengan BW. Cocok untuk sertifikat kelulusan formal dan undangan resmi.\n6. *Concorde 260 GSM*: tekstur garis bergelombang lembut dengan pori-pori halus, warna putih gading hangat, dan kesan klasik. Cocok untuk map resmi, sampul laporan, dan sertifikat klasik.\n7. *Photo Paper 260 GSM*: lapisan glossy khusus untuk warna pekat dan detail tajam. Cocok untuk cetak foto dan portofolio.\n\nUntuk sertifikat, katalog mencantumkan kecocokan BW, Linen, Concorde, dan BC 230 GSM (yang tercantum di daftar harga untuk piagam dan sertifikat penghargaan).\n\nEstimasi untuk 20 lembar A3+ cetak satu sisi (1S):\n\n- *Linen 230 GSM 1S*: 20 lembar × Rp 5.000 = *Rp 100.000*\n- *Concorde 260 GSM 1S*: 20 lembar × Rp 5.000 = *Rp 100.000*\n- *BC (Board Cover) 230 GSM 1S*: 20 lembar × Rp 5.000 = *Rp 100.000*\n\nTarif di atas berlaku untuk tier 11–50 lembar. Untuk BW 230 GSM, tarif khususnya belum tercantum di daftar harga, jadi perlu konfirmasi admin. Sebelum dipilih, admin juga perlu memastikan ukuran sertifikatnya, karena total hanya bisa dipastikan setelah file dan ukuran dicek.\n\nUntuk sertifikat kelulusan formal, Linen biasanya jadi pilihan yang dibahas. Kalau sertifikatnya untuk penghargaan atau acara, BC atau BW bisa jadi alternatif. Bahan mana yang paling sesuai dengan kesan yang Kakak inginkan?",
+      "finish_reason": "stop",
+      "recovery": "not_needed",
+      "usage": {
+        "prompt_tokens": 14041,
+        "completion_tokens": 2228,
+        "requests": 1,
+        "cost_usd": 0.0025181
+      },
+      "passages": 14,
+      "context_characters": 12162,
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a181e3-fff4-7053-9425-16b14c540fe2/run/01a181e3-fff4-7053-9425-16b14c540fe2?start_time=2026-10-28T09%3A42%3A45.492799%2B00%3A00",
+      "prompt_sha256": "8b270a28e63f8a88fb8dba07d14e46013ff8289ef5c84351fbb1eedefd044564"
+    },
+    {
+      "input": "Apa perbedaan tujuh jenis kertas digital A3+ itu? Saya mau cetak 20 lembar A3+ satu sisi untuk sertifikat. Bahan mana yang cocok dan berapa estimasinya?",
+      "output": "Berikut perbedaan ketujuh bahan kertas A3+ dari katalog kami, Kak:\n\n- *HVS 100 GSM*: kertas putih polos, tidak mengkilap, lebih tebal dari kertas fotokopi biasa. Cocok untuk dokumen laporan, modul, dan formulir.\n- *Art Paper 150 GSM*: tipis, ringan, dan licin mengkilap di kedua sisi. Mudah dilipat, cocok untuk brosur, flyer, dan menu.\n- *Art Carton 260 GSM*: versi tebal dan kaku dari Art Paper, mengkilap di kedua sisi, dan bisa berdiri sendiri. Cocok untuk kartu nama, cover, dan tiket.\n- *BC (Board Cover) 230 GSM*: putih, permukaan halus tidak mengkilap, dan mudah ditulisi pulpen. Dicantumkan untuk piagam dan sertifikat penghargaan.\n- *Linen 230 GSM*: ketebalannya sama dengan BC, tetapi permukaannya bertekstur garis halus menyilang seperti kain linen. Kesannya lebih mewah. Dicantumkan untuk sertifikat kelulusan formal.\n- *Concorde 260 GSM*: tebal, bertekstur garis bergelombang dan pori halus, berwarna putih gading hangat. Kesannya klasik dan profesional. Dicantumkan untuk sertifikat klasik retro.\n- *Photo Paper 260 GSM*: lapisan glossy khusus untuk foto, dengan warna pekat dan detail tajam. Dicantumkan untuk cetak foto.\n\nUntuk sertifikat, katalog kami mencantumkan BC 230 GSM, Linen 230 GSM, dan Concorde 260 GSM. Mana yang paling sesuai tergantung kesan yang Kakak inginkan: BC untuk tampilan standar yang rapi, Linen untuk kesan formal dan mewah, atau Concorde untuk kesan klasik.\n\nEstimasi untuk 20 lembar A3+ satu sisi (1S), dengan tarif tier 11–50 lembar:\n- BC 230 GSM: 20 × Rp 5.000 = Rp 100.000\n- Linen 230 GSM: 20 × Rp 5.000 = Rp 100.000\n- Concorde 260 GSM: 20 × Rp 5.000 = Rp 100.000\n\nSebagai pembanding, Art Paper 1S dan HVS 1S di tier yang sama masing-masing Rp 2.500 per lembar, sehingga totalnya Rp 50.000. Art Carton 1S Rp 3.000 per lembar, totalnya Rp 60.000. Namun ketiganya tidak tercantum untuk sertifikat dalam katalog kami.\n\nIni estimasi dari tarif katalog. Admin toko akan memastikan harga dan detail file sebelum pesanan diproses. Kakak mau pakai bahan yang mana?",
+      "finish_reason": "stop",
+      "recovery": "not_needed",
+      "usage": {
+        "prompt_tokens": 14041,
+        "completion_tokens": 1825,
+        "requests": 1,
+        "cost_usd": 0.0023166
+      },
+      "passages": 14,
+      "context_characters": 12162,
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a181e4-3120-7361-b30e-c2aa832ae3f1/run/01a181e4-3120-7361-b30e-c2aa832ae3f1?start_time=2026-10-28T09%3A42%3A58.080365%2B00%3A00",
+      "prompt_sha256": "8b270a28e63f8a88fb8dba07d14e46013ff8289ef5c84351fbb1eedefd044564"
+    },
+    {
+      "input": "Apa bedanya ketujuh kertas itu? Saya ingin cetak 20 lembar sertifikat, bahan mana yang cocok dan berapa perkiraan harganya?",
+      "output": "Halo, Kak! Berikut perbedaan ketujuh bahan dan pilihan untuk sertifikat 20 lembar.\n\n*Perbedaan bahan (A3+ Digital Print):*\n- *HVS 100 GSM:* kertas putih polos, tidak mengkilap, nyaman dibaca. Cocok untuk dokumen laporan, modul, dan formulir.\n- *Art Paper 150 GSM:* tipis, ringan, dan mengkilap di kedua sisi. Mudah dilipat, cocok untuk brosur dan flyer.\n- *Art Carton 260 GSM:* tebal, kaku, dan mengkilap di kedua sisi. Cocok untuk kartu nama, cover, dan poster dinding.\n- *BW / Blues White 230 GSM:* putih bersih, doff (tidak mengkilap), dan mudah ditulis dengan pulpen. Sumber menyebutnya untuk piagam, sertifikat, dan undangan minimalis.\n- *Linen 230 GSM:* bertekstur garis halus seperti kain tenun, kesannya mewah dan formal. Cocok untuk sertifikat kelulusan, piagam eksklusif, dan undangan resmi.\n- *Concorde 260 GSM:* tebal, bertekstur garis bergelombang dan pori halus, warna putih gading. Kesannya klasik dan profesional, cocok untuk map, sampul laporan, dan sertifikat klasik.\n- *Photo Paper 260 GSM:* berlapis glossy khusus, warna pekat dan detail tajam. Cocok untuk cetak foto dan karya visual.\n\n*Untuk sertifikat, bahan yang disebut sumber:*\n- Linen 230 GSM: sertifikat kelulusan/ijazah formal dan piagam eksklusif.\n- Concorde 260 GSM: sertifikat klasik retro.\n- BC (Board Cover) 230 GSM: piagam dan sertifikat penghargaan.\n\n*Perkiraan harga untuk 20 lembar (tarif tier 11–50 lembar):*\n- Linen 230 GSM, 1 sisi: 20 × Rp 5.000 = Rp 100.000\n- Linen 230 GSM, 2 sisi: 20 × Rp 10.000 = Rp 200.000\n- Concorde 260 GSM, 1 sisi: 20 × Rp 5.000 = Rp 100.000\n- Concorde 260 GSM, 2 sisi: 20 × Rp 10.000 = Rp 200.000\n- BC (Board Cover) 230 GSM, 1 sisi: 20 × Rp 5.000 = Rp 100.000\n- BC (Board Cover) 230 GSM, 2 sisi: 20 × Rp 10.000 = Rp 200.000\n\nTotal di atas belum termasuk kemungkinan biaya lain, dan masih perlu dikonfirmasi admin. Untuk BW 230 GSM, tarifnya belum tercantum dalam daftar harga saya, jadi harganya perlu dikonfirmasi admin toko.\n\nAgar perhitungannya pas, mohon info:\n1. Ukuran sertifikat yang diinginkan (misalnya A4 atau ukuran lain)?\n2. Dicetak 1 sisi atau 2 sisi?\n\nSetelah itu saya bantu hitung ulang, Kak.",
+      "finish_reason": "stop",
+      "recovery": "not_needed",
+      "usage": {
+        "prompt_tokens": 14125,
+        "completion_tokens": 2224,
+        "requests": 1,
+        "cost_usd": 0.0025245
+      },
+      "passages": 14,
+      "context_characters": 12162,
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a181e6-7aed-7990-bf44-bead8dd47d37/run/01a181e6-7aed-7990-bf44-bead8dd47d37?start_time=2026-10-28T09%3A45%3A28.045129%2B00%3A00",
+      "prompt_sha256": "ed4100d25f6f457e0e4dcc15bab9a051a5c7ab8ce98fcf27dbbe33026ae7b65f"
+    },
+    {
+      "input": "Apa bedanya ketujuh kertas itu? Saya ingin cetak 20 lembar sertifikat, bahan mana yang cocok dan berapa perkiraan harganya?",
+      "output": "Berikut perbedaan ketujuh bahan dari katalog kami, Kak:\n\n1. *HVS 100 GSM*: kertas putih polos, tidak mengkilap, lebih tebal dari kertas fotokopi biasa. Umum dipakai untuk dokumen laporan, modul, dan formulir.\n2. *Art Paper 150 GSM*: tipis, ringan, dan licin mengkilap di kedua sisi. Mudah dilipat, sering dipakai untuk brosur dan flyer.\n3. *Art Carton 260 GSM*: versi tebal dan kaku dari Art Paper, mengkilap di kedua sisi, bisa berdiri sendiri. Dipakai untuk kartu nama, cover buku, dan poster dinding.\n4. *BW (Blues White) 230 GSM*: putih bersih, tidak mengkilap (doff), dan mudah ditulisi pulpen atau pensil.\n5. *Linen 230 GSM*: bertekstur garis halus bersilang seperti kain tenun, kesannya mewah dan eksklusif.\n6. *Concorde 260 GSM*: tebal, bertekstur garis bergelombang lembut, warna putih gading hangat, kesannya klasik dan profesional.\n7. *Photo Paper 260 GSM*: lapisan glossy khusus untuk warna pekat dan detail tajam, cocok untuk cetak foto.\n\nUntuk sertifikat, katalog kami menyebut beberapa pilihan:\n- *BC (Board Cover) 230 GSM*: untuk piagam dan sertifikat penghargaan.\n- *Linen 230 GSM*: untuk sertifikat kelulusan formal.\n- *Concorde 260 GSM*: untuk sertifikat klasik bernuansa retro.\n\nPerkiraan harga untuk 20 lembar (per lembar A3+, jumlah 11–50 lembar):\n- BC 230 GSM 1 sisi: 20 × Rp 5.000 = Rp 100.000\n- BC 230 GSM 2 sisi: 20 × Rp 10.000 = Rp 200.000\n- Linen 230 GSM 1 sisi: 20 × Rp 5.000 = Rp 100.000\n- Linen 230 GSM 2 sisi: 20 × Rp 10.000 = Rp 200.000\n- Concorde 260 GSM 1 sisi: 20 × Rp 5.000 = Rp 100.000\n- Concorde 260 GSM 2 sisi: 20 × Rp 10.000 = Rp 200.000\n\nIni estimasi dari daftar harga kami. Total final tetap perlu dikonfirmasi admin.\n\nAgar perhitungannya pas, mohon info dua hal: sertifikatnya mau dicetak 1 sisi atau 2 sisi, dan ukurannya berapa? Dengan begitu saya bisa pastikan muatannya per lembar A3+.",
+      "finish_reason": "stop",
+      "recovery": "not_needed",
+      "usage": {
+        "prompt_tokens": 14125,
+        "completion_tokens": 2129,
+        "requests": 1,
+        "cost_usd": 0.002477
+      },
+      "passages": 14,
+      "context_characters": 12162,
+      "trace_url": "https://smith.langchain.com/o/741de134-e8d9-44cf-9caf-593fc3cb6e5e/projects/p/ac00eeb0-7d99-4513-92fe-9e366ae6b9e8/trace/01a181e6-a94e-7c81-a5b1-bbf62056ae4e/run/01a181e6-a94e-7c81-a5b1-bbf62056ae4e?start_time=2026-10-28T09%3A45%3A39.918105%2B00%3A00",
+      "prompt_sha256": "ed4100d25f6f457e0e4dcc15bab9a051a5c7ab8ce98fcf27dbbe33026ae7b65f"
+    }
+  ]
+}

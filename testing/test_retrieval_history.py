@@ -37,7 +37,7 @@ def test_new_information_question_after_branch_offer_keeps_its_own_task(question
                AIMessage(content="Ada cabang Ciputat dan Pamulang. Mau ke cabang mana?")]
     query = retrieval_question(question, history)
     assert query.startswith(question)
-    assert "Saya cari gerai di Tangerang Selatan" in query
+    assert "Saya cari gerai di Tangerang Selatan" not in query
     assert "alur pemesanan" not in query
 
 
@@ -46,3 +46,16 @@ def test_plain_material_followup_retains_previous_customer_product():
                                               AIMessage(content="Pilih cromo atau vinyl?")])
     assert "Vinyl saja" in query and "Butuh stiker untuk botol" in query
     assert "alur pemesanan" not in query
+
+
+def test_topic_switch_stops_unrelated_product_history():
+    history = [HumanMessage(content='Roll up 60 x 160 cm 3 buah'), AIMessage(content='Siap.'),
+               HumanMessage(content='Sekarang saya mau perbandingan tujuh kertas A3+'),
+               AIMessage(content='Ini ilustrasinya.')]
+    query = retrieval_question('Apa bedanya ketujuh kertas itu?', history)
+    assert 'kertas A3+' in query and 'Roll up' not in query
+
+
+def test_independent_shop_question_ignores_product_history():
+    query = retrieval_question('Jam operasional toko berapa?', [HumanMessage(content='Roll up 3 buah')])
+    assert query == 'Jam operasional toko berapa?'

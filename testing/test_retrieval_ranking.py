@@ -19,6 +19,12 @@ def test_no_lexical_matches_preserves_cosine_order_and_duplicate_chunks_are_remo
     assert [(doc.metadata["chunk_id"], distance) for doc, distance in ranked] == [("same", 0.1), ("other", 0.3)]
 
 
+def test_repeated_source_text_with_different_ids_does_not_consume_candidate_slots():
+    candidates = [(Document(page_content=text, metadata={'source': 'harga.txt', 'chunk_id': str(i)}), .1)
+                  for i, text in enumerate(('Linen Rp 5.000', 'Linen  Rp 5.000', 'Concord Rp 5.000'))]
+    assert len(rank_candidates('harga', candidates, 3)) == 2
+
+
 def test_reranking_uses_provider_indices_and_keeps_cosine_evidence(monkeypatch):
     from types import SimpleNamespace
     from app.backend import retrieval_ranking as ranking

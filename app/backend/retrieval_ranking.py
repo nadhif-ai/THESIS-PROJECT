@@ -42,7 +42,7 @@ def rank_candidates(query, candidates, k):
     seen = set()
     for index in fused:
         doc, distance = candidates[index]
-        identity = doc.metadata.get("chunk_id") or (doc.metadata.get("source"), doc.page_content)
+        identity = (doc.metadata.get("source"), ' '.join(doc.page_content.split()))
         if identity in seen:
             continue
         seen.add(identity)

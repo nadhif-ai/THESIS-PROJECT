@@ -252,6 +252,10 @@ export function KnowledgePage({
   const configurationChanged =
     size !== data.chunking.chunk_size ||
     overlap !== data.chunking.chunk_overlap;
+  const activeFiles = data.active?.manifest.files || [];
+  const nextFiles = data.sources.filter((source) => source.enabled).map((source) => source.name);
+  const addedFiles = nextFiles.filter((name) => !activeFiles.includes(name));
+  const removedFiles = activeFiles.filter((name) => !nextFiles.includes(name));
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <section
@@ -278,6 +282,12 @@ export function KnowledgePage({
                 : "No knowledge synchronized yet"}
             </span>
           </div>
+          {data.pending && (addedFiles.length > 0 || removedFiles.length > 0) && (
+            <div className="mt-3 flex flex-col gap-1 text-sm" aria-live="polite">
+              {addedFiles.length > 0 && <p>Next sync adds: {addedFiles.join(", ")}</p>}
+              {removedFiles.length > 0 && <p>Next sync removes: {removedFiles.join(", ")}</p>}
+            </div>
+          )}
         </div>
         <Button
           disabled={locked || !data.initialized || configurationChanged}

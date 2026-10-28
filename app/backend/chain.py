@@ -532,8 +532,11 @@ class RAGChain:
         intent = _extract_product_intent(question, intent_history, (media_context or {}).get('focus', []),
                                          visual_vocabulary=visual_vocabulary, model=intent_model)
         intent_latency = round(time.monotonic() - intent_started, 3)
+        needs_knowledge = product_intent.requires_knowledge(question, intent)
         if tree:
-            tree.add_metadata({"needs_knowledge": intent.needs_knowledge})
+            tree.add_metadata({"needs_knowledge": needs_knowledge,
+                               "intent_needs_knowledge": intent.needs_knowledge,
+                               "retrieval_reason": 'business_evidence' if needs_knowledge else 'social_message'})
         requested_image = intent.resolution == 'resolved' and intent.action != 'none'
         media_response = requested_image or intent.resolution == 'failed' or (intent.action != 'none' and intent.resolution != 'resolved')
         if empty_knowledge and not requested_image:
@@ -556,7 +559,8 @@ class RAGChain:
 
         from app.backend.vectorstore import similarity_search_with_score
 
-        semantic_results = [] if empty_knowledge or not intent.needs_knowledge else similarity_search_with_score(
+        retrieval_recovery = False
+        semantic_results = [] if empty_knowledge or not needs_knowledge else similarity_search_with_score(
             query=search_question,
             k=top_k,
             namespace=namespace,
@@ -564,14 +568,16 @@ class RAGChain:
         )
 
         for doc, distance in semantic_results:
-            doc.metadata["similarity_score"] = float(distance)
+            if distance is not None:
+                doc.metadata["similarity_score"] = float(distance)
 
         retrieved_docs = [doc for doc, _ in semantic_results]
 
-        if not retrieved_docs and not empty_knowledge and intent.needs_knowledge:
+        if not retrieved_docs and not empty_knowledge and needs_knowledge and faq_filter:
             logger.warning(
                 "[Session %s] Dokumen tidak ditemukan, cari tanpa filter.", session_id
             )
+            retrieval_recovery = True
             semantic_results = similarity_search_with_score(
                 query=search_question,
                 k=top_k,
@@ -579,7 +585,8 @@ class RAGChain:
                 filter_dict=None,
             )
             for doc, distance in semantic_results:
-                doc.metadata["similarity_score"] = float(distance)
+                if distance is not None:
+                    doc.metadata["similarity_score"] = float(distance)
             retrieved_docs = [doc for doc, _ in semantic_results]
 
         media_url = None
@@ -591,6 +598,8 @@ class RAGChain:
                     break
         media_selection = None
         media_decision = {'reason': 'catalog_disabled', 'asset_id': None,
+                          'retrieval_reason': 'empty_knowledge' if empty_knowledge else 'business_evidence' if needs_knowledge else 'social_message',
+                          'retrieval_recovery': retrieval_recovery,
                           'product_ids': intent.product_ids, 'intent_resolution': intent.resolution,
                           'intent_latency_seconds': intent_latency, 'intent_model': intent_model,
                           'intent_prompt_sha256': product_intent.PROMPT_SHA256,
@@ -649,6 +658,7 @@ class RAGChain:
 
         usage_dict = {"prompt_tokens": 0, "completion_tokens": 0}
         generation_error = None
+        generated = None
 
         try:
             prompt_value = get_chat_prompt(captured_prompt).format_messages(
@@ -657,32 +667,14 @@ class RAGChain:
                 question=question,
                 media=media_prompt,
             )
-            response = get_llm(model, model_provider).invoke(prompt_value)
-            answer = response.content if hasattr(response, "content") else str(response)
-            if not isinstance(answer, str) or not answer.strip():
-                raise ValueError("The answering provider returned no usable text.")
-            from app.integrations.waha import plain_text
-            answer = plain_text(answer)
-            if not answer:
-                raise ValueError("The answering provider returned no usable text.")
-
-            # Ekstrak token usage dari response OpenRouter/LangChain jika ada
-            if hasattr(response, "usage_metadata") and response.usage_metadata:
-                usage_dict = {
-                    "prompt_tokens": response.usage_metadata.get("input_tokens", 0),
-                    "completion_tokens": response.usage_metadata.get(
-                        "output_tokens", 0
-                    ),
-                }
-            elif (
-                hasattr(response, "response_metadata")
-                and "token_usage" in response.response_metadata
-            ):
-                tu = response.response_metadata["token_usage"]
-                usage_dict = {
-                    "prompt_tokens": tu.get("prompt_tokens", 0),
-                    "completion_tokens": tu.get("completion_tokens", 0),
-                }
+            from app.backend.answer_generation import generate
+            generated = generate(get_llm(model, model_provider), prompt_value,
+                                 recovery_available=not retrieval_recovery)
+            answer = generated['answer']
+            usage_dict = generated['usage']
+            media_decision['answer_recovery'] = generated['recovery']
+            if generated['recovery'] in ('incomplete', 'failed') and not media_response:
+                generation_error = 'The answering provider did not complete its answer within the recovery limit.'
 
         except Exception as e:
             logger.error("[Session %s] Answer provider failed: %s", session_id, type(e).__name__)
@@ -692,7 +684,7 @@ class RAGChain:
             answer = "Maaf kak, terjadi kesalahan teknis saat memproses pertanyaan. Silakan coba lagi atau hubungi admin langsung ya"
 
         validation_usage = {}
-        truncated_answer = not generation_error and getattr(response, 'response_metadata', {}).get('finish_reason') == 'length'
+        truncated_answer = not generation_error and generated['recovery'] in ('incomplete', 'failed')
         if not generation_error and media_response:
             from app.backend import attachment_answer
             if truncated_answer or not attachment_answer.consistent(answer, selected=bool(media_url),
@@ -705,12 +697,8 @@ class RAGChain:
             else:
                 media_decision['answer_validation'] = 'passed'
 
-        answer_usage = dict(usage_dict, requests=1, model=model, provider=model_provider, cost_usd=None,
-                            finish_reason=getattr(response, 'response_metadata', {}).get('finish_reason') if not generation_error else 'error')
-        if not generation_error:
-            reported = getattr(response, 'response_metadata', {}).get('token_usage') or {}
-            if isinstance(reported.get('cost'), (int, float)):
-                answer_usage['cost_usd'] = reported['cost']
+        answer_usage = dict(usage_dict, model=model, provider=model_provider,
+                            finish_reason=generated['finish_reason'] if generated else 'error')
         stage_usage = {'intent': intent._usage, 'answer': answer_usage, 'validation': validation_usage}
         media_decision['model_usage'] = stage_usage
         usage_dict = {key: sum(stage.get(key, 0) for stage in stage_usage.values())
@@ -771,7 +759,7 @@ class RAGChain:
                     "text": doc.page_content,
                     "metadata": doc.metadata,
                     "distance": distance,
-                    "similarity": 1 - distance,
+                    "similarity": 1 - distance if distance is not None else None,
                 }
                 for doc, distance in semantic_results
             ],

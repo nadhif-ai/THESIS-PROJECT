@@ -936,19 +936,26 @@ function Playground() {
                         {String(chunk.metadata.source || "Knowledge passage")}
                       </span>
                       <span className="source-score">
-                        {Number.isFinite(chunk.similarity) ? `Similarity ${chunk.similarity.toFixed(3)}` : "Similarity unavailable"}
+                        {chunk.metadata.retrieval_method === "section_expansion"
+                          ? "Related passage"
+                          : typeof chunk.similarity === "number" && Number.isFinite(chunk.similarity)
+                            ? `Similarity ${chunk.similarity.toFixed(3)}` : "Similarity unavailable"}
                       </span>
                     </summary>
                     <p className="help-copy">
-                      Cosine similarity measures closeness to your question, not answer accuracy.
+                      {chunk.metadata.retrieval_method === "section_expansion"
+                        ? "Included from the same section of the synchronized knowledge to complete the retrieved evidence."
+                        : "Cosine similarity measures closeness to your question, not answer accuracy."}
                     </p>
                     <p className="passage-text">{chunk.text}</p>
                   </details>
                 ))}
                 {inspect.retrieval_context.length === 0 && (
                   <NoItems
-                    title="No retrieval needed"
-                    description="Greetings and menu replies do not require knowledge search."
+                    title="No knowledge passages attached"
+                    description={inspect.media_decision?.retrieval_reason === "social_message"
+                      ? "This social reply did not require business facts."
+                      : "Review the reply and image selection details. No business passages were included in this response."}
                   />
                 )}
               </div>

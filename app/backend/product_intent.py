@@ -3,6 +3,7 @@
 import hashlib
 import json
 import logging
+import re
 from typing import Literal
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -52,6 +53,18 @@ class ProductIntent(BaseModel):
 def failed_intent():
     return ProductIntent(action='none', product_ids=[], view='hero', attributes=[],
         exact_visual=False, resolution='failed', clarification='', changes_product=False)
+
+
+def requires_knowledge(question, intent):
+    if intent.needs_knowledge or intent.action != 'none' or intent.product_ids or intent.resolution != 'resolved':
+        return True
+    # Only an entirely social message may bypass business evidence, even if intent is misclassified.
+    return not re.fullmatch(
+        r'\s*(?:(?:halo+|hallo+|hai+|hi+|hello+|hey|selamat\s+(?:pagi|siang|sore|malam)|'
+        r'terima\s*kasih|makasih|thanks|oke?|sip|baik|siap|sampai\s+jumpa)'
+        r'(?:[\s,]+(?:admin+n?|min|kak|ya|bang|mbak|juga))*[\s!,.?😊🙏👋]*)+',
+        question, re.IGNORECASE,
+    )
 
 
 _INSTRUCTIONS = '''Interpret the current customer's Indonesian printing inquiry. Return only the schema.

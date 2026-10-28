@@ -126,4 +126,10 @@ def similarity_search_with_score(query, k=10, filter_dict=None, namespace=None):
     from app.backend.retrieval_ranking import rank_candidates, rerank_candidates
 
     candidates = rank_candidates(query, result, len(result))
-    return rerank_candidates(query, candidates, k)
+    selected = rerank_candidates(query, candidates, k)
+    if any(doc.metadata.get('section_2') or doc.metadata.get('section_3') for doc, _ in selected):
+        from app.admin.store import version
+        from app.backend.retrieval_context import expand_sections
+
+        selected = expand_sections(query, selected, version(item['id'])['records'], filter_dict=filter_dict)
+    return selected
