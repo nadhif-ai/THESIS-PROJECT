@@ -65,10 +65,12 @@ def test_ignore_is_persistent_scoped_and_preserves_deduplication(admin):
     assert status(admin)["attention"]["uncertain"] == 1
 
 
-def test_ignore_does_not_hide_a_newer_failure(admin):
+def test_ignore_does_not_hide_a_newer_failure(admin, monkeypatch):
     incoming("changed")
+    monkeypatch.setattr(store, "now", lambda: "2026-11-05T00:00:00+00:00")
     store.update_inbox("controls-test", "changed", {"status": "failed"})
     stale = status(admin)["attention"]["items"]
+    monkeypatch.setattr(store, "now", lambda: "2026-11-05T00:00:01+00:00")
     store.update_inbox("controls-test", "changed", {"status": "uncertain"})
     response = admin.post("/admin/api/whatsapp/attention/ignore", json={"items": stale})
     assert response.json()["ignored"] == 0

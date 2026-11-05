@@ -394,6 +394,10 @@ _KNOWLEDGE_CATALOG = f"""SELECT to_jsonb(state) || jsonb_build_object(
     'pending',state.revision<>state.applied_revision) AS data
     FROM chatbot.knowledge_state state WHERE state.id=1"""
 _WHATSAPP_JSON = """jsonb_build_object(
+    'last_session_event',(SELECT value::jsonb FROM chatbot.settings
+        WHERE key='waha_session_event:' || %(session)s),
+    'last_session_failure',(SELECT value::jsonb FROM chatbot.settings
+        WHERE key='waha_session_failure:' || %(session)s),
     'bot_replies_enabled',COALESCE((SELECT value::jsonb FROM chatbot.settings
         WHERE key='bot_replies_enabled'),'true'::jsonb),
     'queue',(SELECT COALESCE(jsonb_object_agg(status,n),'{}'::jsonb) FROM (
@@ -889,6 +893,24 @@ def _record_ack(db, message_id, ack):
 def record_ack(message_id, ack):
     with _connection("intake") as db:
         _record_ack(db,message_id,ack)
+
+
+def record_waha_session_event(session, observation):
+    key = "waha_session_event:" + session
+    values = {key: json.dumps(observation)}
+    if observation["status"] == "FAILED":
+        values["waha_session_failure:" + session] = json.dumps(observation)
+    with _connection("intake") as db:
+        rows = db.execute(
+            """INSERT INTO chatbot.settings(key,value)
+            SELECT key,value FROM jsonb_each_text(%s::jsonb)
+            ON CONFLICT(key) DO UPDATE SET value=excluded.value
+            WHERE (chatbot.settings.value::jsonb->>'timestamp')::bigint
+                < (excluded.value::jsonb->>'timestamp')::bigint
+            RETURNING key""",
+            (json.dumps(values),),
+        ).fetchall()
+    return any(row["key"] == key for row in rows)
 
 
 def whatsapp_observations(session):

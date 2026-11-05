@@ -304,7 +304,7 @@ Callback yang terpasang pada session WAHA:
 `https://royans-macbook-pro.tail14234e.ts.net:8443/chat/waha/webhook`.
 Jika pindah host, sesuaikan hostname pada `WAHA_WEBHOOK_URL` dan konfigurasi webhook WAHA.
 
-Di konfigurasi session WAHA, gunakan event **`message`** dan **`message.ack`**, HMAC key yang sama dengan `WAHA_WEBHOOK_SECRET`, serta retry constant dengan delay 2 detik dan 5 attempts. Jangan membagikan API key atau secret. Session harus berstatus **WORKING**. Dashboard **Providers** menampilkan status session, worker, dan antrean; tombol Refresh memperbarui status.
+Di konfigurasi session WAHA, gunakan event **`message`**, **`message.ack`**, dan **`session.status`**, HMAC key yang sama dengan `WAHA_WEBHOOK_SECRET`, serta retry constant dengan delay 2 detik dan 5 attempts. Jangan membagikan API key atau secret. Session harus berstatus **WORKING**. Dashboard **Providers** menampilkan status session, worker, dan antrean; tombol Refresh memperbarui status. `/health` WAHA yang sehat tidak membuktikan login WhatsApp masih aktif. Ikuti [panduan pemulihan koneksi WAHA](docs/runbooks/waha-connection-recovery.md) untuk pemeriksaan, restart satu kali, pairing ulang, dan log penyebab kegagalan.
 
 Webhook memverifikasi HMAC SHA-512 atas body asli, menyimpan pesan ke antrean PostgreSQL, lalu worker menjalankan pipeline RAG dan mengirim balasan. Pesan berulang dengan ID sama tidak diproses ulang. Pesan dari akun bot sendiri, grup, serta pesan tanpa teks diabaikan. Gunakan satu proses Uvicorn untuk antrean ini. Pengiriman yang terputus atau tidak pasti ditandai `uncertain`; periksa WhatsApp sebelum mencoba mengirim ulang.
 
