@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from app.admin import store
 from app.config.settings import get_settings
+from app.integrations import waha_session
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -30,6 +31,12 @@ class Message(BaseModel):
     sender: str = Field(alias="from", min_length=1, max_length=100)
     fromMe: bool = False
     body: str | None = Field(default="", max_length=6000)
+
+
+class WahaAPIError(ValueError):
+    def __init__(self, status_code):
+        self.status_code = status_code
+        super().__init__(f"WAHA returned HTTP {status_code}.")
 
 
 def api(method, path, payload=None, timeout=30):
@@ -49,7 +56,7 @@ def api(method, path, payload=None, timeout=30):
             raise requests.HTTPError(
                 f"WAHA returned HTTP {response.status_code}; delivery may be uncertain."
             )
-        raise ValueError(f"WAHA returned HTTP {response.status_code}.")
+        raise WahaAPIError(response.status_code)
     return response.json() if response.content else {}
 
 
@@ -322,6 +329,14 @@ async def webhook(request: Request):
             raise ValueError("Expected an event object.")
         if event.get("session") != settings.waha_session:
             return {"status": "ignored", "reason": "other_session"}
+        if event.get("event") == "session.status":
+            observation = waha_session.parse_event(event)
+            recorded = await run_in_threadpool(store.record_waha_session_event, settings.waha_session, observation)
+            if recorded:
+                log = logger.warning if observation["status"] == "FAILED" else logger.info
+                log("WhatsApp phase=session_status status=%s reason=%s code=%s",
+                    observation["status"], observation["reason"] or "not_reported", observation["reason_code"])
+            return {"status": "session_status_recorded"}
         payload = event.get("payload") or {}
         if event.get("event") == "message.ack":
             message_id, ack = payload.get("id"), payload.get("ack")
@@ -368,16 +383,28 @@ def status(observations=None):
         "webhook_configured": bool(
             settings.waha_webhook_url and settings.waha_webhook_secret
         ),
+        "gateway_reachable": False,
+        "session_connected": None,
+        "session_ready": False,
+        "status_events_configured": None,
     }
     if settings.whatsapp_provider == "waha":
+        observed = observations if observations is not None else store.whatsapp_observations(settings.waha_session)
+        result.update(observed)
         try:
             session = api("GET", "/api/sessions/" + settings.waha_session, timeout=10)
-            result.update(
-                session_status=session["status"],
-                engine=session.get("engine", {}).get("engine"),
-            )
-        except (requests.RequestException, ValueError):
+            result.update(waha_session.snapshot(
+                session, settings.waha_webhook_url, settings.waha_webhook_secret, observed.get("last_session_event"),
+            ))
+            if result["session_status"] == "FAILED":
+                logger.warning("WhatsApp phase=session_check status=FAILED gateway_reachable=true session_connected=%s status_events_configured=%s",
+                               result["session_connected"], result["status_events_configured"])
+        except (requests.RequestException, ValueError) as error:
             result["session_status"] = "unreachable"
-        result.update(observations if observations is not None else store.whatsapp_observations(settings.waha_session))
+            code = error.status_code if isinstance(error, WahaAPIError) else None
+            result["gateway_http_status"] = code
+            result["gateway_reachable"] = code is not None
+            result["session_hint"] = waha_session.request_error_hint(code)
+            logger.warning("WhatsApp phase=session_check status=unreachable error=%s", type(error).__name__)
         result["checked_at"] = store.now()
     return result
